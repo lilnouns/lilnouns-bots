@@ -147,7 +147,9 @@ impl PropHouseDiscordBot {
 
 #[async_trait]
 impl DiscordBot for PropHouseDiscordBot {
-    async fn prepare(&self) -> Result<Value> {
+    type RawData = Value;
+
+    async fn prepare(&self) -> Result<Self::RawData> {
         // Initialize the Sled database.
         let db = sled::open("/tmp/lil-nouns-prop-house")?;
 
@@ -167,17 +169,17 @@ impl DiscordBot for PropHouseDiscordBot {
         Ok(Value::default()) // Replace with actual logic
     }
 
-    async fn process(&self, value: &Value) -> Result<Vec<Event>> {
+    async fn process(&self, source: Self::RawData) -> Result<Vec<Event>> {
         let event1 = Event::new(
             "".to_string(),
             Some("New Event".to_string()),
-            Some(format!("Event data from: {}", value)),
+            Some(format!("Event data from: {}", source)),
         );
 
         let event2 = Event::new(
             "".to_string(),
             Some("Another Event".to_string()),
-            Some(format!("Another event data from: {}", value)), );
+            Some(format!("Another event data from: {}", source)), );
 
         Ok(vec![event1, event2])
     }
