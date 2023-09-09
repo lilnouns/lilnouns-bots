@@ -1,12 +1,12 @@
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::discord_bot::DiscordBot;
 use crate::event::Event;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Community {
     id: i32,
@@ -23,7 +23,7 @@ struct Community {
     num_proposals: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Auction {
     id: i32,
@@ -48,7 +48,7 @@ struct Auction {
     num_proposals: i32,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct PropStrategy {
     num: Option<i32>,
@@ -56,7 +56,7 @@ struct PropStrategy {
     strategy_name: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct VoteStrategy {
     num: Option<i32>,
@@ -67,7 +67,7 @@ struct VoteStrategy {
     multiplier: Option<i32>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Proposal {
     address: String,
@@ -91,7 +91,7 @@ struct Proposal {
     votes: Vec<Vote>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct SignedData {
     signer: String,
@@ -99,19 +99,19 @@ struct SignedData {
     signature: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct DomainSeparator {
     name: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct MessageTypes {
     proposal: Option<Vec<MessageType>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct MessageType {
     name: String,
@@ -119,7 +119,7 @@ struct MessageType {
     message_type: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Vote {
     address: String,
@@ -148,13 +148,19 @@ impl PropHouseDiscordBot {
 #[async_trait]
 impl DiscordBot for PropHouseDiscordBot {
     async fn prepare(&self) -> Result<Value> {
+        // Initialize the Sled database.
+        let db = sled::open("/tmp/lil-nouns-prop-house")?;
+
         let community = fetch_community("lil nouns").await?;
+        db.insert("community".as_bytes(), serde_json::to_vec(&community)?)?;
+
         let auctions = fetch_auctions(community.id).await?;
         for auction in auctions {
+            db.insert(format!("auction_{}", auction.id).as_bytes(), serde_json::to_vec(&auction)?)?;
+
             let proposals = fetch_proposals(auction.id).await?;
             for proposal in proposals {
-                let votes = proposal.votes;
-                print!("Votes: {:?}", votes);
+                db.insert(format!("proposal_{}", proposal.id).as_bytes(), serde_json::to_vec(&proposal)?)?;
             }
         }
 
