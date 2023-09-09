@@ -182,7 +182,7 @@ impl DiscordBot for PropHouseDiscordBot {
         Ok(vec![event1, event2])
     }
 
-    async fn dispatch(&self, event: &[Event]) -> Result<()> {
+    async fn dispatch(&self, _event: &[Event]) -> Result<()> {
         // TODO: Add the logic to dispatch the event
         Ok(()) // Replace with actual logic
     }
