@@ -67,6 +67,76 @@ struct VoteStrategy {
     multiplier: Option<i32>,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct Proposal {
+    address: String,
+    signature_state: String,
+    signed_data: SignedData,
+    domain_separator: Option<DomainSeparator>,
+    message_types: Option<MessageTypes>,
+    id: i32,
+    visible: bool,
+    title: String,
+    what: String,
+    tldr: String,
+    auction_id: i32,
+    vote_count_for: i32,
+    vote_count_against: i32,
+    created_date: String,
+    last_updated_date: Option<String>,
+    deleted_at: Option<String>,
+    req_amount: Option<String>,
+    parent_type: String,
+    votes: Vec<Vote>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SignedData {
+    signer: String,
+    message: String,
+    signature: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct DomainSeparator {
+    name: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MessageTypes {
+    proposal: Option<Vec<MessageType>>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MessageType {
+    name: String,
+    #[serde(rename = "type")]
+    message_type: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct Vote {
+    address: String,
+    signature_state: String,
+    signed_data: SignedData,
+    domain_separator: Option<DomainSeparator>,
+    message_types: Option<MessageTypes>,
+    id: i32,
+    direction: i32,
+    created_date: String,
+    proposal_id: i32,
+    auction_id: i32,
+    weight: i32,
+    block_height: Option<i32>,
+}
+
+
 pub struct PropHouseDiscordBot {}
 
 impl PropHouseDiscordBot {
@@ -77,42 +147,15 @@ impl PropHouseDiscordBot {
 
 #[async_trait]
 impl DiscordBot for PropHouseDiscordBot {
-        // Make an HTTP GET request to the URL
-        let url = "https://prod.backend.prop.house/communities/name/lil%20nouns";
-        let response = get(url).expect("Failed to send request");
-
-        // Check if the response status is OK (200)
-        if response.status().is_success() {
-            // Deserialize the JSON response into a Community struct
-            let community: Community = serde_json::from_str(&response.text().expect("Failed to read response")).expect("Failed to deserialize JSON");
     async fn prepare(&self) -> Result<Value> {
-
-            // Now you can access the fields of the Community struct
-            println!("Community Name: {}", community.name);
-            println!("Contract Address: {}", community.contract_address);
-
-            // Construct the URL for the second request
-            let url = format!("https://prod.backend.prop.house/auctions/forCommunity/{}", community.id);
-
-            // Make an HTTP GET request to the URL
-            let response = get(&url).expect("Failed to send request");
-
-            // Check if the response status is OK (200)
-            if response.status().is_success() {
-                // Deserialize the JSON response into a vector of Auction structs
-                let auctions: Vec<Auction> = serde_json::from_str(&response.text().expect("Failed to read response")).expect("Failed to deserialize JSON");
-
-                // Now you can access the list of auctions and process them as needed
-                for auction in auctions {
-                    println!("Auction Title: {}", auction.title);
-                    println!("Start Time: {}", auction.start_time);
-                    // Access other fields as needed
-                }
-            } else {
-                println!("HTTP request failed with status code: {}", response.status());
+        let community = fetch_community("lil nouns").await?;
+        let auctions = fetch_auctions(community.id).await?;
+        for auction in auctions {
+            let proposals = fetch_proposals(auction.id).await?;
+            for proposal in proposals {
+                let votes = proposal.votes;
+                print!("Votes: {:?}", votes);
             }
-        } else {
-            println!("HTTP request failed with status code: {}", response.status());
         }
 
         Ok(Value::default()) // Replace with actual logic
@@ -137,4 +180,63 @@ impl DiscordBot for PropHouseDiscordBot {
         // TODO: Add the logic to dispatch the event
         Ok(()) // Replace with actual logic
     }
+}
+
+async fn fetch_community(name: &str) -> Result<Community> {
+    // Define the URL for the API endpoint
+    let url = format!("https://prod.backend.prop.house/communities/name/{}", name);
+
+    // Send a GET request to the API
+    let response = reqwest::get(&url).await?;
+
+    // Check if the response status is OK (200)
+    if !response.status().is_success() {
+        // Handle non-successful response (e.g., return an error)
+        return Err(anyhow!("Failed to fetch Community: {:?}", response.status()));
+    }
+
+    // Deserialize the JSON response into a Community struct
+    let community: Community = response.json().await?;
+
+    // Return the Community
+    Ok(community)
+}
+
+async fn fetch_auctions(community_id: i32) -> Result<Vec<Auction>> {
+    // Define the URL for the API endpoint
+    let url = format!("https://prod.backend.prop.house/auctions/forCommunity/{}", community_id);
+
+    // Send a GET request to the API
+    let response = reqwest::get(&url).await?;
+
+    // Check if the response status is OK (200)
+    if !response.status().is_success() {
+        // Handle non-successful response (e.g., return an error)
+        return Err(anyhow!("Failed to fetch auctions: {:?}", response.status()));
+    }
+
+    // Deserialize the JSON response into a vector of Auction structs
+    let auctions: Vec<Auction> = response.json().await?;
+
+    // Return the vector of auctions
+    Ok(auctions)
+}
+
+async fn fetch_proposals(auction_id: i32) -> Result<Vec<Proposal>> {
+    // Construct the URL with the auction_id
+    let url = format!("https://prod.backend.prop.house/auctions/{}/proposals", auction_id);
+
+    // Send a GET request to the API
+    let response = reqwest::get(&url).await?;
+
+    // Check if the response status is OK (200)
+    if !response.status().is_success() {
+        // Handle non-successful response (e.g., return an error)
+        return Err(anyhow!("Failed to fetch proposals: {:?}", response.status()));
+    }
+
+    // Parse the JSON response into a Vec<Proposal>
+    let proposals: Vec<Proposal> = response.json().await?;
+
+    Ok(proposals)
 }
