@@ -1,9 +1,12 @@
+use anyhow::Result;
+use async_trait::async_trait;
 use serde_json::Value;
-use std::error::Error;
+
 use crate::event::Event;
 
+#[async_trait]
 pub trait DiscordBot {
-    fn prepare(&self) -> Result<Value, Box<dyn Error>>;
-    fn process(&self, value: &Value) -> Result<Vec<Event>, Box<dyn Error>>;
-    fn dispatch(&self, event: &[Event]) -> Result<(), Box<dyn Error>>;
+    async fn prepare(&self) -> Result<Value>;
+    async fn process(&self, value: &Value) -> Result<Vec<Event>>;
+    async fn dispatch(&self, event: &[Event]) -> Result<()>;
 }

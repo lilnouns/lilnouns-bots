@@ -1,6 +1,5 @@
-use std::error::Error;
-
-use reqwest::blocking::get;
+use anyhow::{anyhow, Result};
+use async_trait::async_trait;
 use serde::Deserialize;
 use serde_json::Value;
 
@@ -76,8 +75,8 @@ impl PropHouseDiscordBot {
     }
 }
 
+#[async_trait]
 impl DiscordBot for PropHouseDiscordBot {
-    fn prepare(&self) -> Result<Value, Box<dyn Error>> {
         // Make an HTTP GET request to the URL
         let url = "https://prod.backend.prop.house/communities/name/lil%20nouns";
         let response = get(url).expect("Failed to send request");
@@ -86,6 +85,7 @@ impl DiscordBot for PropHouseDiscordBot {
         if response.status().is_success() {
             // Deserialize the JSON response into a Community struct
             let community: Community = serde_json::from_str(&response.text().expect("Failed to read response")).expect("Failed to deserialize JSON");
+    async fn prepare(&self) -> Result<Value> {
 
             // Now you can access the fields of the Community struct
             println!("Community Name: {}", community.name);
@@ -118,7 +118,7 @@ impl DiscordBot for PropHouseDiscordBot {
         Ok(Value::default()) // Replace with actual logic
     }
 
-    fn process(&self, value: &Value) -> Result<Vec<Event>, Box<dyn Error>> {
+    async fn process(&self, value: &Value) -> Result<Vec<Event>> {
         let event1 = Event::new(
             "".to_string(),
             Some("New Event".to_string()),
@@ -133,7 +133,7 @@ impl DiscordBot for PropHouseDiscordBot {
         Ok(vec![event1, event2])
     }
 
-    fn dispatch(&self, event: &[Event]) -> Result<(), Box<dyn Error>> {
+    async fn dispatch(&self, event: &[Event]) -> Result<()> {
         // TODO: Add the logic to dispatch the event
         Ok(()) // Replace with actual logic
     }
