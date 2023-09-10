@@ -25,6 +25,7 @@ fn idea_popularity_alert_sent_cache_key(id: i32) -> String {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdeaResponse {
     pub status: bool,
     pub message: String,
@@ -33,41 +34,45 @@ pub struct IdeaResponse {
 
 // Define the Idea struct for serialization/deserialization
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Idea {
     pub id: i32,
-    pub createdAt: DateTime<Utc>,
-    pub updatedAt: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub title: String,
     pub tldr: String,
     pub description: String,
-    pub creatorID: Option<String>,
+    pub creator_id: Option<String>,
     pub votecount: i32,
     pub votes: Vec<IdeaVote>,
     pub count: Option<IdeaCount>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdeaCount {
     pub comments: i32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdeaVote {
     pub id: i32,
     pub direction: i32,
-    pub ideaID: Option<i32>,
-    pub voterID: Option<String>,
-    pub createdAt: DateTime<Utc>,
-    pub updatedAt: DateTime<Utc>,
+    pub idea_id: Option<i32>,
+    pub voter_id: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub voter: IdeaVoter,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdeaVoter {
     pub id: i32,
     pub wallet: String,
     pub ens: Option<String>,
-    pub lilnounCount: i32,
+    pub lilnoun_count: i32,
 }
 
 pub trait IIdeaLifecycleHandler {
@@ -236,7 +241,7 @@ pub async fn setup_prop_lot() -> Result<()> {
 }
 
 async fn process_prop_lot_tick() -> Result<()> {
-    let mut _idea_lifecycle_handlers: Vec<Box<dyn IIdeaLifecycleHandler + Send + Sync>> = vec![];
+    // let mut _idea_lifecycle_handlers: Vec<Box<dyn IIdeaLifecycleHandler + Send + Sync>> = vec![];
 
     let ideas = get_all_ideas().await?;
 
@@ -308,8 +313,6 @@ impl DiscordBot for PropLotDiscordBot {
     type RawData = ();
 
     async fn prepare(&self) -> Result<Self::RawData> {
-        let ideas = get_all_ideas().await?;
-
         setup_prop_lot().await?;
 
         Ok(())
