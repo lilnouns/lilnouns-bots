@@ -1,14 +1,15 @@
-use anyhow::{anyhow, Result};
+use std::path::Path;
+
+use anyhow::{anyhow, Context, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 use crate::discord_bot::DiscordBot;
 use crate::event::Event;
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct Community {
+pub struct Community {
     id: i32,
     visible: bool,
     contract_address: String,
@@ -21,6 +22,7 @@ struct Community {
     eth_funded: String,
     total_funded: String,
     num_proposals: String,
+    auctions: Option<Vec<Auction>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -46,6 +48,7 @@ struct Auction {
     prop_strategy_description: Option<String>,
     vote_strategy_description: Option<String>,
     num_proposals: i32,
+    proposals: Option<Vec<Proposal>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -67,7 +70,7 @@ struct VoteStrategy {
     multiplier: Option<i32>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(PartialEq, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Proposal {
     address: String,
@@ -91,7 +94,7 @@ struct Proposal {
     votes: Vec<Vote>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(PartialEq, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct SignedData {
     signer: String,
@@ -99,19 +102,19 @@ struct SignedData {
     signature: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(PartialEq, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct DomainSeparator {
     name: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(PartialEq, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct MessageTypes {
     proposal: Option<Vec<MessageType>>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(PartialEq, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct MessageType {
     name: String,
@@ -119,7 +122,7 @@ struct MessageType {
     message_type: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(PartialEq, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Vote {
     address: String,
@@ -136,6 +139,11 @@ struct Vote {
     block_height: Option<i32>,
 }
 
+impl PartialEq for Auction {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id && self.proposals == other.proposals
+    }
+}
 
 pub struct PropHouseDiscordBot {}
 
@@ -147,46 +155,116 @@ impl PropHouseDiscordBot {
 
 #[async_trait]
 impl DiscordBot for PropHouseDiscordBot {
-    type RawData = Value;
+    type RawData = Community;
 
     async fn prepare(&self) -> Result<Self::RawData> {
-        // Initialize the Sled database.
-        let db = sled::open("/tmp/lil-nouns-prop-house")?;
+        let mut community = fetch_community("lil nouns").await?;
 
-        let community = fetch_community("lil nouns").await?;
-        db.insert("community".as_bytes(), serde_json::to_vec(&community)?)?;
-
-        let auctions = fetch_auctions(community.id).await?;
-        for auction in auctions {
-            db.insert(format!("auction_{}", auction.id).as_bytes(), serde_json::to_vec(&auction)?)?;
-
-            let proposals = fetch_proposals(auction.id).await?;
-            for proposal in proposals {
-                db.insert(format!("proposal_{}", proposal.id).as_bytes(), serde_json::to_vec(&proposal)?)?;
-            }
+        let mut auctions = fetch_auctions(community.id).await?;
+        for auction in auctions.iter_mut() {
+            auction.proposals = Some(fetch_proposals(auction.id).await?);
         }
 
-        Ok(Value::default()) // Replace with actual logic
+        community.auctions = Some(auctions);
+
+        Ok(community)
     }
 
     async fn process(&self, source: Self::RawData) -> Result<Vec<Event>> {
+        // Define the Sled database path as a constant.
+        const DATABASE_PATH: &str = "/tmp/lil-nouns-prop-house";
+        // Define the key in use as a constant as well.
+        const COMMUNITY_DB_KEY: &str = "community";
+
+        // Assert that the path exists
+        assert!(
+            Path::new(DATABASE_PATH).exists(),
+            "Database path does not exist"
+        );
+
+        // Initialize a Sled database
+        let db = sled::open(DATABASE_PATH).context("Failed to open database")?;
+
+        // Initialize deserialized_data as None
+        let mut deserialized_data: Option<Community> = None;
+
+        match db
+            .get(COMMUNITY_DB_KEY)
+            .context("Failed to get data from Sled")?
+        {
+            Some(data) => {
+                deserialized_data =
+                    serde_json::from_slice(&data).context("Failed to deserialize data")?;
+            }
+            None => println!("Key not found in Sled."),
+        }
+
+        if let Some(deserialized) = deserialized_data {
+            if let Some(ref deserialized_auctions) = deserialized.auctions {
+                if let Some(source_auctions) = source.auctions {
+                    // Find new auctions
+                    let new_auctions: Vec<_> = source_auctions
+                        .iter()
+                        .filter(|auction| !deserialized_auctions.contains(auction))
+                        .collect();
+
+                    print!("New Auctions: {:?}", new_auctions);
+
+                    // Find changed proposals
+                    let changed_proposals: Vec<_> = deserialized_auctions
+                        .iter()
+                        .enumerate()
+                        .filter_map(|(index, deserialized_auction)| {
+                            if let Some(source_auction) = source_auctions.get(index) {
+                                // Assuming proposals is Vec<Proposal>, if it's other type replace below code accordingly
+                                let des_proposals = &deserialized_auction.proposals;
+                                let src_proposals = &source_auction.proposals;
+                                Some(
+                                    des_proposals
+                                        .iter()
+                                        .zip(src_proposals.iter())
+                                        .filter_map(|(des_prop, src_prop)| {
+                                            if des_prop != src_prop {
+                                                Some((index, des_prop.clone())) // Return index and changed proposal
+                                            } else {
+                                                None
+                                            }
+                                        })
+                                        .collect::<Vec<_>>(),
+                                )
+                            } else {
+                                None
+                            }
+                        })
+                        .flatten()
+                        .collect();
+
+                    println!("Changed Proposals: {:?}", changed_proposals);
+                }
+            }
+
+            let serialized_data =
+                serde_json::to_string(&deserialized).context("Failed to serialize data")?;
+
+            db.insert(COMMUNITY_DB_KEY, serialized_data.as_bytes())
+                .context("Failed to insert data into Sled")?;
+        }
+
         let event1 = Event::new(
             "".to_string(),
             Some("New Event".to_string()),
-            Some(format!("Event data from: {}", source)),
+            Some(format!("Event data from: {:?}", "")),
         );
 
-        let event2 = Event::new(
-            "".to_string(),
-            Some("Another Event".to_string()),
-            Some(format!("Another event data from: {}", source)), );
-
-        Ok(vec![event1, event2])
+        Ok(vec![event1])
     }
-    async fn dispatch(&self, events: Vec<Event>) -> Result<()> {
 
-        // TODO: Add the logic to dispatch the event
-        Ok(()) // Replace with actual logic
+    async fn dispatch(&self, events: Vec<Event>) -> Result<()> {
+        for event in events {
+            print!("Description: {:?}", event);
+        }
+
+        Ok(())
     }
 }
 
@@ -200,7 +278,10 @@ async fn fetch_community(name: &str) -> Result<Community> {
     // Check if the response status is OK (200)
     if !response.status().is_success() {
         // Handle non-successful response (e.g., return an error)
-        return Err(anyhow!("Failed to fetch Community: {:?}", response.status()));
+        return Err(anyhow!(
+            "Failed to fetch Community: {:?}",
+            response.status()
+        ));
     }
 
     // Deserialize the JSON response into a Community struct
@@ -212,7 +293,10 @@ async fn fetch_community(name: &str) -> Result<Community> {
 
 async fn fetch_auctions(community_id: i32) -> Result<Vec<Auction>> {
     // Define the URL for the API endpoint
-    let url = format!("https://prod.backend.prop.house/auctions/forCommunity/{}", community_id);
+    let url = format!(
+        "https://prod.backend.prop.house/auctions/forCommunity/{}",
+        community_id
+    );
 
     // Send a GET request to the API
     let response = reqwest::get(&url).await?;
@@ -232,7 +316,10 @@ async fn fetch_auctions(community_id: i32) -> Result<Vec<Auction>> {
 
 async fn fetch_proposals(auction_id: i32) -> Result<Vec<Proposal>> {
     // Construct the URL with the auction_id
-    let url = format!("https://prod.backend.prop.house/auctions/{}/proposals", auction_id);
+    let url = format!(
+        "https://prod.backend.prop.house/auctions/{}/proposals",
+        auction_id
+    );
 
     // Send a GET request to the API
     let response = reqwest::get(&url).await?;
@@ -240,7 +327,10 @@ async fn fetch_proposals(auction_id: i32) -> Result<Vec<Proposal>> {
     // Check if the response status is OK (200)
     if !response.status().is_success() {
         // Handle non-successful response (e.g., return an error)
-        return Err(anyhow!("Failed to fetch proposals: {:?}", response.status()));
+        return Err(anyhow!(
+            "Failed to fetch proposals: {:?}",
+            response.status()
+        ));
     }
 
     // Parse the JSON response into a Vec<Proposal>
