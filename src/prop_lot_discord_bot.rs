@@ -1,19 +1,23 @@
-use std::collections::HashSet;
 use std::sync::Arc;
 
 use anyhow::Result;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use futures::future::join_all;
 use serde::{Deserialize, Serialize};
+use tokio::task;
 
 use crate::cache;
 use crate::discord_bot::DiscordBot;
 use crate::event::Event;
 
-// Key prefix for caching idea records
+// The key for checking if cache setup for ideas has been done
+static IDEA_CACHE_SETUP_KEY: &str = "NOUNS_IDEA_CACHE_SETUP";
+
+// The prefix for keys related to individual idea records in the cache
 static IDEA_CACHE_KEY_PREFIX: &str = "NOUNS_IDEA_";
 
-// Key prefix for caching idea popularity alert sent records
+// The prefix for keys related to whether popularity alerts have been sent for individual ideas
 static IDEA_POPULARITY_ALERT_SENT_CACHE_KEY_PREFIX: &str = "NOUNS_IDEA_POPULARITY_ALERT_SENT_";
 
 fn idea_cache_key(id: i32) -> String {
@@ -145,8 +149,6 @@ async fn update_idea_cache(idea: &Idea) -> Result<()> {
     let cache_key = idea_cache_key(idea.id);
     let idea_json = serde_json::to_string(idea)?;
 
-    println!("{:?}", cache_key);
-
     // Insert the idea into the sled database
     let _ = cache.put(cache_key.as_bytes(), idea_json.as_bytes());
 
@@ -169,7 +171,7 @@ async fn get_idea_cache(id: i32) -> Option<Idea> {
 }
 
 // Function to store an idea popularity notification receipt in the cache
-async fn set_idea_popularity_alerted(id: i32) -> sled::Result<()> {
+async fn set_idea_popularity_alerted(id: i32) -> Result<()> {
     // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = idea_popularity_alert_sent_cache_key(id);
@@ -185,6 +187,28 @@ async fn has_alerted_of_popularity(id: i32) -> bool {
     // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = idea_popularity_alert_sent_cache_key(id);
+
+    // Check if the cache key exists in the sled database
+    cache.has(cache_key.as_bytes()).unwrap_or(false)
+}
+
+//
+async fn set_idea_cache_setup() -> Result<()> {
+    // Access the global CACHE instance and use it
+    let cache = &cache::CACHE;
+    let cache_key = IDEA_CACHE_SETUP_KEY;
+
+    // Insert a value into the sled database to indicate popularity alert
+    let _ = cache.put(cache_key.as_bytes(), &[1].as_slice());
+
+    Ok(())
+}
+
+//
+async fn has_idea_cache_setup() -> bool {
+    // Access the global CACHE instance and use it
+    let cache = &cache::CACHE;
+    let cache_key = IDEA_CACHE_SETUP_KEY;
 
     // Check if the cache key exists in the sled database
     cache.has(cache_key.as_bytes()).unwrap_or(false)
@@ -224,7 +248,7 @@ pub async fn setup_prop_lot() -> Result<()> {
         .into_iter()
         .map(|i| {
             let i_clone = Arc::new(i);
-            tokio::spawn(async move {
+            task::spawn(async move {
                 match Arc::try_unwrap(i_clone) {
                     Ok(idea) => update_idea_cache(&idea).await,
                     Err(_) => panic!("More than one reference to the Arc"),
@@ -233,69 +257,60 @@ pub async fn setup_prop_lot() -> Result<()> {
         })
         .collect();
 
-    for task in tasks {
-        task.await??;
-    }
+    join_all(tasks).await;
 
     Ok(())
 }
 
-async fn process_prop_lot_tick() -> Result<()> {
-    // let mut _idea_lifecycle_handlers: Vec<Box<dyn IIdeaLifecycleHandler + Send + Sync>> = vec![];
-
+async fn process_prop_lot_tick() -> Result<(), Box<dyn std::error::Error>> {
     let ideas = get_all_ideas().await?;
 
-    let idea_ids: HashSet<_> = ideas.iter().map(|idea| idea.id).collect();
-    println!("propLotHandler: all ideas ids({:?})", idea_ids);
+    println!(
+        "propLotHandler: all ideas ids({})",
+        ideas
+            .iter()
+            .map(|i| i.id.to_string())
+            .collect::<Vec<_>>()
+            .join(",")
+    );
 
-    // let mut tasks = Vec::new();
+    let tasks: Vec<_> = ideas
+        .into_iter()
+        .map(|idea| {
+            let idea_arc = Arc::new(idea);
+            task::spawn(async move {
+                match Arc::try_unwrap(idea_arc) {
+                    Ok(i) => {
+                        match get_idea_cache(i.id).await {
+                            Some(cached_idea) => {
+                                if i.votecount >= 200 && !has_alerted_of_popularity(i.id).await {
+                                    // join_all(
+                                    //     idea_lifecycle_handlers
+                                    //         .into_iter()
+                                    //         .map(|h| h.handle_popular_idea(idea.clone())),
+                                    // )
+                                    // .await;
+                                    set_idea_popularity_alerted(i.id).await?;
+                                }
+                            }
+                            None => {
+                                // join_all(
+                                //     idea_lifecycle_handlers
+                                //         .into_iter()
+                                //         .map(|i| i.handle_new_idea(idea.clone())),
+                                // )
+                                // .await;
+                            }
+                        }
+                        update_idea_cache(&i).await
+                    }
+                    Err(_) => panic!("Failed to unwrap Arc"),
+                }
+            })
+        })
+        .collect();
 
-    // for idea in &ideas {
-    //     // let idea_clone = idea.clone();
-    //     // let _idea_ids_clone = idea_ids.clone();
-    //
-    //     // let _idea_lifecycle_handlers = _idea_lifecycle_handlers.clone();
-    //
-    //     // tasks.push(tokio::spawn(async move {
-    //     //     let cached_idea = get_idea_cache(idea_clone.id).await;
-    //     //
-    //     //     match cached_idea {
-    //     //         Some(_) => {
-    //     //             if idea_clone.votecount >= 200
-    //     //                 && !has_alerted_of_popularity(idea_clone.id).await
-    //     //             {
-    //     //                 for handler in &_idea_lifecycle_handlers {
-    //     //                     if let Err(err) = handler.handle_popular_idea(&idea_clone) {
-    //     //                         eprintln!("Error handling popular idea: {:?}", err);
-    //     //                         continue;
-    //     //                     }
-    //     //                     if let Err(err) = set_idea_popularity_alerted(idea_clone.id).await {
-    //     //                         eprintln!("Error setting idea popularity alerted: {:?}", err);
-    //     //                         continue;
-    //     //                     }
-    //     //                 }
-    //     //             }
-    //     //         }
-    //     //         None => {
-    //     //             for handler in &_idea_lifecycle_handlers {
-    //     //                 if let Err(err) = handler.handle_new_idea(&idea_clone) {
-    //     //                     eprintln!("Error handling new idea: {:?}", err);
-    //     //                 }
-    //     //             }
-    //     //         }
-    //     //     }
-    //     //
-    //     //     if let Err(err) = update_idea_cache(&idea_clone).await {
-    //     //         eprintln!("Error updating cache for idea {}: {:?}", idea_clone.id, err);
-    //     //     }
-    //     // }));
-    // }
-
-    // for task in tasks {
-    //     if let Err(err) = task.await {
-    //         eprintln!("Error executing task: {:?}", err);
-    //     }
-    // }
+    join_all(tasks).await;
 
     Ok(())
 }
@@ -313,14 +328,27 @@ impl DiscordBot for PropLotDiscordBot {
     type RawData = ();
 
     async fn prepare(&self) -> Result<Self::RawData> {
-        setup_prop_lot().await?;
+        if !has_idea_cache_setup().await {
+            setup_prop_lot().await?;
+        }
+
+        process_prop_lot_tick().await;
+
+        set_idea_cache_setup().await?;
 
         Ok(())
     }
 
     async fn process(&self, source: Self::RawData) -> Result<Vec<Event>> {
         print!("{:?}", source);
-        todo!()
+
+        let event1 = Event::new(
+            "".to_string(),
+            Some("New Event".to_string()),
+            Some(format!("Event data from: {:?}", "")),
+        );
+
+        Ok(vec![event1])
     }
 
     async fn dispatch(&self, _events: Vec<Event>) -> Result<()> {
