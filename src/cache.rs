@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use once_cell::sync::Lazy;
 use sled::Db;
 
-pub static CACHE: Lazy<Cache> = Lazy::new(|| Cache::new("my_cache.db").unwrap());
+pub static CACHE: Lazy<Cache> = Lazy::new(|| Cache::new("./tmp/cache.db").unwrap());
 
 pub struct Cache {
     db: Db,
