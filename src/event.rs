@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Event {
     kind: String,
     title: Option<String>,
