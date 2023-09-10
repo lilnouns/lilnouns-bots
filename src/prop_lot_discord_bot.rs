@@ -148,7 +148,7 @@ async fn update_idea_cache(idea: &Idea) -> Result<()> {
     println!("{:?}", cache_key);
 
     // Insert the idea into the sled database
-    cache.put(cache_key.as_bytes(), idea_json.as_bytes());
+    let _ = cache.put(cache_key.as_bytes(), idea_json.as_bytes());
 
     Ok(())
 }
@@ -175,7 +175,7 @@ async fn set_idea_popularity_alerted(id: i32) -> sled::Result<()> {
     let cache_key = idea_popularity_alert_sent_cache_key(id);
 
     // Insert a value into the sled database to indicate popularity alert
-    cache.put(cache_key.as_bytes(), &[1].as_slice());
+    let _ = cache.put(cache_key.as_bytes(), &[1].as_slice());
 
     Ok(())
 }
