@@ -9,5 +9,5 @@ pub trait DiscordBot {
 
     async fn prepare(&self) -> Result<Self::RawData>;
     async fn process(&self, source: Self::RawData) -> Result<Vec<Event>>;
-    async fn dispatch(&self, event: &[Event]) -> Result<()>;
+    async fn dispatch(&self, events: Vec<Event>) -> Result<()>;
 }
