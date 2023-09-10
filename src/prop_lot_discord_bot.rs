@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::sync::Arc;
 
 use anyhow::Result;
 use async_trait::async_trait;
@@ -139,6 +140,8 @@ async fn update_idea_cache(idea: &Idea) -> Result<()> {
     let cache_key = idea_cache_key(idea.id);
     let idea_json = serde_json::to_string(idea)?;
 
+    println!("{:?}", cache_key);
+
     // Insert the idea into the sled database
     cache.put(cache_key.as_bytes(), idea_json.as_bytes());
 
@@ -198,8 +201,6 @@ pub async fn get_all_ideas() -> Result<Vec<Idea>> {
         // Extract the data from the response
         let ideas = idea_response.data;
 
-        println!("{:?}", ideas);
-
         // Return the list of ideas
         Ok(ideas)
     } else {
@@ -211,24 +212,24 @@ pub async fn get_all_ideas() -> Result<Vec<Idea>> {
     }
 }
 
-async fn setup_prop_lot() -> Result<()> {
+pub async fn setup_prop_lot() -> Result<()> {
     let ideas = get_all_ideas().await?;
 
-    let mut tasks = Vec::new();
-
-    for idea in ideas {
-        let idea_clone = idea.clone();
-        tasks.push(tokio::spawn(async move {
-            if let Err(err) = update_idea_cache(&idea_clone).await {
-                eprintln!("Error updating cache for idea {}: {:?}", idea_clone.id, err);
-            }
-        }));
-    }
+    let tasks: Vec<_> = ideas
+        .into_iter()
+        .map(|i| {
+            let i_clone = Arc::new(i);
+            tokio::spawn(async move {
+                match Arc::try_unwrap(i_clone) {
+                    Ok(idea) => update_idea_cache(&idea).await,
+                    Err(_) => panic!("More than one reference to the Arc"),
+                }
+            })
+        })
+        .collect();
 
     for task in tasks {
-        if let Err(err) = task.await {
-            eprintln!("Error executing task: {:?}", err);
-        }
+        task.await??;
     }
 
     Ok(())
@@ -309,7 +310,8 @@ impl DiscordBot for PropLotDiscordBot {
     async fn prepare(&self) -> Result<Self::RawData> {
         let ideas = get_all_ideas().await?;
 
-        println!("{:?}", ideas);
+        setup_prop_lot().await?;
+
         Ok(())
     }
 
