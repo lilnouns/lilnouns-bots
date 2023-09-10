@@ -39,10 +39,10 @@ pub struct Idea {
     pub title: String,
     pub tldr: String,
     pub description: String,
-    pub creatorID: String,
+    pub creatorID: Option<String>,
     pub votecount: i32,
     pub votes: Vec<IdeaVote>,
-    pub count: IdeaCount,
+    pub count: Option<IdeaCount>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -54,8 +54,8 @@ pub struct IdeaCount {
 pub struct IdeaVote {
     pub id: i32,
     pub direction: i32,
-    pub ideaID: i32,
-    pub voterID: String,
+    pub ideaID: Option<i32>,
+    pub voterID: Option<String>,
     pub createdAt: DateTime<Utc>,
     pub updatedAt: DateTime<Utc>,
     pub voter: IdeaVoter,
@@ -190,8 +190,6 @@ pub async fn get_all_ideas() -> Result<Vec<Idea>> {
     // Send a GET request to the API
     let response = reqwest::get(url).await?;
 
-    println!("{:?}", response);
-
     // Check if the request was successful (status code 2xx)
     if response.status().is_success() {
         // Deserialize the JSON response into an IdeaResponse struct
@@ -199,6 +197,8 @@ pub async fn get_all_ideas() -> Result<Vec<Idea>> {
 
         // Extract the data from the response
         let ideas = idea_response.data;
+
+        println!("{:?}", ideas);
 
         // Return the list of ideas
         Ok(ideas)
