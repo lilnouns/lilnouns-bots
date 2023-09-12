@@ -1,4 +1,4 @@
-query PropLot($options: IdeaInputOptions!) {
+query Query($options: IdeaInputOptions!) {
   ideas: getIdeas(options: $options) {
     id
     title
