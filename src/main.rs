@@ -1,6 +1,6 @@
 use std::env;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use graphql_client::{reqwest::post_graphql, GraphQLQuery};
 use reqwest::Client;
 
@@ -31,7 +31,11 @@ async fn main() -> Result<()> {
 }
 
 async fn fetch_prop_lot_ideas() -> Result<Vec<Idea>> {
-    let url = env::var("PROP_LOT_GRAPHQL_URL").expect("PROP_LOT_GRAPHQL_URL is not set in env");
+    let url = match env::var("PROP_LOT_GRAPHQL_URL") {
+        Ok(val) => val,
+        Err(_) => return Err(anyhow!("PROP_LOT_GRAPHQL_URL is not set in env")),
+    };
+
     let variables = prop_lot::Variables {
         options: prop_lot::IdeaInputOptions {
             idea_id: None,
@@ -41,11 +45,15 @@ async fn fetch_prop_lot_ideas() -> Result<Vec<Idea>> {
 
     let client = Client::new();
 
-    let response = post_graphql::<PropLot, _>(&client, url, variables).await?;
+    let response = post_graphql::<PropLot, _>(&client, url.to_string(), variables)
+        .await
+        .context("Failed to execute GraphQL request")?;
 
     let ideas = match response.data {
-        Some(data) => data.ideas.ok_or(anyhow!("Ideas not found!"))?,
-        None => return Err(anyhow!("Unable to retrieve data!")),
+        Some(data) => data
+            .ideas
+            .ok_or(anyhow!("Ideas not found in the response data"))?,
+        None => return Err(anyhow!("Response data is unavailable")),
     };
 
     Ok(ideas)
