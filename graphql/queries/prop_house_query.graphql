@@ -1,0 +1,41 @@
+query Query($id: Int!) {
+    community(id: $id) {
+        id
+        contractAddress
+        name
+        profileImageUrl
+        description
+        numAuctions
+        auctions {
+            id
+            title
+            startTime
+            proposalEndTime
+            votingEndTime
+            fundingAmount
+            currencyType
+            description
+            numWinners
+            proposals {
+                address
+                signatureState
+                id
+                title
+                what
+                tldr
+                votes {
+                    address
+                }
+                voteCountFor
+                voteCountAgainst
+                createdDate
+                parentType
+            }
+            createdDate
+            balanceBlockTag
+            displayComments
+            status
+        }
+        createdDate
+    }
+}
