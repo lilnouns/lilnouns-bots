@@ -9,3 +9,4 @@ edition = "2021"
 graphql_client = { version = "0.13.0", features = ["reqwest"] }
 serde = "1.0.188"
 reqwest = "0.11.20"
+anyhow = "1.0.75"
