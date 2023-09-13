@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 use env_logger::Env;
+use log::{info, warn};
 
 mod cache;
 mod prop_house;
@@ -20,6 +21,8 @@ enum Commands {
         #[arg(short, long)]
         force: bool,
     },
+    /// Starts the program
+    Start,
 }
 
 #[tokio::main]
@@ -35,13 +38,15 @@ async fn main() {
     match &cli.command {
         Some(Commands::Setup { force }) => {
             if *force {
-                println!("Running setup...");
-                // Uncomment these lines to actually run setup
+                info!("Running setup...");
                 prop_lot::setup().await;
                 prop_house::setup().await;
             } else {
-                println!("Setup not forced, not running...");
+                warn!("Setup not forced, not running...");
             }
+        }
+        Some(Commands::Start) => {
+            prop_lot::start().await;
         }
         None => {}
     }
