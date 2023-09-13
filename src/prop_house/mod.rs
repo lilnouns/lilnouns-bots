@@ -9,6 +9,7 @@ use crate::prop_house::cacher::set_auction_cache;
 
 mod cacher;
 mod fetcher;
+mod handler;
 
 pub async fn setup() {
     match fetch_auctions().await {

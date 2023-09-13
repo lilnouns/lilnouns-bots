@@ -9,6 +9,7 @@ use crate::prop_lot::cacher::set_idea_cache;
 
 mod cacher;
 mod fetcher;
+mod handler;
 
 pub async fn setup() {
     match fetch_ideas().await {
