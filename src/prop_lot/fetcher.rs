@@ -1,9 +1,9 @@
 use std::env;
 use std::time::Duration;
 
-use anyhow::{anyhow, Context, Result};
 use graphql_client::reqwest::post_graphql;
 use graphql_client::GraphQLQuery;
+use log::error;
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -17,13 +17,15 @@ use graphql_client::GraphQLQuery;
 struct Query;
 
 type Date = String;
-type Idea = query::QueryIdeas;
+pub(crate) type Idea = query::QueryIdeas;
 
-pub async fn fetch_ideas() -> Result<Vec<Idea>> {
-    let url = match env::var("PROP_LOT_GRAPHQL_URL") {
-        Ok(val) => val,
-        Err(_) => return Err(anyhow!("PROP_LOT_GRAPHQL_URL is not set in env")),
-    };
+pub async fn fetch_ideas() -> Option<Vec<Idea>> {
+    let url = env::var("PROP_LOT_GRAPHQL_URL").ok();
+
+    if url.is_none() {
+        error!("PROP_LOT_GRAPHQL_URL is not set in env");
+        return None;
+    }
 
     let variables = query::Variables {
         options: query::IdeaInputOptions {
@@ -34,24 +36,34 @@ pub async fn fetch_ideas() -> Result<Vec<Idea>> {
 
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(30))
-        .build()?;
+        .build()
+        .map_err(|e| {
+            error!("Failed to create client: {}", e);
+        })
+        .ok()?;
 
-    let response = post_graphql::<Query, _>(&client, url.to_string(), variables)
+    let response = post_graphql::<Query, _>(&client, url.unwrap().to_string(), variables)
         .await
         .map_err(|e| {
-            if e.is_timeout() {
-                anyhow!("Request timeout - Please check your network connection and try again")
-            } else {
-                anyhow!("Failed to execute GraphQL request: {}", e)
-            }
-        })?;
+            error!("Failed to execute GraphQL request: {}", e);
+        })
+        .ok()?;
 
-    let ideas = match response.data {
-        Some(data) => data
-            .ideas
-            .ok_or(anyhow!("Ideas not found in the response data"))?,
-        None => return Err(anyhow!("Response data is unavailable")),
-    };
+    let ideas = response
+        .data
+        .and_then(|data| {
+            data.ideas.map_or_else(
+                || {
+                    error!("Ideas not found in the response data");
+                    None
+                },
+                |ideas| Some(ideas),
+            )
+        })
+        .or_else(|| {
+            error!("Response data is unavailable");
+            None
+        });
 
-    Ok(ideas)
+    ideas
 }

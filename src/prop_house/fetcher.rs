@@ -1,9 +1,9 @@
 use std::env;
 use std::time::Duration;
 
-use anyhow::{anyhow, Context, Result};
 use graphql_client::reqwest::post_graphql;
 use graphql_client::GraphQLQuery;
+use log::error;
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -18,35 +18,38 @@ struct Query;
 
 type DateTime = String;
 
-pub async fn fetch_auctions() -> Result<Vec<query::QueryCommunityAuctions>> {
-    let url = match env::var("PROP_HOUSE_GRAPHQL_URL") {
-        Ok(val) => val,
-        Err(_) => return Err(anyhow!("PROP_HOUSE_GRAPHQL_URL is not set in env")),
-    };
+type Auction = query::QueryCommunityAuctions;
+
+pub async fn fetch_auctions() -> Option<Vec<Auction>> {
+    let url = env::var("PROP_HOUSE_GRAPHQL_URL").ok();
+
+    if url.is_none() {
+        error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
+        return None;
+    }
 
     let variables = query::Variables { id: 2 };
 
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(30))
-        .build()?;
+        .build()
+        .map_err(|e| {
+            error!("Failed to create client: {}", e);
+        })
+        .ok()?;
 
-    let response = post_graphql::<Query, _>(&client, url.to_string(), variables)
+    let response = post_graphql::<Query, _>(&client, url.unwrap().to_string(), variables)
         .await
         .map_err(|e| {
-            if e.is_timeout() {
-                anyhow!("Request timeout - Please check your network connection and try again")
-            } else {
-                anyhow!("Failed to execute GraphQL request: {}", e)
-            }
-        })?;
+            error!("Failed to execute GraphQL request: {}", e);
+        })
+        .ok()?;
 
-    let community = match response.data {
-        Some(data) => {
-            let community = data.community; // directly use it without matching
-            community
-        }
-        None => return Err(anyhow!("Response data is unavailable")),
-    };
-
-    Ok(community.auctions)
+    response.data.map_or_else(
+        || {
+            error!("Response data is unavailable");
+            None
+        },
+        |data| Some(data.community.auctions),
+    )
 }
