@@ -5,7 +5,8 @@ use log::info;
 
 pub use fetcher::fetch_ideas;
 
-use crate::prop_lot::cacher::set_idea_cache;
+use crate::prop_lot::cacher::{get_idea_cache, set_idea_cache};
+use crate::prop_lot::handler::handle_new_idea;
 
 mod cacher;
 mod fetcher;
@@ -15,9 +16,6 @@ pub async fn setup() {
     let ideas = fetch_ideas().await;
 
     if let Some(idea_list) = ideas {
-        let ideas_ids: Vec<String> = idea_list.iter().map(|i| i.id.to_string()).collect();
-        info!("Fetched ideas ids({})", ideas_ids.join(","));
-
         let mut tasks = Vec::new();
 
         for idea in idea_list {
@@ -25,9 +23,37 @@ pub async fn setup() {
             let task = tokio::spawn({
                 let arc_idea = Arc::clone(&arc_idea);
                 async move {
+                    info!("Cache a new idea... ({:?})", arc_idea.id);
                     set_idea_cache(&*arc_idea).await.unwrap();
                 }
             });
+
+            tasks.push(task);
+        }
+
+        join_all(tasks).await;
+    }
+}
+
+pub async fn start() {
+    let ideas = fetch_ideas().await;
+
+    if let Some(idea_list) = ideas {
+        let mut tasks = Vec::new();
+
+        for idea in idea_list {
+            let arc_idea = Arc::new(idea);
+            let cached_idea = get_idea_cache(arc_idea.id as i32).await;
+            let task = tokio::spawn({
+                let arc_idea = Arc::clone(&arc_idea);
+                async move {
+                    if cached_idea.is_none() {
+                        info!("Handle a new idea... ({:?})", arc_idea.id);
+                        handle_new_idea(&*arc_idea).await;
+                    }
+                }
+            });
+
             tasks.push(task);
         }
 
