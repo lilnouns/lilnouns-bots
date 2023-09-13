@@ -1,9 +1,9 @@
 use std::env;
+use std::time::Duration;
 
 use anyhow::{anyhow, Context, Result};
 use graphql_client::reqwest::post_graphql;
 use graphql_client::GraphQLQuery;
-use reqwest::Client;
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -26,11 +26,19 @@ pub async fn fetch_auctions() -> Result<Vec<query::QueryCommunityAuctions>> {
 
     let variables = query::Variables { id: 2 };
 
-    let client = Client::new();
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()?;
 
     let response = post_graphql::<Query, _>(&client, url.to_string(), variables)
         .await
-        .context("Failed to execute GraphQL request")?;
+        .map_err(|e| {
+            if e.is_timeout() {
+                anyhow!("Request timeout - Please check your network connection and try again")
+            } else {
+                anyhow!("Failed to execute GraphQL request: {}", e)
+            }
+        })?;
 
     let community = match response.data {
         Some(data) => {
