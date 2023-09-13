@@ -1,17 +1,17 @@
-use anyhow::Result;
+use env_logger::Env;
 
+mod cache;
 mod prop_house;
 mod prop_lot;
 
 #[tokio::main]
-async fn main() -> Result<()> {
-    let ideas = prop_lot::fetch_ideas().await?;
-    let ideas_ids: Vec<String> = ideas.iter().map(|i| i.id.to_string()).collect();
-    println!("All ideas ids({})", ideas_ids.join(","));
+async fn main() {
+    let env = Env::default()
+        .filter_or("BOT_LOG_LEVEL", "trace")
+        .write_style_or("BOT_LOG_STYLE", "always");
 
-    let auctions = prop_house::fetch_auctions().await?;
-    let auction_ids: Vec<String> = auctions.iter().map(|a| a.id.to_string()).collect();
-    println!("All auctions ids({})", auction_ids.join(","));
+    env_logger::init_from_env(env);
 
-    Ok(())
+    prop_lot::setup().await;
+    prop_house::setup().await;
 }
