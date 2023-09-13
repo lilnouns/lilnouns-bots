@@ -1,0 +1,263 @@
+type SignedDataPayload {
+    signature: String!
+    message: String!
+    signer: String!
+}
+
+type TypedDataDomainGql {
+    name: String!
+    version: String!
+    chainId: String!
+    verifyingContract: String!
+    salt: [String!]!
+}
+
+type Vote {
+    address: String!
+    signatureState: String!
+    signedData: SignedDataPayload!
+    domainSeparator: TypedDataDomainGql!
+    messageTypes: String!
+    id: Int!
+    direction: Int!
+    createdDate: DateTime!
+    proposalId: Int!
+    auctionId: Int!
+    weight: Int!
+    blockHeight: Int!
+}
+
+# A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+scalar DateTime
+
+type Proposal {
+    address: String!
+    signatureState: String!
+    signedData: SignedDataPayload!
+    domainSeparator: TypedDataDomainGql!
+    messageTypes: String!
+    id: Int!
+    title: String!
+    what: String!
+    tldr: String!
+    votes: [Vote!]!
+    voteCountFor: Int!
+    voteCountAgainst: Int!
+    createdDate: DateTime!
+    lastUpdatedDate: DateTime!
+
+    # The number of currency-units the proposal is requesting (for infinite rounds)
+    reqAmount: Float!
+    parentType: String!
+    auction: Auction!
+}
+
+type Auction {
+    # All auctions are issued a unique ID number
+    id: Int!
+    title: String!
+
+    # After the Start Time users may submit proposals
+    startTime: DateTime!
+
+    # Users may submit proposals up until Proposal End Time
+    proposalEndTime: DateTime!
+
+    # Between Proposal End Time and Voting End Time, users may submit votes for proposals
+    votingEndTime: DateTime!
+
+    # The number of currency units paid to each winner
+    fundingAmount: Float!
+
+    # The currency for the auction that winners will be paid in
+    currencyType: String!
+    description: String!
+
+    # The number of winners that will be paid from the auction
+    numWinners: Int!
+    proposals: [Proposal!]!
+    community: Community!
+    createdDate: DateTime!
+    lastUpdatedDate: DateTime!
+    balanceBlockTag: String!
+
+    # The strategy that defines who can propose
+    propStrategy: String!
+
+    # The strategy that defines who can vote
+    voteStrategy: String!
+
+    # Display or hide comments section
+    displayComments: String!
+
+    # Describes who can propose
+    propStrategyDescription: String!
+
+    # Describes who can vote
+    voteStrategyDescription: String!
+
+    # The current status of the Auction. See AuctionStatus for more detail.
+    status: AuctionStatus!
+}
+
+# The Auction's current status
+enum AuctionStatus {
+    Upcoming
+
+    # The auction is accepting proposals.
+    Open
+
+    # The auction is accepting votes, proposals are closed.
+    Voting
+
+    # The auction has closed and is not accepting votes or proposals.
+    Closed
+}
+
+type Community {
+    id: Int!
+
+    # The contract address that is queried for balances
+    contractAddress: String!
+    name: String!
+    profileImageUrl: String!
+    description: String!
+    numAuctions: Int!
+    auctions: [Auction!]!
+    createdDate: DateTime!
+    lastUpdatedDate: DateTime!
+}
+
+type InfiniteAuctionProposal {
+    address: String!
+    signatureState: String!
+    signedData: SignedDataPayload!
+    domainSeparator: TypedDataDomainGql!
+    messageTypes: String!
+    id: Int!
+    title: String!
+    what: String!
+    tldr: String!
+    votes: [Vote!]!
+    voteCountFor: Int!
+    voteCountAgainst: Int!
+    createdDate: DateTime!
+    lastUpdatedDate: DateTime!
+
+    # The number of currency-units the proposal is requesting (for infinite rounds)
+    reqAmount: Float!
+    parentType: String!
+    auction: InfiniteAuction!
+}
+
+type InfiniteAuction {
+    # All infinite auctions are issued a unique ID number
+    id: Int!
+    title: String!
+
+    # Once the start time has passed, proposals may be submitted
+    startTime: DateTime!
+
+    # The number of currency units that will be paid out in total
+    fundingAmount: Float!
+
+    # The currency for the auction that winners will be paid in
+    currencyType: String!
+    description: String!
+
+    # The minimum vote count that a proposal must have to pass
+    quorumFor: Int!
+
+    # The minimum vote count that a proposal must have to be rejected
+    quorumAgainst: Int!
+
+    # The strategy that defines who can propose
+    propStrategy: String!
+
+    # The strategy that defines who can vote
+    voteStrategy: String!
+
+    # Display or hide comments section
+    displayComments: String!
+
+    # Describes who can propose
+    propStrategyDescription: String!
+
+    # Describes who can vote
+    voteStrategyDescription: String!
+    proposals: [InfiniteAuctionProposal!]!
+    community: Community!
+    createdDate: DateTime!
+    lastUpdatedDate: DateTime!
+    balanceBlockTag: String!
+    votingPeriod: Float!
+}
+
+type Query {
+    # Fetch an Auction based on its ID
+    auction(id: Int!): Auction!
+
+    # Fetch all auctions that match the provided properties
+    auctions(
+        offset: Int = 0
+        limit: Int = 10
+        where: PartialAuctionInput!
+    ): [Auction!]!
+
+    # Fetch all auctions by Status
+    auctionsByStatus(
+        offset: Int = 0
+        limit: Int = 10
+        status: AuctionStatus!
+    ): [Auction!]!
+    proposal(id: Int!): InfiniteAuctionProposal!
+
+    # Fetch the queries that were created between the specified dates
+    proposalsBetween(since: DateTime, before: DateTime): [Proposal!]!
+    community(id: Int!): Community!
+    communities: [Community!]!
+    findByAddress(address: String!): Community!
+}
+
+input PartialAuctionInput {
+    # All auctions are issued a unique ID number
+    id: Int
+    title: String
+
+    # After the Start Time users may submit proposals
+    startTime: DateTime
+
+    # Users may submit proposals up until Proposal End Time
+    proposalEndTime: DateTime
+
+    # Between Proposal End Time and Voting End Time, users may submit votes for proposals
+    votingEndTime: DateTime
+
+    # The number of currency units paid to each winner
+    fundingAmount: Float
+
+    # The currency for the auction that winners will be paid in
+    currencyType: String
+    description: String
+
+    # The number of winners that will be paid from the auction
+    numWinners: Int
+    createdDate: DateTime
+    lastUpdatedDate: DateTime
+    balanceBlockTag: String
+
+    # The strategy that defines who can propose
+    propStrategy: String
+
+    # The strategy that defines who can vote
+    voteStrategy: String
+
+    # Display or hide comments section
+    displayComments: String
+
+    # Describes who can propose
+    propStrategyDescription: String
+
+    # Describes who can vote
+    voteStrategyDescription: String
+}
