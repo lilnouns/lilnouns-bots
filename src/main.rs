@@ -47,6 +47,7 @@ async fn main() {
         }
         Some(Commands::Start) => {
             prop_lot::start().await;
+            prop_house::start().await;
         }
         None => {}
     }
