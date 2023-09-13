@@ -1,6 +1,17 @@
 use std::sync::{Arc, Mutex};
 
+use lazy_static::lazy_static;
 use sled::Db;
+
+lazy_static! {
+    pub static ref cache: Cache = {
+        let storage =
+            sled::open("./tmp/cache").unwrap_or_else(|_| panic!("Could not open storage"));
+        Cache {
+            storage: Arc::new(Mutex::new(storage)),
+        }
+    };
+}
 
 pub struct Cache {
     storage: Arc<Mutex<Db>>,
