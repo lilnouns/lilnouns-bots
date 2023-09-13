@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use futures::future::join_all;
-use log::{error, info};
+use log::info;
 
 pub use fetcher::fetch_auctions;
 
@@ -12,26 +12,25 @@ mod fetcher;
 mod handler;
 
 pub async fn setup() {
-    match fetch_auctions().await {
-        Some(auctions) => {
-            let auctions_ids: Vec<String> = auctions.iter().map(|i| i.id.to_string()).collect();
-            info!("Fetched auctions ids({})", auctions_ids.join(","));
+    let auctions = fetch_auctions().await;
 
-            let mut tasks = Vec::new();
+    if let Some(auction_list) = auctions {
+        let auctions_ids: Vec<String> = auction_list.iter().map(|i| i.id.to_string()).collect();
+        info!("Fetched auctions ids({})", auctions_ids.join(","));
 
-            for auction in auctions {
-                let arc_auction = Arc::new(auction);
-                let task = tokio::spawn({
-                    let arc_auction = Arc::clone(&arc_auction);
-                    async move {
-                        set_auction_cache(&*arc_auction).await.unwrap();
-                    }
-                });
-                tasks.push(task);
-            }
+        let mut tasks = Vec::new();
 
-            join_all(tasks).await;
+        for auction in auction_list {
+            let arc_auction = Arc::new(auction);
+            let task = tokio::spawn({
+                let arc_auction = Arc::clone(&arc_auction);
+                async move {
+                    set_auction_cache(&*arc_auction).await.unwrap();
+                }
+            });
+            tasks.push(task);
         }
-        None => error!("Error: No auctions found"), // don't bail, just print an error
-    };
+
+        join_all(tasks).await;
+    }
 }
