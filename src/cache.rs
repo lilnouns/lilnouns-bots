@@ -4,7 +4,7 @@ use lazy_static::lazy_static;
 use sled::Db;
 
 lazy_static! {
-    pub static ref cache: Cache = {
+    pub static ref CACHE: Cache = {
         let storage =
             sled::open("./tmp/cache").unwrap_or_else(|_| panic!("Could not open storage"));
         Cache {
@@ -25,7 +25,7 @@ impl Cache {
         }
     }
 
-    pub fn get(&self, key: &[u8]) -> Result<Option<Vec<u8>>, sled::Error> {
+    pub fn get(&self, key: Vec<u8>) -> Result<Option<Vec<u8>>, sled::Error> {
         let storage = self
             .storage
             .lock()

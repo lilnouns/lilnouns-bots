@@ -10,7 +10,7 @@ use log::error;
     schema_path = "graphql/schemas/prop_house_schema.graphql",
     query_path = "graphql/queries/prop_house_query.graphql",
     request_derives = "Debug",
-    response_derives = "Debug",
+    response_derives = "Debug, Serialize, Deserialize, Clone",
     variables_derives = "Debug",
     deprecated = "warn"
 )]
@@ -18,7 +18,7 @@ struct Query;
 
 type DateTime = String;
 
-type Auction = query::QueryCommunityAuctions;
+pub(crate) type Auction = query::QueryCommunityAuctions;
 
 pub async fn fetch_auctions() -> Option<Vec<Auction>> {
     let url = env::var("PROP_HOUSE_GRAPHQL_URL").ok();

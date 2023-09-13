@@ -10,7 +10,7 @@ use log::error;
     schema_path = "graphql/schemas/prop_lot_schema.graphql",
     query_path = "graphql/queries/prop_lot_query.graphql",
     request_derives = "Debug",
-    response_derives = "Debug",
+    response_derives = "Debug, Serialize, Deserialize, Clone",
     variables_derives = "Debug",
     deprecated = "warn"
 )]
