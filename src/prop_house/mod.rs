@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use futures::future::join_all;
-use log::info;
+use log::{error, info};
 
 pub use fetcher::fetch_auctions;
 
@@ -49,7 +49,9 @@ pub async fn start() {
                 async move {
                     if cached_auction.is_none() {
                         info!("Handle a new auction... ({:?})", arc_auction.id);
-                        handle_new_auction(&*arc_auction).await;
+                        let _ = handle_new_auction(&*arc_auction)
+                            .await
+                            .map_err(|err| error!("Failed to handle new auction: {:?}", err));
                     }
                 }
             });
