@@ -52,7 +52,7 @@ jobs:
         run: cargo build --verbose
 
       # Runs unit tests for the application using Jest.
-      - name: Execute tests using Jest
+      - name: Execute tests using Cargo
         run: cargo test --verbose
 
   release:

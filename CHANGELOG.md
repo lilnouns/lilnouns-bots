@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 
 ### Documentation
 
+- Add `README.md` for project description
+
+### Miscellaneous Tasks
+
+- Update test execution tool in Github workflow
+
+## [1.0.0-alpha.1] - 2023-09-15
+
+### Documentation
+
 - Add issue templates for bug report and feature request
 - Add `FUNDING.yml` for sponsorship information
 
