@@ -1,5 +1,6 @@
 use std::sync::{Arc, Mutex};
 
+use anyhow::{anyhow, Result};
 use lazy_static::lazy_static;
 use sled::Db;
 
@@ -18,46 +19,25 @@ pub struct Cache {
 }
 
 impl Cache {
-    pub fn new(path: &str) -> Cache {
-        let storage = sled::open(path).expect("open");
-        Cache {
-            storage: Arc::new(Mutex::new(storage)),
-        }
-    }
-
-    pub fn get(&self, key: Vec<u8>) -> Result<Option<Vec<u8>>, sled::Error> {
+    pub fn get(&self, key: Vec<u8>) -> Result<Option<Vec<u8>>> {
         let storage = self
             .storage
             .lock()
-            .map_err(|_| sled::Error::Unsupported("Failed to acquire lock".to_string()))?;
+            .map_err(|_| anyhow!("Failed to acquire lock"))?;
         storage
             .get(key)
+            .map_err(|err| anyhow!(err))
             .map(|opt_ivec| opt_ivec.map(|ivec| ivec.to_vec()))
     }
 
-    pub fn set(&self, key: &[u8], value: &[u8]) -> Result<(), sled::Error> {
+    pub fn set(&self, key: &[u8], value: &[u8]) -> Result<()> {
         let storage = self
             .storage
             .lock()
-            .map_err(|_| sled::Error::Unsupported("Failed to acquire lock".to_string()))?;
-        storage.insert(key, value).map(|_| ())
-    }
-
-    pub fn has(&self, key: &[u8]) -> Result<bool, sled::Error> {
-        let storage = self
-            .storage
-            .lock()
-            .map_err(|_| sled::Error::Unsupported("Failed to acquire lock".to_string()))?;
-        storage.contains_key(key)
-    }
-
-    pub fn remove(&self, key: &[u8]) -> Result<Option<Vec<u8>>, sled::Error> {
-        let storage = self
-            .storage
-            .lock()
-            .map_err(|_| sled::Error::Unsupported("Failed to acquire lock".to_string()))?;
+            .map_err(|_| anyhow!("Failed to acquire lock"))?;
         storage
-            .remove(key)
-            .map(|opt_ivec| opt_ivec.map(|ivec| ivec.to_vec()))
+            .insert(key, value)
+            .map_err(|err| anyhow!(err))
+            .map(|_| ())
     }
 }

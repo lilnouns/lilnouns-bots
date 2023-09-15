@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use futures::future::join_all;
-use log::info;
+use log::{error, info};
 
 pub use fetcher::fetch_ideas;
 
@@ -24,7 +24,9 @@ pub async fn setup() {
                 let arc_idea = Arc::clone(&arc_idea);
                 async move {
                     info!("Cache a new idea... ({:?})", arc_idea.id);
-                    set_idea_cache(&*arc_idea).await.unwrap();
+                    let _ = set_idea_cache(&*arc_idea).await.map_err(|e| {
+                        error!("Error while trying to set idea cache: {}", e);
+                    });
                 }
             });
 
@@ -49,7 +51,9 @@ pub async fn start() {
                 async move {
                     if cached_idea.is_none() {
                         info!("Handle a new idea... ({:?})", arc_idea.id);
-                        handle_new_idea(&*arc_idea).await;
+                        let _ = handle_new_idea(&*arc_idea)
+                            .await
+                            .map_err(|err| error!("Failed to handle new idea: {:?}", err));
                     }
                 }
             });

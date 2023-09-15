@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use futures::future::join_all;
-use log::info;
+use log::{error, info};
 
 pub use fetcher::fetch_auctions;
 
@@ -24,7 +24,9 @@ pub async fn setup() {
                 let arc_auction = Arc::clone(&arc_auction);
                 async move {
                     info!("Cache a new auction... ({:?})", arc_auction.id);
-                    set_auction_cache(&*arc_auction).await.unwrap();
+                    let _ = set_auction_cache(&*arc_auction).await.map_err(|e| {
+                        error!("Error while trying to set auction cache: {}", e);
+                    });
                 }
             });
 
@@ -49,7 +51,9 @@ pub async fn start() {
                 async move {
                     if cached_auction.is_none() {
                         info!("Handle a new auction... ({:?})", arc_auction.id);
-                        handle_new_auction(&*arc_auction).await;
+                        let _ = handle_new_auction(&*arc_auction)
+                            .await
+                            .map_err(|err| error!("Failed to handle new auction: {:?}", err));
                     }
                 }
             });
