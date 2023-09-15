@@ -27,6 +27,12 @@ All notable changes to this project will be documented in this file.
 - Improve `prop_lot` setup function to simplify async call
 - Improve `prop_house` setup function to simplify error handling
 - Add logging and start command to main
+- Add functionality to handle new auctions in Prop House
+- Add functionality to handle new ideas in Prop Lot
+- Improve error handling in Cache module
+- Add error logging for idea and auction handling failures
+- Improve error handling in cache setting
+- Add author display to idea creation message
 
 ### Documentation
 
@@ -40,6 +46,7 @@ All notable changes to this project will be documented in this file.
 - Create GraphQL schema for Prop House
 - Add new Prop House query in GraphQL
 - Add `tmp` to `.gitignore`
+- Add `git-cliff` configuration and initial CHANGELOG.md
 
 ### Styling
 
