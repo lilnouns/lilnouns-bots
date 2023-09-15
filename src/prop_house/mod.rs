@@ -24,7 +24,9 @@ pub async fn setup() {
                 let arc_auction = Arc::clone(&arc_auction);
                 async move {
                     info!("Cache a new auction... ({:?})", arc_auction.id);
-                    set_auction_cache(&*arc_auction).await.unwrap();
+                    let _ = set_auction_cache(&*arc_auction).await.map_err(|e| {
+                        error!("Error while trying to set auction cache: {}", e);
+                    });
                 }
             });
 

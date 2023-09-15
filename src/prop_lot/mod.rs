@@ -24,7 +24,9 @@ pub async fn setup() {
                 let arc_idea = Arc::clone(&arc_idea);
                 async move {
                     info!("Cache a new idea... ({:?})", arc_idea.id);
-                    set_idea_cache(&*arc_idea).await.unwrap();
+                    let _ = set_idea_cache(&*arc_idea).await.map_err(|e| {
+                        error!("Error while trying to set idea cache: {}", e);
+                    });
                 }
             });
 
