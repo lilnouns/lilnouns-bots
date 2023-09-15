@@ -20,10 +20,17 @@ pub async fn handle_new_idea(idea: &Idea) -> Result<()> {
         .context("Failed to create webhook from URL")?;
 
     let message = Embed::fake(|e| {
-        e.title(format!("New Idea: {}", idea.title))
-            .url(format!("{}/idea/{}", base_url, idea.id))
-            .description(&idea.tldr)
-            .colour(0xFFB911)
+        e.author(|a| {
+            a.name(format!(
+                "{}...{}",
+                &idea.creator_id[0..4],
+                &idea.creator_id[38..42]
+            ))
+        })
+        .title(format!("New Idea: {}", idea.title))
+        .url(format!("{}/idea/{}", base_url, idea.id))
+        .description(&idea.tldr)
+        .colour(0xFFB911)
     });
 
     webhook
