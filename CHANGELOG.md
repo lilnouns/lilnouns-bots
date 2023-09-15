@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### Documentation
+
+- Add issue templates for bug report and feature request
+- Add `FUNDING.yml` for sponsorship information
+
+### Miscellaneous Tasks
+
+- Add dependabot configuration for GitHub Actions and Cargo
+- Add stale bot configuration
+- Add GitHub `build` workflow with concurrency and auto-release
+
+## [1.0.0-alpha.0] - 2023-09-15
+
 ### Features
 
 - Implement global caching functionality
