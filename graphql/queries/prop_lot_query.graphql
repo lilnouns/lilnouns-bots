@@ -5,8 +5,24 @@ fragment IdeaFragment on Idea {
     creatorId
 }
 
+fragment VoteFragment on Vote {
+    id
+    voterId
+    ideaId
+    direction
+    voterWeight
+}
+
 query IdeaQuery($options: IdeaInputOptions!) {
     ideas: getIdeas(options: $options) {
         ...IdeaFragment
+    }
+}
+
+query VoteQuery($options: IdeaInputOptions!) {
+    ideas: getIdeas(options: $options) {
+        votes {
+            ...VoteFragment
+        }
     }
 }
