@@ -1,25 +1,46 @@
-query Query($options: IdeaInputOptions!) {
+fragment IdeaFragment on Idea {
+    id
+    title
+    tldr
+    creatorId
+}
+
+fragment VoteFragment on Vote {
+    id
+    voterId
+    ideaId
+    direction
+    voterWeight
+}
+
+fragment CommentFragment on Comment {
+    id
+    body
+    ideaId
+    parentId
+    authorId
+    createdAt
+    deleted
+}
+
+query IdeaQuery($options: IdeaInputOptions!) {
     ideas: getIdeas(options: $options) {
-        id
-        title
-        tldr
-        creatorId
-        votecount
-        createdAt
-        deleted
-        ideaStats {
-            comments
-        }
-        closed
-        consensus
+        ...IdeaFragment
+    }
+}
+
+query VoteQuery($options: IdeaInputOptions!) {
+    ideas: getIdeas(options: $options) {
         votes {
-            id
-            voterId
-            ideaId
-            direction
-            voter {
-                wallet
-            }
+            ...VoteFragment
+        }
+    }
+}
+
+query CommentQuery($options: IdeaInputOptions!) {
+    ideas: getIdeas(options: $options) {
+        comments {
+            ...CommentFragment
         }
     }
 }
