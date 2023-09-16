@@ -4,6 +4,7 @@ use futures::future::join_all;
 use log::{error, info};
 
 pub use fetcher::fetch_ideas;
+pub use fetcher::fetch_votes;
 
 use crate::prop_lot::cacher::{get_idea_cache, set_idea_cache};
 use crate::prop_lot::handler::handle_new_idea;
