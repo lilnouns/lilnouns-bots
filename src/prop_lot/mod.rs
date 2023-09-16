@@ -3,6 +3,7 @@ use std::sync::Arc;
 use futures::future::join_all;
 use log::{error, info};
 
+pub use fetcher::fetch_comments;
 pub use fetcher::fetch_ideas;
 pub use fetcher::fetch_votes;
 

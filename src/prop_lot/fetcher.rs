@@ -25,6 +25,17 @@ struct IdeaQuery;
 )]
 struct VoteQuery;
 
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "graphql/schemas/prop_lot_schema.graphql",
+    query_path = "graphql/queries/prop_lot_query.graphql",
+    response_derives = "Clone",
+    deprecated = "warn"
+)]
+struct CommentQuery;
+
+type Date = String;
+
 #[derive(Serialize, Deserialize)]
 pub(crate) struct Idea {
     pub(crate) id: isize,
@@ -40,6 +51,11 @@ pub(crate) struct Vote {
     pub(crate) idea_id: isize,
     pub(crate) direction: isize,
     pub(crate) voter_weight: isize,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub(crate) struct Comment {
+    pub(crate) id: isize,
 }
 
 pub async fn fetch_ideas() -> Option<Vec<Idea>> {
@@ -135,4 +151,49 @@ pub async fn fetch_votes() -> Option<Vec<Vote>> {
         .collect();
 
     Some(votes)
+}
+
+pub async fn fetch_comments() -> Option<Vec<Comment>> {
+    let url = env::var("PROP_LOT_GRAPHQL_URL")
+        .map_err(|_| {
+            error!("PROP_LOT_GRAPHQL_URL is not set in env");
+        })
+        .ok()?;
+
+    let variables = comment_query::Variables {
+        options: comment_query::IdeaInputOptions {
+            idea_id: None,
+            sort: Some(comment_query::SORT_TYPE::LATEST),
+        },
+    };
+
+    let client = Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()
+        .map_err(|e| {
+            error!("Failed to create client: {}", e);
+        })
+        .ok()?;
+
+    let response = post_graphql::<CommentQuery, _>(&client, url, variables)
+        .await
+        .map_err(|e| {
+            error!("Failed to execute GraphQL request: {}", e);
+        })
+        .ok()?;
+
+    let comments = response
+        .data
+        .as_ref()?
+        .ideas
+        .as_ref()?
+        .into_iter()
+        .flat_map(|idea| idea.comments.iter())
+        .flat_map(|comment| comment.iter())
+        .map(|comment| Comment {
+            id: comment.id.try_into().unwrap(),
+        })
+        .collect();
+
+    Some(comments)
 }

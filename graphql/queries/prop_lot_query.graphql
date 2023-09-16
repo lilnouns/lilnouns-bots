@@ -13,6 +13,16 @@ fragment VoteFragment on Vote {
     voterWeight
 }
 
+fragment CommentFragment on Comment {
+    id
+    body
+    ideaId
+    parentId
+    authorId
+    createdAt
+    deleted
+}
+
 query IdeaQuery($options: IdeaInputOptions!) {
     ideas: getIdeas(options: $options) {
         ...IdeaFragment
@@ -23,6 +33,14 @@ query VoteQuery($options: IdeaInputOptions!) {
     ideas: getIdeas(options: $options) {
         votes {
             ...VoteFragment
+        }
+    }
+}
+
+query CommentQuery($options: IdeaInputOptions!) {
+    ideas: getIdeas(options: $options) {
+        comments {
+            ...CommentFragment
         }
     }
 }
