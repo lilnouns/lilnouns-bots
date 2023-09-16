@@ -3,9 +3,7 @@ use std::sync::Arc;
 use futures::future::join_all;
 use log::{error, info};
 
-pub use fetcher::fetch_comments;
 pub use fetcher::fetch_ideas;
-pub use fetcher::fetch_votes;
 
 use crate::prop_lot::cacher::{get_idea_cache, set_idea_cache};
 use crate::prop_lot::handler::handle_new_idea;
@@ -15,12 +13,10 @@ mod fetcher;
 mod handler;
 
 pub async fn setup() {
-    let ideas = fetch_ideas().await;
-
-    if let Some(idea_list) = ideas {
+    if let Some(ideas) = fetch_ideas().await {
         let mut tasks = Vec::new();
 
-        for idea in idea_list {
+        for idea in ideas {
             let arc_idea = Arc::new(idea);
             let task = tokio::spawn({
                 let arc_idea = Arc::clone(&arc_idea);
@@ -40,12 +36,10 @@ pub async fn setup() {
 }
 
 pub async fn start() {
-    let ideas = fetch_ideas().await;
-
-    if let Some(idea_list) = ideas {
+    if let Some(ideas) = fetch_ideas().await {
         let mut tasks = Vec::new();
 
-        for idea in idea_list {
+        for idea in ideas {
             let arc_idea = Arc::new(idea);
             let cached_idea = get_idea_cache(arc_idea.id.try_into().unwrap()).await;
             let task = tokio::spawn({
