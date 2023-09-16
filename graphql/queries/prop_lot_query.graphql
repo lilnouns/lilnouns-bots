@@ -1,25 +1,12 @@
-query Query($options: IdeaInputOptions!) {
+fragment IdeaFragment on Idea {
+    id
+    title
+    tldr
+    creatorId
+}
+
+query IdeaQuery($options: IdeaInputOptions!) {
     ideas: getIdeas(options: $options) {
-        id
-        title
-        tldr
-        creatorId
-        votecount
-        createdAt
-        deleted
-        ideaStats {
-            comments
-        }
-        closed
-        consensus
-        votes {
-            id
-            voterId
-            ideaId
-            direction
-            voter {
-                wallet
-            }
-        }
+        ...IdeaFragment
     }
 }

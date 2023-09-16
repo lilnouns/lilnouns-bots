@@ -14,7 +14,7 @@ use log::error;
     variables_derives = "Debug",
     deprecated = "warn"
 )]
-struct Query;
+struct IdeaQuery;
 
 type Date = String;
 pub(crate) type Idea = query::QueryIdeas;
