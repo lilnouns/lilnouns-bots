@@ -6,7 +6,7 @@ use crate::prop_lot::fetcher::Idea;
 const IDEA_CACHE_KEY_PREFIX: &[u8] = b"PROP_LOT_IDEA_";
 
 // Build the idea cache key
-fn idea_cache_key(id: i32) -> Vec<u8> {
+fn idea_cache_key(id: isize) -> Vec<u8> {
     [IDEA_CACHE_KEY_PREFIX, &id.to_be_bytes()].concat()
 }
 
@@ -14,7 +14,7 @@ fn idea_cache_key(id: i32) -> Vec<u8> {
 pub async fn set_idea_cache(idea: &Idea) -> Result<()> {
     // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
-    let cache_key = idea_cache_key(idea.id as i32);
+    let cache_key = idea_cache_key(idea.id.try_into().unwrap());
 
     // Ensure serialization is successful
     let idea_json = serde_json::to_string(idea)?;
@@ -26,7 +26,7 @@ pub async fn set_idea_cache(idea: &Idea) -> Result<()> {
 }
 
 // Attempt to fetch an idea from the cache
-pub async fn get_idea_cache(id: i32) -> Option<Idea> {
+pub async fn get_idea_cache(id: isize) -> Option<Idea> {
     // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = idea_cache_key(id);

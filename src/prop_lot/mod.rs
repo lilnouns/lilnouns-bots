@@ -45,7 +45,7 @@ pub async fn start() {
 
         for idea in idea_list {
             let arc_idea = Arc::new(idea);
-            let cached_idea = get_idea_cache(arc_idea.id as i32).await;
+            let cached_idea = get_idea_cache(arc_idea.id.try_into().unwrap()).await;
             let task = tokio::spawn({
                 let arc_idea = Arc::clone(&arc_idea);
                 async move {
