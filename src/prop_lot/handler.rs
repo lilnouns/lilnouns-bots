@@ -8,7 +8,7 @@ use serenity::model::webhook::Webhook;
 
 use crate::prop_lot::fetcher::Idea;
 
-pub async fn handle_new_idea(idea: &Idea) -> Result<()> {
+pub(crate) async fn handle_new_idea(idea: &Idea) -> Result<()> {
     let base_url = env::var("PROP_LOT_BASE_URL").context("PROP_LOT_BASE_URL is not set in env")?;
 
     let webhook_url = env::var("PROP_LOT_DISCORD_WEBHOOK_URL")

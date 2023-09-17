@@ -47,6 +47,18 @@ jobs:
       - name: Checking out repository code
         uses: actions/checkout@v4.0.0 # Action for checking out a repo.
 
+      # Cache dependencies to speed up builds
+      - name: Cache cargo dependencies
+        uses: actions/cache@v3.3.2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
       # This compiles the application.
       - name: Build the application and export it
         run: cargo build --verbose

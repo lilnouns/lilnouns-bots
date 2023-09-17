@@ -3,7 +3,7 @@ use std::sync::Arc;
 use futures::future::join_all;
 use log::{error, info};
 
-pub use fetcher::fetch_auctions;
+use fetcher::fetch_auctions;
 
 use crate::prop_house::cacher::{
     get_auction_cache, set_auction_cache, set_proposal_cache, set_vote_cache,
@@ -25,7 +25,7 @@ pub async fn setup() {
                 let arc_auction = Arc::clone(&arc_auction);
                 async move {
                     info!("Cache a new auction... ({:?})", arc_auction.id);
-                    let _ = set_auction_cache(&*arc_auction).await.map_err(|e| {
+                    let _ = set_auction_cache(&arc_auction).await.map_err(|e| {
                         error!("Error while trying to set auction cache: {}", e);
                     });
                 }
@@ -46,7 +46,7 @@ pub async fn setup() {
                 let arc_proposal = Arc::clone(&arc_proposal);
                 async move {
                     info!("Cache a new proposal... ({:?})", arc_proposal.id);
-                    let _ = set_proposal_cache(&*arc_proposal).await.map_err(|e| {
+                    let _ = set_proposal_cache(&arc_proposal).await.map_err(|e| {
                         error!("Error while trying to set proposal cache: {}", e);
                     });
                 }
@@ -67,7 +67,7 @@ pub async fn setup() {
                 let arc_vote = Arc::clone(&arc_vote);
                 async move {
                     info!("Cache a new vote... ({:?})", arc_vote.id);
-                    let _ = set_vote_cache(&*arc_vote).await.map_err(|e| {
+                    let _ = set_vote_cache(&arc_vote).await.map_err(|e| {
                         error!("Error while trying to set vote cache: {}", e);
                     });
                 }
@@ -92,7 +92,7 @@ pub async fn start() {
                 async move {
                     if cached_auction.is_none() {
                         info!("Handle a new auction... ({:?})", arc_auction.id);
-                        let _ = handle_new_auction(&*arc_auction)
+                        let _ = handle_new_auction(&arc_auction)
                             .await
                             .map_err(|err| error!("Failed to handle new auction: {:?}", err));
                     }

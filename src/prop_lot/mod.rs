@@ -3,7 +3,7 @@ use std::sync::Arc;
 use futures::future::join_all;
 use log::{error, info};
 
-pub use fetcher::fetch_ideas;
+use fetcher::fetch_ideas;
 
 use crate::prop_lot::cacher::{get_idea_cache, set_comment_cache, set_idea_cache, set_vote_cache};
 use crate::prop_lot::fetcher::{fetch_comments, fetch_votes};
@@ -23,7 +23,7 @@ pub async fn setup() {
                 let arc_idea = Arc::clone(&arc_idea);
                 async move {
                     info!("Cache a new idea... ({:?})", arc_idea.id);
-                    let _ = set_idea_cache(&*arc_idea).await.map_err(|e| {
+                    let _ = set_idea_cache(&arc_idea).await.map_err(|e| {
                         error!("Error while trying to set idea cache: {}", e);
                     });
                 }
@@ -44,7 +44,7 @@ pub async fn setup() {
                 let arc_vote = Arc::clone(&arc_vote);
                 async move {
                     info!("Cache a new vote... ({:?})", arc_vote.id);
-                    let _ = set_vote_cache(&*arc_vote).await.map_err(|e| {
+                    let _ = set_vote_cache(&arc_vote).await.map_err(|e| {
                         error!("Error while trying to set vote cache: {}", e);
                     });
                 }
@@ -65,7 +65,7 @@ pub async fn setup() {
                 let arc_comment = Arc::clone(&arc_comment);
                 async move {
                     info!("Cache a new comment... ({:?})", arc_comment.id);
-                    let _ = set_comment_cache(&*arc_comment).await.map_err(|e| {
+                    let _ = set_comment_cache(&arc_comment).await.map_err(|e| {
                         error!("Error while trying to set comment cache: {}", e);
                     });
                 }
@@ -90,7 +90,7 @@ pub async fn start() {
                 async move {
                     if cached_idea.is_none() {
                         info!("Handle a new idea... ({:?})", arc_idea.id);
-                        let _ = handle_new_idea(&*arc_idea)
+                        let _ = handle_new_idea(&arc_idea)
                             .await
                             .map_err(|err| error!("Failed to handle new idea: {:?}", err));
                     }

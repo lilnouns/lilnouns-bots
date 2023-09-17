@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ### Refactor
 
+- Remove unnecessary clone method and handle string conversion
+- Limit visibility of fetch and cache functions
+
+### Miscellaneous Tasks
+
+- Add caching to GitHub Actions workflow
+
+## [1.0.0-alpha.3] - 2023-09-17
+
+### Refactor
+
 - Update Prop Lot Query struct and GraphQL query for simplicity
 - Change `id` data type from `i32` to `isize` and refactor Idea
 - Add vote fetching functionality to Prop Lot fetcher module
