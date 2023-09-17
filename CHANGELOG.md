@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### Refactor
+
+- Update Prop Lot Query struct and GraphQL query for simplicity
+- Change `id` data type from `i32` to `isize` and refactor Idea
+- Add vote fetching functionality to Prop Lot fetcher module
+- Add comments fetching in Prop Lot module
+- Add caching for votes and comments for Prop Lot
+- Simplify async result handling in `setup` and `start` for Prop Lot
+- Add caching for votes and comments of Prop Lot
+- Update Prop House query to increase maintainability
+- Update Prop House fetcher for granular queries
+- Add caching for proposals and votes
+
+### Documentation
+
+- Add status badges to README
+
+### Miscellaneous Tasks
+
+- Update `Cargo.toml` to include `.graphql` files
+- Add VoteFragment and VoteQuery to Prop Lot query
+
+## [1.0.0-alpha.2] - 2023-09-15
+
 ### Documentation
 
 - Add `README.md` for project description
