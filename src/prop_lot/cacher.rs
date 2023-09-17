@@ -9,17 +9,14 @@ const VOTE_CACHE_KEY_PREFIX: &str = "PROP_LOT_VOTE_";
 
 const COMMENT_CACHE_KEY_PREFIX: &str = "PROP_LOT_COMMENT_";
 
-// Build the idea cache key
 fn idea_cache_key(id: isize) -> String {
     format!("{}{}", IDEA_CACHE_KEY_PREFIX, id)
 }
 
-// Build the vote cache key
 fn vote_cache_key(id: isize) -> String {
     format!("{}{}", VOTE_CACHE_KEY_PREFIX, id)
 }
 
-// Build the comment cache key
 fn comment_cache_key(id: isize) -> String {
     format!("{}{}", COMMENT_CACHE_KEY_PREFIX, id)
 }
@@ -33,7 +30,7 @@ pub(crate) fn set_idea_cache(idea: &Idea) -> Result<()> {
 pub(crate) fn get_idea_cache(id: isize) -> Result<Option<Idea>> {
     let cache = &cache::CACHE;
     let cache_key = idea_cache_key(id);
-    cache.get::<Idea>(&cache_key)
+    cache.get::<String, Idea>(&cache_key)
 }
 
 pub(crate) fn set_vote_cache(vote: &Vote) -> Result<()> {
@@ -45,7 +42,7 @@ pub(crate) fn set_vote_cache(vote: &Vote) -> Result<()> {
 pub(crate) fn get_vote_cache(id: isize) -> Result<Option<Vote>> {
     let cache = &cache::CACHE;
     let cache_key = vote_cache_key(id);
-    cache.get::<Vote>(&cache_key)
+    cache.get::<String, Vote>(&cache_key)
 }
 
 pub(crate) fn set_comment_cache(comment: &Comment) -> Result<()> {
@@ -57,5 +54,5 @@ pub(crate) fn set_comment_cache(comment: &Comment) -> Result<()> {
 pub(crate) fn get_comment_cache(id: isize) -> Result<Option<Comment>> {
     let cache = &cache::CACHE;
     let cache_key = comment_cache_key(id);
-    cache.get::<Comment>(&cache_key)
+    cache.get::<String, Comment>(&cache_key)
 }

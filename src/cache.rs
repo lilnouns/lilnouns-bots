@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
 
 use anyhow::{anyhow, Result};
@@ -21,22 +22,35 @@ pub struct Cache {
 }
 
 impl Cache {
-    pub fn get<T: DeserializeOwned>(&self, key: &String) -> Result<Option<T>> {
+    pub fn get<K, V>(&self, key: &K) -> Result<Option<V>>
+    where
+        K: Serialize + Debug,
+        V: DeserializeOwned,
+    {
         let storage = self.storage.lock().unwrap();
-        match storage.get(key) {
-            Ok(Some(ivec)) => {
-                let data: T = serde_json::from_slice(&ivec)?;
-                Ok(Some(data))
+        let key_bytes = serde_json::to_vec(&key)?;
+
+        match storage.get(key_bytes) {
+            Ok(Some(value_bytes)) => {
+                let value: V = serde_json::from_slice(&value_bytes)?;
+                Ok(Some(value))
             }
             Ok(None) => Ok(None),
-            Err(err) => Err(anyhow!("Failed to get key {} from cache: {}", key, err)),
+            Err(err) => Err(anyhow!("Failed to get key {:?} from cache: {:?}", key, err)),
         }
     }
 
-    pub fn set<T: Serialize>(&self, key: &String, value: &T) -> Result<()> {
+    pub fn set<K, V>(&self, key: K, value: V) -> Result<()>
+    where
+        K: Serialize + Debug,
+        V: Serialize,
+    {
         let storage = self.storage.lock().unwrap();
-        let serialized_value = serde_json::to_vec(value)?;
-        storage.insert(key, serialized_value)?;
+        let key_bytes = serde_json::to_vec(&key)?;
+        let value_bytes = serde_json::to_vec(&value)?;
+
+        storage.insert(key_bytes, value_bytes)?;
+
         Ok(())
     }
 }
