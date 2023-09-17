@@ -46,11 +46,13 @@ pub(crate) struct Auction {
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct Proposal {
     pub(crate) id: isize,
+    pub(crate) title: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct Vote {
     pub(crate) id: isize,
+    pub(crate) proposal_id: isize,
 }
 
 async fn fetch<QueryType: GraphQLQuery>(
@@ -126,6 +128,7 @@ pub(crate) async fn fetch_proposals() -> Option<Vec<Proposal>> {
         .flat_map(|auction| &auction.proposals)
         .map(|proposal| Proposal {
             id: proposal.id.try_into().unwrap(),
+            title: proposal.title.clone(),
         })
         .collect();
 
@@ -153,6 +156,7 @@ pub(crate) async fn fetch_votes() -> Option<Vec<Vote>> {
         .flat_map(|proposal| &proposal.votes)
         .map(|vote| Vote {
             id: vote.id.try_into().unwrap(),
+            proposal_id: vote.proposal_id.try_into().unwrap(),
         })
         .collect();
 
