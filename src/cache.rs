@@ -5,20 +5,23 @@ use anyhow::{anyhow, Result};
 use lazy_static::lazy_static;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use sled::Db;
+
+use rocksdb::{Options, WriteBatch, DB};
 
 lazy_static! {
     pub static ref CACHE: Cache = {
-        let storage =
-            sled::open("./tmp/cache").unwrap_or_else(|_| panic!("Could not open storage"));
+        let path = "./tmp/cache";
+        let mut opts = Options::default();
+        opts.create_if_missing(true);
+        let db = DB::open(&opts, path).unwrap_or_else(|_| panic!("Could not open storage"));
         Cache {
-            storage: Arc::new(Mutex::new(storage)),
+            storage: Arc::new(Mutex::new(db)),
         }
     };
 }
 
 pub struct Cache {
-    storage: Arc<Mutex<Db>>,
+    storage: Arc<Mutex<DB>>,
 }
 
 impl Cache {
@@ -49,7 +52,7 @@ impl Cache {
         let key_bytes = serde_json::to_vec(&key)?;
         let value_bytes = serde_json::to_vec(&value)?;
 
-        storage.insert(key_bytes, value_bytes)?;
+        storage.put(key_bytes, value_bytes)?;
 
         Ok(())
     }
@@ -60,16 +63,16 @@ impl Cache {
         V: Serialize,
     {
         let storage = self.storage.lock().unwrap();
-        let mut batch = sled::Batch::default();
+        let mut batch = WriteBatch::default();
 
         for (key, value) in items {
             let key_bytes = serde_json::to_vec(&key)?;
             let value_bytes = serde_json::to_vec(&value)?;
 
-            batch.insert(key_bytes, value_bytes);
+            batch.put(key_bytes, value_bytes);
         }
 
-        storage.apply_batch(batch)?;
+        storage.write(batch)?;
 
         Ok(())
     }
