@@ -1,3 +1,4 @@
+use std::convert::TryInto;
 use std::env;
 use std::time::Duration;
 
@@ -58,19 +59,14 @@ pub(crate) struct Comment {
     pub(crate) id: isize,
 }
 
-pub(crate) async fn fetch_ideas() -> Option<Vec<Idea>> {
+async fn fetch<QueryType: GraphQLQuery>(
+    variables: <QueryType as GraphQLQuery>::Variables,
+) -> Option<<QueryType as GraphQLQuery>::ResponseData> {
     let url = env::var("PROP_LOT_GRAPHQL_URL")
         .map_err(|_| {
             error!("PROP_LOT_GRAPHQL_URL is not set in env");
         })
         .ok()?;
-
-    let variables = idea_query::Variables {
-        options: idea_query::IdeaInputOptions {
-            idea_id: None,
-            sort: Some(idea_query::SORT_TYPE::LATEST),
-        },
-    };
 
     let client = Client::builder()
         .timeout(Duration::from_secs(30))
@@ -80,16 +76,26 @@ pub(crate) async fn fetch_ideas() -> Option<Vec<Idea>> {
         })
         .ok()?;
 
-    let response = post_graphql::<IdeaQuery, _>(&client, url, variables)
+    post_graphql::<QueryType, _>(&client, url, variables)
         .await
         .map_err(|e| {
             error!("Failed to execute GraphQL request: {}", e);
         })
-        .ok()?;
+        .ok()
+        .and_then(|response| response.data)
+}
+
+pub(crate) async fn fetch_ideas() -> Option<Vec<Idea>> {
+    let variables = idea_query::Variables {
+        options: idea_query::IdeaInputOptions {
+            idea_id: None,
+            sort: Some(idea_query::SORT_TYPE::LATEST),
+        },
+    };
+
+    let response = fetch::<IdeaQuery>(variables).await?;
 
     let ideas = response
-        .data
-        .as_ref()?
         .ideas
         .as_ref()?
         .iter()
@@ -105,12 +111,6 @@ pub(crate) async fn fetch_ideas() -> Option<Vec<Idea>> {
 }
 
 pub(crate) async fn fetch_votes() -> Option<Vec<Vote>> {
-    let url = env::var("PROP_LOT_GRAPHQL_URL")
-        .map_err(|_| {
-            error!("PROP_LOT_GRAPHQL_URL is not set in env");
-        })
-        .ok()?;
-
     let variables = vote_query::Variables {
         options: vote_query::IdeaInputOptions {
             idea_id: None,
@@ -118,24 +118,9 @@ pub(crate) async fn fetch_votes() -> Option<Vec<Vote>> {
         },
     };
 
-    let client = Client::builder()
-        .timeout(Duration::from_secs(30))
-        .build()
-        .map_err(|e| {
-            error!("Failed to create client: {}", e);
-        })
-        .ok()?;
-
-    let response = post_graphql::<VoteQuery, _>(&client, url, variables)
-        .await
-        .map_err(|e| {
-            error!("Failed to execute GraphQL request: {}", e);
-        })
-        .ok()?;
+    let response = fetch::<VoteQuery>(variables).await?;
 
     let votes = response
-        .data
-        .as_ref()?
         .ideas
         .as_ref()?
         .iter()
@@ -154,12 +139,6 @@ pub(crate) async fn fetch_votes() -> Option<Vec<Vote>> {
 }
 
 pub(crate) async fn fetch_comments() -> Option<Vec<Comment>> {
-    let url = env::var("PROP_LOT_GRAPHQL_URL")
-        .map_err(|_| {
-            error!("PROP_LOT_GRAPHQL_URL is not set in env");
-        })
-        .ok()?;
-
     let variables = comment_query::Variables {
         options: comment_query::IdeaInputOptions {
             idea_id: None,
@@ -167,24 +146,9 @@ pub(crate) async fn fetch_comments() -> Option<Vec<Comment>> {
         },
     };
 
-    let client = Client::builder()
-        .timeout(Duration::from_secs(30))
-        .build()
-        .map_err(|e| {
-            error!("Failed to create client: {}", e);
-        })
-        .ok()?;
-
-    let response = post_graphql::<CommentQuery, _>(&client, url, variables)
-        .await
-        .map_err(|e| {
-            error!("Failed to execute GraphQL request: {}", e);
-        })
-        .ok()?;
+    let response = fetch::<CommentQuery>(variables).await?;
 
     let comments = response
-        .data
-        .as_ref()?
         .ideas
         .as_ref()?
         .iter()

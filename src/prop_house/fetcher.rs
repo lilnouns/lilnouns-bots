@@ -53,13 +53,33 @@ pub(crate) struct Vote {
     pub(crate) id: isize,
 }
 
-pub(crate) async fn fetch_auctions() -> Option<Vec<Auction>> {
+async fn fetch<QueryType: GraphQLQuery>(
+    variables: <QueryType as GraphQLQuery>::Variables,
+) -> Option<<QueryType as GraphQLQuery>::ResponseData> {
     let url = env::var("PROP_HOUSE_GRAPHQL_URL")
         .map_err(|_| {
             error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
         })
         .ok()?;
 
+    let client = Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()
+        .map_err(|e| {
+            error!("Failed to create client: {}", e);
+        })
+        .ok()?;
+
+    post_graphql::<QueryType, _>(&client, url, variables)
+        .await
+        .map_err(|e| {
+            error!("Failed to execute GraphQL request: {}", e);
+        })
+        .ok()
+        .and_then(|response| response.data)
+}
+
+pub(crate) async fn fetch_auctions() -> Option<Vec<Auction>> {
     let community_id = env::var("PROP_HOUSE_COMMUNITY_ID")
         .map_err(|_| {
             error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
@@ -70,24 +90,9 @@ pub(crate) async fn fetch_auctions() -> Option<Vec<Auction>> {
         id: community_id.parse().unwrap(),
     };
 
-    let client = Client::builder()
-        .timeout(Duration::from_secs(30))
-        .build()
-        .map_err(|e| {
-            error!("Failed to create client: {}", e);
-        })
-        .ok()?;
-
-    let response = post_graphql::<AuctionQuery, _>(&client, url, variables)
-        .await
-        .map_err(|e| {
-            error!("Failed to execute GraphQL request: {}", e);
-        })
-        .ok()?;
+    let response = fetch::<AuctionQuery>(variables).await?;
 
     let auctions = response
-        .data
-        .as_ref()?
         .community
         .auctions
         .iter()
@@ -102,12 +107,6 @@ pub(crate) async fn fetch_auctions() -> Option<Vec<Auction>> {
 }
 
 pub(crate) async fn fetch_proposals() -> Option<Vec<Proposal>> {
-    let url = env::var("PROP_HOUSE_GRAPHQL_URL")
-        .map_err(|_| {
-            error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
-        })
-        .ok()?;
-
     let community_id = env::var("PROP_HOUSE_COMMUNITY_ID")
         .map_err(|_| {
             error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
@@ -118,24 +117,9 @@ pub(crate) async fn fetch_proposals() -> Option<Vec<Proposal>> {
         id: community_id.parse().unwrap(),
     };
 
-    let client = Client::builder()
-        .timeout(Duration::from_secs(30))
-        .build()
-        .map_err(|e| {
-            error!("Failed to create client: {}", e);
-        })
-        .ok()?;
-
-    let response = post_graphql::<ProposalQuery, _>(&client, url, variables)
-        .await
-        .map_err(|e| {
-            error!("Failed to execute GraphQL request: {}", e);
-        })
-        .ok()?;
+    let response = fetch::<ProposalQuery>(variables).await?;
 
     let proposals = response
-        .data
-        .as_ref()?
         .community
         .auctions
         .iter()
@@ -149,12 +133,6 @@ pub(crate) async fn fetch_proposals() -> Option<Vec<Proposal>> {
 }
 
 pub(crate) async fn fetch_votes() -> Option<Vec<Vote>> {
-    let url = env::var("PROP_HOUSE_GRAPHQL_URL")
-        .map_err(|_| {
-            error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
-        })
-        .ok()?;
-
     let community_id = env::var("PROP_HOUSE_COMMUNITY_ID")
         .map_err(|_| {
             error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
@@ -165,24 +143,9 @@ pub(crate) async fn fetch_votes() -> Option<Vec<Vote>> {
         id: community_id.parse().unwrap(),
     };
 
-    let client = Client::builder()
-        .timeout(Duration::from_secs(30))
-        .build()
-        .map_err(|e| {
-            error!("Failed to create client: {}", e);
-        })
-        .ok()?;
-
-    let response = post_graphql::<VoteQuery, _>(&client, url, variables)
-        .await
-        .map_err(|e| {
-            error!("Failed to execute GraphQL request: {}", e);
-        })
-        .ok()?;
+    let response = fetch::<VoteQuery>(variables).await?;
 
     let votes = response
-        .data
-        .as_ref()?
         .community
         .auctions
         .iter()
