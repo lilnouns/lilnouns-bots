@@ -58,7 +58,7 @@ pub(crate) struct Comment {
     pub(crate) id: isize,
 }
 
-pub async fn fetch_ideas() -> Option<Vec<Idea>> {
+pub(crate) async fn fetch_ideas() -> Option<Vec<Idea>> {
     let url = env::var("PROP_LOT_GRAPHQL_URL")
         .map_err(|_| {
             error!("PROP_LOT_GRAPHQL_URL is not set in env");
@@ -104,7 +104,7 @@ pub async fn fetch_ideas() -> Option<Vec<Idea>> {
     Some(ideas)
 }
 
-pub async fn fetch_votes() -> Option<Vec<Vote>> {
+pub(crate) async fn fetch_votes() -> Option<Vec<Vote>> {
     let url = env::var("PROP_LOT_GRAPHQL_URL")
         .map_err(|_| {
             error!("PROP_LOT_GRAPHQL_URL is not set in env");
@@ -153,7 +153,7 @@ pub async fn fetch_votes() -> Option<Vec<Vote>> {
     Some(votes)
 }
 
-pub async fn fetch_comments() -> Option<Vec<Comment>> {
+pub(crate) async fn fetch_comments() -> Option<Vec<Comment>> {
     let url = env::var("PROP_LOT_GRAPHQL_URL")
         .map_err(|_| {
             error!("PROP_LOT_GRAPHQL_URL is not set in env");

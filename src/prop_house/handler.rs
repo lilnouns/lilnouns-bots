@@ -7,7 +7,7 @@ use serenity::model::webhook::Webhook;
 
 use crate::prop_house::fetcher::Auction;
 
-pub async fn handle_new_auction(auction: &Auction) -> Result<()> {
+pub(crate) async fn handle_new_auction(auction: &Auction) -> Result<()> {
     let base_url =
         env::var("PROP_HOUSE_BASE_URL").context("PROP_HOUSE_BASE_URL is not set in env")?;
 

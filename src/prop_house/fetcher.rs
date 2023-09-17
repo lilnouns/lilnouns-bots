@@ -53,7 +53,7 @@ pub(crate) struct Vote {
     pub(crate) id: isize,
 }
 
-pub async fn fetch_auctions() -> Option<Vec<Auction>> {
+pub(crate) async fn fetch_auctions() -> Option<Vec<Auction>> {
     let url = env::var("PROP_HOUSE_GRAPHQL_URL")
         .map_err(|_| {
             error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
@@ -101,7 +101,7 @@ pub async fn fetch_auctions() -> Option<Vec<Auction>> {
     Some(auctions)
 }
 
-pub async fn fetch_proposals() -> Option<Vec<Proposal>> {
+pub(crate) async fn fetch_proposals() -> Option<Vec<Proposal>> {
     let url = env::var("PROP_HOUSE_GRAPHQL_URL")
         .map_err(|_| {
             error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
@@ -148,7 +148,7 @@ pub async fn fetch_proposals() -> Option<Vec<Proposal>> {
     Some(proposals)
 }
 
-pub async fn fetch_votes() -> Option<Vec<Vote>> {
+pub(crate) async fn fetch_votes() -> Option<Vec<Vote>> {
     let url = env::var("PROP_HOUSE_GRAPHQL_URL")
         .map_err(|_| {
             error!("PROP_HOUSE_GRAPHQL_URL is not set in env");

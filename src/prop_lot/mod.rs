@@ -3,7 +3,7 @@ use std::sync::Arc;
 use futures::future::join_all;
 use log::{error, info};
 
-pub use fetcher::fetch_ideas;
+use fetcher::fetch_ideas;
 
 use crate::prop_lot::cacher::{get_idea_cache, set_comment_cache, set_idea_cache, set_vote_cache};
 use crate::prop_lot::fetcher::{fetch_comments, fetch_votes};

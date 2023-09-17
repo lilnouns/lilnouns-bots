@@ -11,7 +11,7 @@ fn auction_cache_key(id: isize) -> Vec<u8> {
 }
 
 // Store an auction into the cache. Returns a Result to handle potential errors.
-pub async fn set_auction_cache(auction: &Auction) -> Result<()> {
+pub(crate) async fn set_auction_cache(auction: &Auction) -> Result<()> {
     // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = auction_cache_key(auction.id);
@@ -26,7 +26,7 @@ pub async fn set_auction_cache(auction: &Auction) -> Result<()> {
 }
 
 // Attempt to fetch an auction from the cache
-pub async fn get_auction_cache(id: isize) -> Option<Auction> {
+pub(crate) async fn get_auction_cache(id: isize) -> Option<Auction> {
     // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = auction_cache_key(id);
@@ -44,7 +44,9 @@ fn proposal_cache_key(id: isize) -> Vec<u8> {
 }
 
 // Store a proposal into the cache. Returns a Result to handle potential errors.
-pub async fn set_proposal_cache(proposal: &Proposal) -> Result<(), Box<dyn std::error::Error>> {
+pub(crate) async fn set_proposal_cache(
+    proposal: &Proposal,
+) -> Result<(), Box<dyn std::error::Error>> {
     // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = proposal_cache_key(proposal.id);
@@ -59,7 +61,7 @@ pub async fn set_proposal_cache(proposal: &Proposal) -> Result<(), Box<dyn std::
 }
 
 // Attempt to fetch a proposal from the cache
-pub async fn get_proposal_cache(id: isize) -> Option<Proposal> {
+pub(crate) async fn get_proposal_cache(id: isize) -> Option<Proposal> {
     // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = proposal_cache_key(id);
@@ -77,7 +79,7 @@ fn vote_cache_key(id: isize) -> Vec<u8> {
 }
 
 // Store a vote into the cache. Returns a Result to handle potential errors.
-pub async fn set_vote_cache(vote: &Vote) -> Result<(), Box<dyn std::error::Error>> {
+pub(crate) async fn set_vote_cache(vote: &Vote) -> Result<(), Box<dyn std::error::Error>> {
     // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = vote_cache_key(vote.id);
@@ -92,7 +94,7 @@ pub async fn set_vote_cache(vote: &Vote) -> Result<(), Box<dyn std::error::Error
 }
 
 // Attempt to fetch a vote from the cache
-pub async fn get_vote_cache(id: isize) -> Option<Vote> {
+pub(crate) async fn get_vote_cache(id: isize) -> Option<Vote> {
     // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = vote_cache_key(id);

@@ -25,7 +25,7 @@ fn comment_cache_key(id: isize) -> Vec<u8> {
 }
 
 // Store an idea into the cache. Returns a Result to handle potential errors.
-pub async fn set_idea_cache(idea: &Idea) -> Result<()> {
+pub(crate) async fn set_idea_cache(idea: &Idea) -> Result<()> {
     // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = idea_cache_key(idea.id.try_into().unwrap());
@@ -40,7 +40,7 @@ pub async fn set_idea_cache(idea: &Idea) -> Result<()> {
 }
 
 // Attempt to fetch an idea from the cache
-pub async fn get_idea_cache(id: isize) -> Option<Idea> {
+pub(crate) async fn get_idea_cache(id: isize) -> Option<Idea> {
     // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = idea_cache_key(id);
@@ -51,7 +51,7 @@ pub async fn get_idea_cache(id: isize) -> Option<Idea> {
 }
 
 // Store a vote into the cache. Returns a Result to handle potential errors.
-pub async fn set_vote_cache(vote: &Vote) -> Result<()> {
+pub(crate) async fn set_vote_cache(vote: &Vote) -> Result<()> {
     let cache = &cache::CACHE;
     let cache_key = vote_cache_key(vote.id.try_into().unwrap());
 
@@ -63,7 +63,7 @@ pub async fn set_vote_cache(vote: &Vote) -> Result<()> {
 }
 
 // Attempt to fetch a vote from the cache
-pub async fn get_vote_cache(id: isize) -> Option<Vote> {
+pub(crate) async fn get_vote_cache(id: isize) -> Option<Vote> {
     let cache = &cache::CACHE;
     let cache_key = vote_cache_key(id);
     match cache.get(cache_key).unwrap() {
@@ -73,7 +73,7 @@ pub async fn get_vote_cache(id: isize) -> Option<Vote> {
 }
 
 // Store a comment into the cache. Returns a Result to handle potential errors.
-pub async fn set_comment_cache(comment: &Comment) -> Result<()> {
+pub(crate) async fn set_comment_cache(comment: &Comment) -> Result<()> {
     let cache = &cache::CACHE;
     let cache_key = comment_cache_key(comment.id.try_into().unwrap());
 
@@ -85,7 +85,7 @@ pub async fn set_comment_cache(comment: &Comment) -> Result<()> {
 }
 
 // Attempt to fetch a comment from the cache
-pub async fn get_comment_cache(id: isize) -> Option<Comment> {
+pub(crate) async fn get_comment_cache(id: isize) -> Option<Comment> {
     let cache = &cache::CACHE;
     let cache_key = comment_cache_key(id);
     match cache.get(cache_key).unwrap() {
