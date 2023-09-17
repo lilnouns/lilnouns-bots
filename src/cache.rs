@@ -2,6 +2,8 @@ use std::sync::{Arc, Mutex};
 
 use anyhow::{anyhow, Result};
 use lazy_static::lazy_static;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
 use sled::Db;
 
 lazy_static! {
@@ -19,25 +21,22 @@ pub struct Cache {
 }
 
 impl Cache {
-    pub fn get(&self, key: Vec<u8>) -> Result<Option<Vec<u8>>> {
-        let storage = self
-            .storage
-            .lock()
-            .map_err(|_| anyhow!("Failed to acquire lock"))?;
-        storage
-            .get(key)
-            .map_err(|err| anyhow!(err))
-            .map(|opt_ivec| opt_ivec.map(|ivec| ivec.to_vec()))
+    pub fn get<T: DeserializeOwned>(&self, key: &String) -> Result<Option<T>> {
+        let storage = self.storage.lock().unwrap();
+        match storage.get(key) {
+            Ok(Some(ivec)) => {
+                let data: T = serde_json::from_slice(&ivec)?;
+                Ok(Some(data))
+            }
+            Ok(None) => Ok(None),
+            Err(err) => Err(anyhow!("Failed to get key {} from cache: {}", key, err)),
+        }
     }
 
-    pub fn set(&self, key: &[u8], value: &[u8]) -> Result<()> {
-        let storage = self
-            .storage
-            .lock()
-            .map_err(|_| anyhow!("Failed to acquire lock"))?;
-        storage
-            .insert(key, value)
-            .map_err(|err| anyhow!(err))
-            .map(|_| ())
+    pub fn set<T: Serialize>(&self, key: &String, value: &T) -> Result<()> {
+        let storage = self.storage.lock().unwrap();
+        let serialized_value = serde_json::to_vec(value)?;
+        storage.insert(key, serialized_value)?;
+        Ok(())
     }
 }
