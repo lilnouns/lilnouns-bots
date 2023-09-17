@@ -1,41 +1,65 @@
-query Query($id: Int!) {
+fragment AuctionFragment on Auction {
+    id
+    title
+    startTime
+    proposalEndTime
+    votingEndTime
+    fundingAmount
+    currencyType
+    description
+    numWinners
+    createdDate
+    balanceBlockTag
+    displayComments
+    status
+}
+
+fragment ProposalFragment on Proposal {
+    address
+    id
+    title
+    what
+    tldr
+    createdDate
+}
+
+fragment VoteFragment on Vote {
+    address
+    id
+    direction
+    createdDate
+    proposalId
+    auctionId
+    weight
+}
+
+query AuctionQuery($id: Int!) {
     community(id: $id) {
-        id
-        contractAddress
-        name
-        profileImageUrl
-        description
-        numAuctions
         auctions {
-            id
-            title
-            startTime
-            proposalEndTime
-            votingEndTime
-            fundingAmount
-            currencyType
-            description
-            numWinners
-            proposals {
-                address
-                signatureState
-                id
-                title
-                what
-                tldr
-                votes {
-                    address
-                }
-                voteCountFor
-                voteCountAgainst
-                createdDate
-                parentType
-            }
-            createdDate
-            balanceBlockTag
-            displayComments
-            status
+            ...AuctionFragment
         }
-        createdDate
     }
 }
+
+query ProposalQuery($id: Int!) {
+    community(id: $id) {
+        auctions {
+            proposals {
+                ...ProposalFragment
+            }
+        }
+    }
+}
+
+query VoteQuery($id: Int!) {
+    community(id: $id) {
+        auctions {
+            proposals {
+                votes {
+                    ...VoteFragment
+                }
+            }
+        }
+    }
+}
+
