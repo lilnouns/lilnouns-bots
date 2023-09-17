@@ -2,11 +2,12 @@ use std::env;
 
 use anyhow::Context;
 use anyhow::Result;
+use log::debug;
 use serenity::http::Http;
 use serenity::model::channel::Embed;
 use serenity::model::webhook::Webhook;
 
-use crate::prop_lot::fetcher::Idea;
+use crate::prop_lot::fetcher::{Comment, Idea, Vote};
 
 pub(crate) async fn handle_new_idea(idea: &Idea) -> Result<()> {
     let base_url = env::var("PROP_LOT_BASE_URL").context("PROP_LOT_BASE_URL is not set in env")?;
@@ -38,5 +39,15 @@ pub(crate) async fn handle_new_idea(idea: &Idea) -> Result<()> {
         .await
         .context("Failed to execute webhook")?;
 
+    Ok(())
+}
+
+pub(crate) async fn handle_new_vote(vote: &Vote) -> Result<()> {
+    debug!("{:?}", vote);
+    Ok(())
+}
+
+pub(crate) async fn handle_new_comment(comment: &Comment) -> Result<()> {
+    debug!("{:?}", comment);
     Ok(())
 }

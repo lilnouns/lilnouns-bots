@@ -43,12 +43,12 @@ pub(crate) struct Auction {
     pub(crate) description: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct Proposal {
     pub(crate) id: isize,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct Vote {
     pub(crate) id: isize,
 }
