@@ -34,7 +34,7 @@ pub async fn set_idea_cache(idea: &Idea) -> Result<()> {
     let idea_json = serde_json::to_string(idea)?;
 
     // Attempt to set the value in cache and cater for potential error
-    cache.set(&*cache_key, idea_json.as_bytes())?;
+    cache.set(&cache_key, idea_json.as_bytes())?;
 
     Ok(())
 }
@@ -45,7 +45,7 @@ pub async fn get_idea_cache(id: isize) -> Option<Idea> {
     let cache = &cache::CACHE;
     let cache_key = idea_cache_key(id);
     match cache.get(cache_key).unwrap() {
-        Some(bytes) => serde_json::from_slice(&*bytes).ok(),
+        Some(bytes) => serde_json::from_slice(&bytes).ok(),
         None => None,
     }
 }
@@ -57,7 +57,7 @@ pub async fn set_vote_cache(vote: &Vote) -> Result<()> {
 
     let vote_json = serde_json::to_string(vote)?;
 
-    cache.set(&*cache_key, vote_json.as_bytes())?;
+    cache.set(&cache_key, vote_json.as_bytes())?;
 
     Ok(())
 }
@@ -67,7 +67,7 @@ pub async fn get_vote_cache(id: isize) -> Option<Vote> {
     let cache = &cache::CACHE;
     let cache_key = vote_cache_key(id);
     match cache.get(cache_key).unwrap() {
-        Some(bytes) => serde_json::from_slice(&*bytes).ok(),
+        Some(bytes) => serde_json::from_slice(&bytes).ok(),
         None => None,
     }
 }
@@ -79,7 +79,7 @@ pub async fn set_comment_cache(comment: &Comment) -> Result<()> {
 
     let comment_json = serde_json::to_string(comment)?;
 
-    cache.set(&*cache_key, comment_json.as_bytes())?;
+    cache.set(&cache_key, comment_json.as_bytes())?;
 
     Ok(())
 }
@@ -89,7 +89,7 @@ pub async fn get_comment_cache(id: isize) -> Option<Comment> {
     let cache = &cache::CACHE;
     let cache_key = comment_cache_key(id);
     match cache.get(cache_key).unwrap() {
-        Some(bytes) => serde_json::from_slice(&*bytes).ok(),
+        Some(bytes) => serde_json::from_slice(&bytes).ok(),
         None => None,
     }
 }

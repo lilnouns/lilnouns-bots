@@ -24,7 +24,7 @@ pub async fn handle_new_auction(auction: &Auction) -> Result<()> {
             .url(format!(
                 "{}/{}",
                 base_url,
-                auction.title.replace(" ", "-").to_lowercase()
+                auction.title.replace(' ', "-").to_lowercase()
             ))
             .description(&auction.description)
             .colour(0x8A2CE2)

@@ -20,7 +20,7 @@ pub async fn set_auction_cache(auction: &Auction) -> Result<()> {
     let auction_json = serde_json::to_string(auction)?;
 
     // Attempt to set the value in cache and cater for potential error
-    cache.set(&*cache_key, auction_json.as_bytes())?;
+    cache.set(&cache_key, auction_json.as_bytes())?;
 
     Ok(())
 }
@@ -31,7 +31,7 @@ pub async fn get_auction_cache(id: isize) -> Option<Auction> {
     let cache = &cache::CACHE;
     let cache_key = auction_cache_key(id);
     match cache.get(cache_key).unwrap() {
-        Some(bytes) => serde_json::from_slice(&*bytes).ok(),
+        Some(bytes) => serde_json::from_slice(&bytes).ok(),
         None => None,
     }
 }
@@ -53,7 +53,7 @@ pub async fn set_proposal_cache(proposal: &Proposal) -> Result<(), Box<dyn std::
     let proposal_json = serde_json::to_string(proposal)?;
 
     // Attempt to set the value in cache and cater for potential error
-    cache.set(&*cache_key, proposal_json.as_bytes())?;
+    cache.set(&cache_key, proposal_json.as_bytes())?;
 
     Ok(())
 }
@@ -64,7 +64,7 @@ pub async fn get_proposal_cache(id: isize) -> Option<Proposal> {
     let cache = &cache::CACHE;
     let cache_key = proposal_cache_key(id);
     match cache.get(cache_key).unwrap() {
-        Some(bytes) => serde_json::from_slice(&*bytes).ok(),
+        Some(bytes) => serde_json::from_slice(&bytes).ok(),
         None => None,
     }
 }
@@ -86,7 +86,7 @@ pub async fn set_vote_cache(vote: &Vote) -> Result<(), Box<dyn std::error::Error
     let vote_json = serde_json::to_string(vote)?;
 
     // Attempt to set the value in cache and cater for potential error
-    cache.set(&*cache_key, vote_json.as_bytes())?;
+    cache.set(&cache_key, vote_json.as_bytes())?;
 
     Ok(())
 }
@@ -97,7 +97,7 @@ pub async fn get_vote_cache(id: isize) -> Option<Vote> {
     let cache = &cache::CACHE;
     let cache_key = vote_cache_key(id);
     match cache.get(cache_key).unwrap() {
-        Some(bytes) => serde_json::from_slice(&*bytes).ok(),
+        Some(bytes) => serde_json::from_slice(&bytes).ok(),
         None => None,
     }
 }

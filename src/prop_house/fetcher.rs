@@ -92,7 +92,7 @@ pub async fn fetch_auctions() -> Option<Vec<Auction>> {
         .auctions
         .iter()
         .map(|auction| Auction {
-            id: auction.id.clone().try_into().unwrap(),
+            id: auction.id.try_into().unwrap(),
             title: auction.title.clone(),
             description: auction.description.clone(),
         })
@@ -141,7 +141,7 @@ pub async fn fetch_proposals() -> Option<Vec<Proposal>> {
         .iter()
         .flat_map(|auction| &auction.proposals)
         .map(|proposal| Proposal {
-            id: proposal.id.clone().try_into().unwrap(),
+            id: proposal.id.try_into().unwrap(),
         })
         .collect();
 
@@ -189,7 +189,7 @@ pub async fn fetch_votes() -> Option<Vec<Vote>> {
         .flat_map(|auction| &auction.proposals)
         .flat_map(|proposal| &proposal.votes)
         .map(|vote| Vote {
-            id: vote.id.clone().try_into().unwrap(),
+            id: vote.id.try_into().unwrap(),
         })
         .collect();
 

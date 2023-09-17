@@ -92,7 +92,7 @@ pub async fn fetch_ideas() -> Option<Vec<Idea>> {
         .as_ref()?
         .ideas
         .as_ref()?
-        .into_iter()
+        .iter()
         .map(|idea| Idea {
             id: idea.id.try_into().unwrap(),
             title: idea.title.clone(),
@@ -138,15 +138,15 @@ pub async fn fetch_votes() -> Option<Vec<Vote>> {
         .as_ref()?
         .ideas
         .as_ref()?
-        .into_iter()
+        .iter()
         .flat_map(|idea| idea.votes.iter())
         .flat_map(|vote| vote.iter())
         .map(|vote| Vote {
             id: vote.id.try_into().unwrap(),
             voter_id: vote.voter_id.clone(),
-            idea_id: vote.idea_id.clone().try_into().unwrap(),
-            direction: vote.direction.clone().try_into().unwrap(),
-            voter_weight: vote.voter_weight.clone().try_into().unwrap(),
+            idea_id: vote.idea_id.try_into().unwrap(),
+            direction: vote.direction.try_into().unwrap(),
+            voter_weight: vote.voter_weight.try_into().unwrap(),
         })
         .collect();
 
@@ -187,7 +187,7 @@ pub async fn fetch_comments() -> Option<Vec<Comment>> {
         .as_ref()?
         .ideas
         .as_ref()?
-        .into_iter()
+        .iter()
         .flat_map(|idea| idea.comments.iter())
         .flat_map(|comment| comment.iter())
         .map(|comment| Comment {
