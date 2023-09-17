@@ -53,4 +53,24 @@ impl Cache {
 
         Ok(())
     }
+
+    pub fn set_batch<K, V>(&self, items: Vec<(K, V)>) -> Result<()>
+    where
+        K: Serialize + Debug,
+        V: Serialize,
+    {
+        let storage = self.storage.lock().unwrap();
+        let mut batch = sled::Batch::default();
+
+        for (key, value) in items {
+            let key_bytes = serde_json::to_vec(&key)?;
+            let value_bytes = serde_json::to_vec(&value)?;
+
+            batch.insert(key_bytes, value_bytes);
+        }
+
+        storage.apply_batch(batch)?;
+
+        Ok(())
+    }
 }
