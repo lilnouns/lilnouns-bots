@@ -107,7 +107,7 @@ pub(crate) async fn fetch_auctions() -> Option<Vec<Auction>> {
         .map(|auction| Auction {
             id: auction.id.try_into().unwrap(),
             title: auction.title.clone(),
-            description: auction.description.clone(),
+            description: html2md::parse_html(&*auction.description),
         })
         .collect();
 
