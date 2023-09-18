@@ -90,7 +90,7 @@ pub(crate) async fn fetch_ideas() -> Option<Vec<Idea>> {
     let variables = idea_query::Variables {
         options: idea_query::IdeaInputOptions {
             idea_id: None,
-            sort: Some(idea_query::SORT_TYPE::LATEST),
+            sort: Some(idea_query::SORT_TYPE::OLDEST),
         },
     };
 
