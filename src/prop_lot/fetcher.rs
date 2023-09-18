@@ -57,6 +57,7 @@ pub(crate) struct Vote {
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct Comment {
     pub(crate) id: isize,
+    pub(crate) idea_id: isize,
 }
 
 async fn fetch<QueryType: GraphQLQuery>(
@@ -156,6 +157,7 @@ pub(crate) async fn fetch_comments() -> Option<Vec<Comment>> {
         .flat_map(|comment| comment.iter())
         .map(|comment| Comment {
             id: comment.id.try_into().unwrap(),
+            idea_id: comment.id.try_into().unwrap(),
         })
         .collect();
 

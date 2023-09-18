@@ -6,8 +6,8 @@ use log::{error, info};
 use fetcher::fetch_ideas;
 
 use crate::prop_lot::cacher::{
-    get_comment_cache, get_idea_cache, get_vote_cache, set_comment_cache, set_idea_cache,
-    set_vote_cache,
+    get_comment_cache, get_idea_cache, get_vote_cache, set_comments_cache, set_ideas_cache,
+    set_votes_cache,
 };
 use crate::prop_lot::fetcher::{fetch_comments, fetch_votes};
 use crate::prop_lot::handler::{handle_new_comment, handle_new_idea, handle_new_vote};
@@ -18,66 +18,15 @@ mod handler;
 
 pub async fn setup() {
     if let Some(ideas) = fetch_ideas().await {
-        let mut tasks = Vec::new();
-
-        for idea in ideas {
-            let arc_idea = Arc::new(idea);
-            let task = tokio::spawn({
-                let arc_idea = Arc::clone(&arc_idea);
-                async move {
-                    info!("Cache a new idea... ({:?})", arc_idea.id);
-                    let _ = set_idea_cache(&arc_idea).map_err(|e| {
-                        error!("Error while trying to set idea cache: {}", e);
-                    });
-                }
-            });
-
-            tasks.push(task);
-        }
-
-        join_all(tasks).await;
+        set_ideas_cache(&ideas).unwrap();
     }
 
     if let Some(votes) = fetch_votes().await {
-        let mut tasks = Vec::new();
-
-        for vote in votes {
-            let arc_vote = Arc::new(vote);
-            let task = tokio::spawn({
-                let arc_vote = Arc::clone(&arc_vote);
-                async move {
-                    info!("Cache a new vote... ({:?})", arc_vote.id);
-                    let _ = set_vote_cache(&arc_vote).map_err(|e| {
-                        error!("Error while trying to set vote cache: {}", e);
-                    });
-                }
-            });
-
-            tasks.push(task);
-        }
-
-        join_all(tasks).await;
+        set_votes_cache(&votes).unwrap();
     }
 
     if let Some(comments) = fetch_comments().await {
-        let mut tasks = Vec::new();
-
-        for comment in comments {
-            let arc_comment = Arc::new(comment);
-            let task = tokio::spawn({
-                let arc_comment = Arc::clone(&arc_comment);
-                async move {
-                    info!("Cache a new comment... ({:?})", arc_comment.id);
-                    let _ = set_comment_cache(&arc_comment).map_err(|e| {
-                        error!("Error while trying to set comment cache: {}", e);
-                    });
-                }
-            });
-
-            tasks.push(task);
-        }
-
-        join_all(tasks).await;
+        set_comments_cache(&comments).unwrap();
     }
 }
 

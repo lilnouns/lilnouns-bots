@@ -20,14 +20,12 @@ fn vote_cache_key(id: isize) -> String {
 }
 
 pub(crate) fn set_auction_cache(auction: &Auction) -> Result<()> {
-    // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = auction_cache_key(auction.id);
     cache.set(&cache_key, auction)
 }
 
 pub(crate) fn set_auctions_cache(auctions: &Vec<Auction>) -> Result<()> {
-    // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let mut items = Vec::new();
     for auction in auctions {
@@ -37,7 +35,6 @@ pub(crate) fn set_auctions_cache(auctions: &Vec<Auction>) -> Result<()> {
 }
 
 pub(crate) fn get_auction_cache(id: isize) -> Result<Option<Auction>> {
-    // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = auction_cache_key(id);
     cache.get::<String, Auction>(&cache_key)
@@ -59,7 +56,6 @@ pub(crate) fn set_proposals_cache(proposals: &Vec<Proposal>) -> Result<()> {
 }
 
 pub(crate) fn get_proposal_cache(id: isize) -> Result<Option<Proposal>> {
-    // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = proposal_cache_key(id);
     cache.get::<String, Proposal>(&cache_key)
@@ -81,7 +77,6 @@ pub(crate) fn set_votes_cache(votes: &Vec<Vote>) -> Result<()> {
 }
 
 pub(crate) fn get_vote_cache(id: isize) -> Result<Option<Vote>> {
-    // Access the global CACHE instance and use it
     let cache = &cache::CACHE;
     let cache_key = vote_cache_key(id);
     cache.get::<String, Vote>(&cache_key)
