@@ -21,6 +21,9 @@ fragment ProposalFragment on Proposal {
     what
     tldr
     createdDate
+    auction {
+        ...AuctionFragment
+    }
 }
 
 fragment VoteFragment on Vote {
