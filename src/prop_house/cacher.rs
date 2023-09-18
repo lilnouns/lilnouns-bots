@@ -3,103 +3,81 @@ use anyhow::Result;
 use crate::cache;
 use crate::prop_house::fetcher::{Auction, Proposal, Vote};
 
-const AUCTION_CACHE_KEY_PREFIX: &[u8] = b"PROP_HOUSE_AUCTION_";
+const AUCTION_CACHE_KEY_PREFIX: &str = "PROP_HOUSE_AUCTION_";
+const PROPOSAL_CACHE_KEY_PREFIX: &str = "PROP_HOUSE_PROPOSAL_";
+const VOTE_CACHE_KEY_PREFIX: &str = "PROP_HOUSE_VOTE_";
 
-// Build the auction cache key
-fn auction_cache_key(id: isize) -> Vec<u8> {
-    [AUCTION_CACHE_KEY_PREFIX, &id.to_be_bytes()].concat()
+fn auction_cache_key(id: isize) -> String {
+    format!("{}{}", AUCTION_CACHE_KEY_PREFIX, id)
 }
 
-// Store an auction into the cache. Returns a Result to handle potential errors.
-pub(crate) async fn set_auction_cache(auction: &Auction) -> Result<()> {
-    // Access the global CACHE instance and use it
+fn proposal_cache_key(id: isize) -> String {
+    format!("{}{}", PROPOSAL_CACHE_KEY_PREFIX, id)
+}
+
+fn vote_cache_key(id: isize) -> String {
+    format!("{}{}", VOTE_CACHE_KEY_PREFIX, id)
+}
+
+pub(crate) fn set_auction_cache(auction: &Auction) -> Result<()> {
     let cache = &cache::CACHE;
     let cache_key = auction_cache_key(auction.id);
-
-    // Ensure serialization is successful
-    let auction_json = serde_json::to_string(auction)?;
-
-    // Attempt to set the value in cache and cater for potential error
-    cache.set(&cache_key, auction_json.as_bytes())?;
-
-    Ok(())
+    cache.set(&cache_key, auction)
 }
 
-// Attempt to fetch an auction from the cache
-pub(crate) async fn get_auction_cache(id: isize) -> Option<Auction> {
-    // Access the global CACHE instance and use it
+pub(crate) fn set_auctions_cache(auctions: &Vec<Auction>) -> Result<()> {
+    let cache = &cache::CACHE;
+    let mut items = Vec::new();
+    for auction in auctions {
+        items.push((auction_cache_key(auction.id), auction))
+    }
+    cache.set_batch(items)
+}
+
+pub(crate) fn get_auction_cache(id: isize) -> Result<Option<Auction>> {
     let cache = &cache::CACHE;
     let cache_key = auction_cache_key(id);
-    match cache.get(cache_key).unwrap() {
-        Some(bytes) => serde_json::from_slice(&bytes).ok(),
-        None => None,
-    }
+    cache.get::<String, Auction>(&cache_key)
 }
 
-const PROPOSAL_CACHE_KEY_PREFIX: &[u8] = b"PROP_HOUSE_PROPOSAL_";
-
-// Build the proposal cache key
-fn proposal_cache_key(id: isize) -> Vec<u8> {
-    [PROPOSAL_CACHE_KEY_PREFIX, &id.to_be_bytes()].concat()
-}
-
-// Store a proposal into the cache. Returns a Result to handle potential errors.
-pub(crate) async fn set_proposal_cache(
-    proposal: &Proposal,
-) -> Result<(), Box<dyn std::error::Error>> {
-    // Access the global CACHE instance and use it
+pub(crate) fn set_proposal_cache(proposal: &Proposal) -> Result<()> {
     let cache = &cache::CACHE;
     let cache_key = proposal_cache_key(proposal.id);
-
-    // Ensure serialization is successful
-    let proposal_json = serde_json::to_string(proposal)?;
-
-    // Attempt to set the value in cache and cater for potential error
-    cache.set(&cache_key, proposal_json.as_bytes())?;
-
-    Ok(())
+    cache.set(&cache_key, proposal)
 }
 
-// Attempt to fetch a proposal from the cache
-pub(crate) async fn get_proposal_cache(id: isize) -> Option<Proposal> {
-    // Access the global CACHE instance and use it
+pub(crate) fn set_proposals_cache(proposals: &Vec<Proposal>) -> Result<()> {
+    let cache = &cache::CACHE;
+    let mut items = Vec::new();
+    for proposal in proposals {
+        items.push((proposal_cache_key(proposal.id), proposal))
+    }
+    cache.set_batch(items)
+}
+
+pub(crate) fn get_proposal_cache(id: isize) -> Result<Option<Proposal>> {
     let cache = &cache::CACHE;
     let cache_key = proposal_cache_key(id);
-    match cache.get(cache_key).unwrap() {
-        Some(bytes) => serde_json::from_slice(&bytes).ok(),
-        None => None,
-    }
+    cache.get::<String, Proposal>(&cache_key)
 }
 
-const VOTE_CACHE_KEY_PREFIX: &[u8] = b"PROP_HOUSE_VOTE_";
-
-// Build the vote cache key
-fn vote_cache_key(id: isize) -> Vec<u8> {
-    [VOTE_CACHE_KEY_PREFIX, &id.to_be_bytes()].concat()
-}
-
-// Store a vote into the cache. Returns a Result to handle potential errors.
-pub(crate) async fn set_vote_cache(vote: &Vote) -> Result<(), Box<dyn std::error::Error>> {
-    // Access the global CACHE instance and use it
+pub(crate) fn set_vote_cache(vote: &Vote) -> Result<()> {
     let cache = &cache::CACHE;
     let cache_key = vote_cache_key(vote.id);
-
-    // Ensure serialization is successful
-    let vote_json = serde_json::to_string(vote)?;
-
-    // Attempt to set the value in cache and cater for potential error
-    cache.set(&cache_key, vote_json.as_bytes())?;
-
-    Ok(())
+    cache.set(&cache_key, vote)
 }
 
-// Attempt to fetch a vote from the cache
-pub(crate) async fn get_vote_cache(id: isize) -> Option<Vote> {
-    // Access the global CACHE instance and use it
+pub(crate) fn set_votes_cache(votes: &Vec<Vote>) -> Result<()> {
+    let cache = &cache::CACHE;
+    let mut items = Vec::new();
+    for vote in votes {
+        items.push((vote_cache_key(vote.id), vote))
+    }
+    cache.set_batch(items)
+}
+
+pub(crate) fn get_vote_cache(id: isize) -> Result<Option<Vote>> {
     let cache = &cache::CACHE;
     let cache_key = vote_cache_key(id);
-    match cache.get(cache_key).unwrap() {
-        Some(bytes) => serde_json::from_slice(&bytes).ok(),
-        None => None,
-    }
+    cache.get::<String, Vote>(&cache_key)
 }
