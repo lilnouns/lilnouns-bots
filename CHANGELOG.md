@@ -6,6 +6,22 @@ All notable changes to this project will be documented in this file.
 
 ### Refactor
 
+- Add new fields to Proposal and Vote in Prop House fetcher
+- Update notification handling for new Prop House proposals and votes
+- Move handler functions to DiscordHandler structs
+- Convert Prop House auction description from HTML to Markdown
+- Change default sorting in Prop Lot fetcher to oldest
+- Add author id and body to Prop Lot comment struct
+- Update vote and comment Prop Lot handler methods
+
+### Miscellaneous Tasks
+
+- Add auction field to Prop House query
+
+## [1.0.0-alpha.5] - 2023-09-18
+
+### Refactor
+
 - Update code to handle new proposals and votes
 - Add fetch functions to reduce code duplication
 - Update codebase to use generic caching system
