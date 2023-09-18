@@ -23,16 +23,15 @@ fn comment_cache_key(id: isize) -> String {
 
 pub(crate) fn set_idea_cache(idea: &Idea) -> Result<()> {
     let cache = &cache::CACHE;
-    let cache_key = idea_cache_key(idea.id);
-    cache.set(cache_key, idea)
+    cache.set(idea_cache_key(idea.id), idea)
 }
 
-pub(crate) fn set_ideas_cache(ideas: &Vec<Idea>) -> Result<()> {
+pub(crate) fn set_ideas_cache(ideas: &[Idea]) -> Result<()> {
     let cache = &cache::CACHE;
-    let mut items = Vec::new();
-    for idea in ideas {
-        items.push((idea_cache_key(idea.id), idea))
-    }
+    let items: Vec<_> = ideas
+        .iter()
+        .map(|idea| (idea_cache_key(idea.id), idea))
+        .collect();
     cache.set_batch(items)
 }
 
@@ -46,12 +45,12 @@ pub(crate) fn set_vote_cache(vote: &Vote) -> Result<()> {
     cache.set(vote_cache_key(vote.id), vote)
 }
 
-pub(crate) fn set_votes_cache(votes: &Vec<Vote>) -> Result<()> {
+pub(crate) fn set_votes_cache(votes: &[Vote]) -> Result<()> {
     let cache = &cache::CACHE;
-    let mut items = Vec::new();
-    for vote in votes {
-        items.push((vote_cache_key(vote.id), vote))
-    }
+    let items: Vec<_> = votes
+        .iter()
+        .map(|vote| (vote_cache_key(vote.id), vote))
+        .collect();
     cache.set_batch(items)
 }
 
@@ -65,17 +64,16 @@ pub(crate) fn set_comment_cache(comment: &Comment) -> Result<()> {
     cache.set(comment_cache_key(comment.id), comment)
 }
 
-pub(crate) fn set_comments_cache(comments: &Vec<Comment>) -> Result<()> {
+pub(crate) fn set_comments_cache(comments: &[Comment]) -> Result<()> {
     let cache = &cache::CACHE;
-    let mut items = Vec::new();
-    for comment in comments {
-        items.push((comment_cache_key(comment.id), comment))
-    }
+    let items: Vec<_> = comments
+        .iter()
+        .map(|comment| (comment_cache_key(comment.id), comment))
+        .collect();
     cache.set_batch(items)
 }
 
 pub(crate) fn get_comment_cache(id: isize) -> Result<Option<Comment>> {
     let cache = &cache::CACHE;
-    let cache_key = comment_cache_key(id);
-    cache.get::<String, Comment>(&cache_key)
+    cache.get::<String, Comment>(&comment_cache_key(id))
 }
