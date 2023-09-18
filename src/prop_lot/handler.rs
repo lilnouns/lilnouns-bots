@@ -1,7 +1,6 @@
 use std::env;
 
 use anyhow::{Context, Result};
-use log::{debug, error};
 use serenity::json::Value;
 use serenity::{
     http::Http,
@@ -69,22 +68,59 @@ impl DiscordHandler {
     }
 
     pub(crate) async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
-        if let Ok(Some(idea)) = get_idea_cache(vote.idea_id) {
-            debug!("New Vote on Proposal: {}", idea.title)
-        } else {
-            error!("No idea found for given id: {}", vote.idea_id);
-        }
+        let idea = get_idea_cache(vote.idea_id)?
+            .ok_or_else(|| anyhow::anyhow!("No idea found for id {}", vote.idea_id))?;
+
+        let message = Embed::fake(|e| {
+            e.author(|a| {
+                a.name(format!(
+                    "{}...{}",
+                    &vote.voter_id[0..4],
+                    &vote.voter_id[38..42]
+                ))
+            })
+            .title(format!(
+                "New Vote {}: {}",
+                match vote.direction {
+                    1 => "For",
+                    _ => "Against",
+                },
+                idea.title
+            ))
+            .url(format!("{}/idea/{}", self.base_url, idea.id))
+            .description(&idea.tldr)
+            .colour(0x8A2CE2)
+        });
+
+        self.execute_webhook(message).await?;
+
         set_vote_cache(vote)?;
+
         Ok(())
     }
 
     pub(crate) async fn handle_new_comment(&self, comment: &Comment) -> Result<()> {
-        if let Ok(Some(idea)) = get_idea_cache(comment.idea_id) {
-            debug!("New Comment on Idea: {}", idea.title)
-        } else {
-            error!("No idea found for given id: {}", comment.idea_id);
-        }
+        let idea = get_idea_cache(comment.idea_id)?
+            .ok_or_else(|| anyhow::anyhow!("No idea found for id {}", comment.idea_id))?;
+
+        let message = Embed::fake(|e| {
+            e.author(|a| {
+                a.name(format!(
+                    "{}...{}",
+                    &comment.author_id[0..4],
+                    &comment.author_id[38..42]
+                ))
+            })
+            .title(format!("New Comment: {}", idea.title))
+            .url(format!("{}/idea/{}", self.base_url, idea.id))
+            .description(&comment.body)
+            .colour(0x8A2CE2)
+        });
+
+        self.execute_webhook(message).await?;
+
         set_comment_cache(comment)?;
+
         Ok(())
     }
 }
