@@ -34,7 +34,7 @@ pub async fn start() {
 
     if let Some(auctions) = fetch_auctions().await {
         for auction in auctions {
-            if let Ok(cached_auction) = get_auction_cache(auction.id.try_into().unwrap()) {
+            if let Ok(cached_auction) = get_auction_cache(auction.id) {
                 if cached_auction.is_none() {
                     info!("Handle a new auction... ({:?})", auction.id);
                     if let Err(err) = handler.handle_new_auction(&auction).await {
@@ -47,7 +47,7 @@ pub async fn start() {
 
     if let Some(proposals) = fetch_proposals().await {
         for proposal in proposals {
-            if let Ok(cached_proposal) = get_proposal_cache(proposal.id.try_into().unwrap()) {
+            if let Ok(cached_proposal) = get_proposal_cache(proposal.id) {
                 if cached_proposal.is_none() {
                     info!("Handle a new proposal... ({:?})", proposal.id);
                     if let Err(err) = handler.handle_new_proposal(&proposal).await {
@@ -60,7 +60,7 @@ pub async fn start() {
 
     if let Some(votes) = fetch_votes().await {
         for vote in votes {
-            if let Ok(cached_vote) = get_vote_cache(vote.id.try_into().unwrap()) {
+            if let Ok(cached_vote) = get_vote_cache(vote.id) {
                 if cached_vote.is_none() {
                     info!("Handle a new vote... ({:?})", vote.id);
                     if let Err(err) = handler.handle_new_vote(&vote).await {

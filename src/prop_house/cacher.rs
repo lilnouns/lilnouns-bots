@@ -21,8 +21,7 @@ fn vote_cache_key(id: isize) -> String {
 
 pub(crate) fn set_auction_cache(auction: &Auction) -> Result<()> {
     let cache = &cache::CACHE;
-    let cache_key = auction_cache_key(auction.id);
-    cache.set(&cache_key, auction)
+    cache.set(auction_cache_key(auction.id), auction)
 }
 
 pub(crate) fn set_auctions_cache(auctions: &Vec<Auction>) -> Result<()> {
@@ -36,14 +35,12 @@ pub(crate) fn set_auctions_cache(auctions: &Vec<Auction>) -> Result<()> {
 
 pub(crate) fn get_auction_cache(id: isize) -> Result<Option<Auction>> {
     let cache = &cache::CACHE;
-    let cache_key = auction_cache_key(id);
-    cache.get::<String, Auction>(&cache_key)
+    cache.get::<String, Auction>(&auction_cache_key(id))
 }
 
 pub(crate) fn set_proposal_cache(proposal: &Proposal) -> Result<()> {
     let cache = &cache::CACHE;
-    let cache_key = proposal_cache_key(proposal.id);
-    cache.set(&cache_key, proposal)
+    cache.set(proposal_cache_key(proposal.id), proposal)
 }
 
 pub(crate) fn set_proposals_cache(proposals: &Vec<Proposal>) -> Result<()> {
@@ -57,14 +54,12 @@ pub(crate) fn set_proposals_cache(proposals: &Vec<Proposal>) -> Result<()> {
 
 pub(crate) fn get_proposal_cache(id: isize) -> Result<Option<Proposal>> {
     let cache = &cache::CACHE;
-    let cache_key = proposal_cache_key(id);
-    cache.get::<String, Proposal>(&cache_key)
+    cache.get::<String, Proposal>(&proposal_cache_key(id))
 }
 
 pub(crate) fn set_vote_cache(vote: &Vote) -> Result<()> {
     let cache = &cache::CACHE;
-    let cache_key = vote_cache_key(vote.id);
-    cache.set(&cache_key, vote)
+    cache.set(vote_cache_key(vote.id), vote)
 }
 
 pub(crate) fn set_votes_cache(votes: &Vec<Vote>) -> Result<()> {
@@ -78,6 +73,5 @@ pub(crate) fn set_votes_cache(votes: &Vec<Vote>) -> Result<()> {
 
 pub(crate) fn get_vote_cache(id: isize) -> Result<Option<Vote>> {
     let cache = &cache::CACHE;
-    let cache_key = vote_cache_key(id);
-    cache.get::<String, Vote>(&cache_key)
+    cache.get::<String, Vote>(&vote_cache_key(id))
 }

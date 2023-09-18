@@ -23,8 +23,8 @@ fn comment_cache_key(id: isize) -> String {
 
 pub(crate) fn set_idea_cache(idea: &Idea) -> Result<()> {
     let cache = &cache::CACHE;
-    let cache_key = idea_cache_key(idea.id.try_into().unwrap());
-    cache.set(&cache_key, idea)
+    let cache_key = idea_cache_key(idea.id);
+    cache.set(cache_key, idea)
 }
 
 pub(crate) fn set_ideas_cache(ideas: &Vec<Idea>) -> Result<()> {
@@ -38,14 +38,12 @@ pub(crate) fn set_ideas_cache(ideas: &Vec<Idea>) -> Result<()> {
 
 pub(crate) fn get_idea_cache(id: isize) -> Result<Option<Idea>> {
     let cache = &cache::CACHE;
-    let cache_key = idea_cache_key(id);
-    cache.get::<String, Idea>(&cache_key)
+    cache.get::<String, Idea>(&idea_cache_key(id))
 }
 
 pub(crate) fn set_vote_cache(vote: &Vote) -> Result<()> {
     let cache = &cache::CACHE;
-    let cache_key = vote_cache_key(vote.id.try_into().unwrap());
-    cache.set(&cache_key, vote)
+    cache.set(vote_cache_key(vote.id), vote)
 }
 
 pub(crate) fn set_votes_cache(votes: &Vec<Vote>) -> Result<()> {
@@ -59,14 +57,12 @@ pub(crate) fn set_votes_cache(votes: &Vec<Vote>) -> Result<()> {
 
 pub(crate) fn get_vote_cache(id: isize) -> Result<Option<Vote>> {
     let cache = &cache::CACHE;
-    let cache_key = vote_cache_key(id);
-    cache.get::<String, Vote>(&cache_key)
+    cache.get::<String, Vote>(&vote_cache_key(id))
 }
 
 pub(crate) fn set_comment_cache(comment: &Comment) -> Result<()> {
     let cache = &cache::CACHE;
-    let cache_key = comment_cache_key(comment.id.try_into().unwrap());
-    cache.set(&cache_key, comment)
+    cache.set(comment_cache_key(comment.id), comment)
 }
 
 pub(crate) fn set_comments_cache(comments: &Vec<Comment>) -> Result<()> {
