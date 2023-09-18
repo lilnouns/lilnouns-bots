@@ -1,6 +1,7 @@
 use std::env;
 
 use anyhow::{Context, Result};
+use chrono::Local;
 use serenity::http::Http;
 use serenity::json::Value;
 use serenity::model::channel::Embed;
@@ -48,13 +49,17 @@ impl DiscordHandler {
 
     pub(crate) async fn handle_new_auction(&self, auction: &Auction) -> Result<()> {
         let message = Embed::fake(|e| {
-            e.title(format!("New Round: {}", auction.title))
+            e.title("New Prop House Round")
                 .url(format!(
                     "{}/{}",
                     self.base_url,
                     auction.title.replace(' ', "-").to_lowercase()
                 ))
-                .description(&auction.description)
+                .description(format!(
+                    "A new Prop House round has been created: {}",
+                    auction.title
+                ))
+                .footer(|f| f.text(format!("{}", Local::now().format("%m/%d/%Y %I:%M %p"))))
                 .colour(0x8A2CE2)
         });
 
@@ -76,15 +81,20 @@ impl DiscordHandler {
                     &proposal.address[0..4],
                     &proposal.address[38..42]
                 ))
+                .url(format!("https://etherscan.io/address/{}", proposal.address))
             })
-            .title(format!("New Proposal: {}", proposal.title))
+            .title("New Prop House Proposal")
             .url(format!(
                 "{}/{}/{}",
                 self.base_url,
                 auction.title.replace(' ', "-").to_lowercase(),
                 proposal.id
             ))
-            .description(&proposal.tldr)
+            .description(format!(
+                "A new Prop House proposal has been created: {}",
+                proposal.title
+            ))
+            .footer(|f| f.text(format!("{}", Local::now().format("%m/%d/%Y %I:%M %p"))))
             .colour(0x8A2CE2)
         });
 
@@ -106,22 +116,25 @@ impl DiscordHandler {
                     &vote.address[0..4],
                     &vote.address[38..42]
                 ))
+                .url(format!("https://etherscan.io/address/{}", vote.address))
             })
-            .title(format!(
-                "New Vote {}: {}",
-                match vote.direction {
-                    1 => "For",
-                    _ => "Against",
-                },
-                proposal.title
-            ))
+            .title("New Prop House Proposal Vote")
             .url(format!(
                 "{}/{}/{}",
                 self.base_url,
                 proposal.title.replace(' ', "-").to_lowercase(),
                 proposal.id
             ))
-            .description(&proposal.tldr)
+            .description(format!(
+                "{} has voted {} Proposal ({})",
+                format!("{}...{}", &vote.address[0..4], &vote.address[38..42]),
+                match vote.direction {
+                    1 => "for",
+                    _ => "against",
+                },
+                proposal.title
+            ))
+            .footer(|f| f.text(format!("{}", Local::now().format("%m/%d/%Y %I:%M %p"))))
             .colour(0x8A2CE2)
         });
 
