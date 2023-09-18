@@ -6,6 +6,27 @@ All notable changes to this project will be documented in this file.
 
 ### Refactor
 
+- Update code to handle new proposals and votes
+- Add fetch functions to reduce code duplication
+- Update codebase to use generic caching system
+- Add proposal title and link votes to proposals for Prop House
+- Improve proposal and vote logging on Prop House
+- Improve cache flexibility and performance
+- Add batch insertion capability to improve caching performance
+- Switch storage engine from `sled` to `rocksdb`
+- Update caching process and improve logging
+- Update async code for clarity and simplicity
+
+### Miscellaneous Tasks
+
+- Remove `sled` dependency from `Cargo.toml`
+- Add report files to `.gitignore`
+- Update dependencies and remove unneeded ones
+
+## [1.0.0-alpha.4] - 2023-09-17
+
+### Refactor
+
 - Remove unnecessary clone method and handle string conversion
 - Limit visibility of fetch and cache functions
 
