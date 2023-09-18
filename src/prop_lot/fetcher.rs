@@ -58,6 +58,8 @@ pub(crate) struct Vote {
 pub(crate) struct Comment {
     pub(crate) id: isize,
     pub(crate) idea_id: isize,
+    pub(crate) author_id: String,
+    pub(crate) body: String,
 }
 
 async fn fetch<QueryType: GraphQLQuery>(
@@ -158,6 +160,8 @@ pub(crate) async fn fetch_comments() -> Option<Vec<Comment>> {
         .map(|comment| Comment {
             id: comment.id.try_into().unwrap(),
             idea_id: comment.id.try_into().unwrap(),
+            author_id: comment.author_id.clone(),
+            body: comment.body.clone(),
         })
         .collect();
 
