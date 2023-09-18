@@ -1,6 +1,3 @@
-use std::sync::Arc;
-
-use futures::future::join_all;
 use log::{error, info};
 
 use fetcher::fetch_ideas;
@@ -32,75 +29,41 @@ pub async fn setup() {
 
 pub async fn start() {
     if let Some(ideas) = fetch_ideas().await {
-        let mut tasks = Vec::new();
-
-        for idea in ideas {
-            let arc_idea = Arc::new(idea);
-            if let Ok(cached_idea) = get_idea_cache(arc_idea.id.try_into().unwrap()) {
-                let task = tokio::spawn({
-                    let arc_idea = Arc::clone(&arc_idea);
-                    async move {
-                        if cached_idea.is_none() {
-                            info!("Handle a new idea... ({:?})", arc_idea.id);
-                            let _ = handle_new_idea(&arc_idea)
-                                .await
-                                .map_err(|err| error!("Failed to handle new idea: {:?}", err));
-                        }
+        for idea in &ideas {
+            if let Ok(cached_idea) = get_idea_cache(idea.id.try_into().unwrap()) {
+                if cached_idea.is_none() {
+                    info!("Handle a new idea... ({:?})", idea.id);
+                    if let Err(err) = handle_new_idea(&idea).await {
+                        error!("Failed to handle new idea: {:?}", err);
                     }
-                });
-
-                tasks.push(task);
+                }
             }
         }
-
-        join_all(tasks).await;
     }
+
     if let Some(votes) = fetch_votes().await {
-        let mut tasks = Vec::new();
-
-        for vote in votes {
-            let arc_vote = Arc::new(vote);
-            if let Ok(cached_vote) = get_vote_cache(arc_vote.id.try_into().unwrap()) {
-                let task = tokio::spawn({
-                    let arc_vote = Arc::clone(&arc_vote);
-                    async move {
-                        if cached_vote.is_none() {
-                            info!("Handle a new vote... ({:?})", arc_vote.id);
-                            let _ = handle_new_vote(&arc_vote)
-                                .await
-                                .map_err(|err| error!("Failed to handle new vote: {:?}", err));
-                        }
+        for vote in &votes {
+            if let Ok(cached_vote) = get_vote_cache(vote.id.try_into().unwrap()) {
+                if cached_vote.is_none() {
+                    info!("Handle a new vote... ({:?})", vote.id);
+                    if let Err(err) = handle_new_vote(&vote).await {
+                        error!("Failed to handle new vote: {:?}", err);
                     }
-                });
-
-                tasks.push(task);
+                }
             }
         }
-
-        join_all(tasks).await;
     }
+
     if let Some(comments) = fetch_comments().await {
-        let mut tasks = Vec::new();
-
-        for comment in comments {
-            let arc_comment = Arc::new(comment);
-            if let Ok(cached_comment) = get_comment_cache(arc_comment.id.try_into().unwrap()) {
-                let task = tokio::spawn({
-                    let arc_comment = Arc::clone(&arc_comment);
-                    async move {
-                        if cached_comment.is_none() {
-                            info!("Handle a new comment... ({:?})", arc_comment.id);
-                            let _ = handle_new_comment(&arc_comment)
-                                .await
-                                .map_err(|err| error!("Failed to handle new comment: {:?}", err));
-                        }
+        for comment in &comments {
+            if let Ok(cached_comment) = get_comment_cache(comment.id.try_into().unwrap()) {
+                if cached_comment.is_none() {
+                    info!("Handle a new comment... ({:?})", comment.id);
+                    if let Err(err) = handle_new_comment(&comment).await {
+                        error!("Failed to handle new comment: {:?}", err);
                     }
-                });
-
-                tasks.push(task);
+                }
             }
         }
-
-        join_all(tasks).await;
     }
 }
