@@ -1,11 +1,15 @@
 use std::env;
 
 use anyhow::{Context, Result};
+use log::{debug, error};
 use serenity::http::Http;
 use serenity::model::channel::Embed;
 use serenity::model::webhook::Webhook;
 
-use crate::prop_house::fetcher::Auction;
+use crate::prop_house::cacher::{
+    get_proposal_cache, set_auction_cache, set_proposal_cache, set_vote_cache,
+};
+use crate::prop_house::fetcher::{Auction, Proposal, Vote};
 
 pub(crate) async fn handle_new_auction(auction: &Auction) -> Result<()> {
     let base_url =
@@ -35,5 +39,23 @@ pub(crate) async fn handle_new_auction(auction: &Auction) -> Result<()> {
         .await
         .context("Failed to execute webhook")?;
 
+    set_auction_cache(auction).unwrap();
+
+    Ok(())
+}
+
+pub(crate) async fn handle_new_proposal(proposal: &Proposal) -> Result<()> {
+    debug!("New Proposal: {}", proposal.title);
+    set_proposal_cache(proposal).unwrap();
+    Ok(())
+}
+
+pub(crate) async fn handle_new_vote(vote: &Vote) -> Result<()> {
+    if let Ok(Some(proposal)) = get_proposal_cache(vote.proposal_id) {
+        debug!("New Vote on Proposal: {}", proposal.title)
+    } else {
+        error!("No proposal found for given id: {}", vote.proposal_id);
+    }
+    set_vote_cache(vote).unwrap();
     Ok(())
 }
