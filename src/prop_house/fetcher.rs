@@ -47,12 +47,18 @@ pub(crate) struct Auction {
 pub(crate) struct Proposal {
     pub(crate) id: isize,
     pub(crate) title: String,
+    pub(crate) tldr: String,
+    pub(crate) address: String,
+    pub(crate) auction_id: isize,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct Vote {
     pub(crate) id: isize,
+    pub(crate) address: String,
+    pub(crate) auction_id: isize,
     pub(crate) proposal_id: isize,
+    pub(crate) direction: isize,
 }
 
 async fn fetch<QueryType: GraphQLQuery>(
@@ -101,7 +107,7 @@ pub(crate) async fn fetch_auctions() -> Option<Vec<Auction>> {
         .map(|auction| Auction {
             id: auction.id.try_into().unwrap(),
             title: auction.title.clone(),
-            description: auction.description.clone(),
+            description: html2md::parse_html(&*auction.description),
         })
         .collect();
 
@@ -129,6 +135,9 @@ pub(crate) async fn fetch_proposals() -> Option<Vec<Proposal>> {
         .map(|proposal| Proposal {
             id: proposal.id.try_into().unwrap(),
             title: proposal.title.clone(),
+            tldr: proposal.tldr.clone(),
+            address: proposal.address.clone(),
+            auction_id: proposal.auction.id.try_into().unwrap(),
         })
         .collect();
 
@@ -156,7 +165,10 @@ pub(crate) async fn fetch_votes() -> Option<Vec<Vote>> {
         .flat_map(|proposal| &proposal.votes)
         .map(|vote| Vote {
             id: vote.id.try_into().unwrap(),
+            address: vote.address.clone(),
+            auction_id: vote.auction_id.try_into().unwrap(),
             proposal_id: vote.proposal_id.try_into().unwrap(),
+            direction: vote.direction.try_into().unwrap(),
         })
         .collect();
 

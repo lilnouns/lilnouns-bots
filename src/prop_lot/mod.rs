@@ -7,7 +7,7 @@ use crate::prop_lot::cacher::{
     set_votes_cache,
 };
 use crate::prop_lot::fetcher::{fetch_comments, fetch_votes};
-use crate::prop_lot::handler::{handle_new_comment, handle_new_idea, handle_new_vote};
+use crate::prop_lot::handler::DiscordHandler;
 
 mod cacher;
 mod fetcher;
@@ -28,12 +28,16 @@ pub async fn setup() {
 }
 
 pub async fn start() {
+    let handler = DiscordHandler::new()
+        .await
+        .expect("Could not create a new DiscordHandler");
+
     if let Some(ideas) = fetch_ideas().await {
         for idea in &ideas {
             if let Ok(cached_idea) = get_idea_cache(idea.id.try_into().unwrap()) {
                 if cached_idea.is_none() {
                     info!("Handle a new idea... ({:?})", idea.id);
-                    if let Err(err) = handle_new_idea(&idea).await {
+                    if let Err(err) = handler.handle_new_idea(&idea).await {
                         error!("Failed to handle new idea: {:?}", err);
                     }
                 }
@@ -46,7 +50,7 @@ pub async fn start() {
             if let Ok(cached_vote) = get_vote_cache(vote.id.try_into().unwrap()) {
                 if cached_vote.is_none() {
                     info!("Handle a new vote... ({:?})", vote.id);
-                    if let Err(err) = handle_new_vote(&vote).await {
+                    if let Err(err) = handler.handle_new_vote(&vote).await {
                         error!("Failed to handle new vote: {:?}", err);
                     }
                 }
@@ -59,7 +63,7 @@ pub async fn start() {
             if let Ok(cached_comment) = get_comment_cache(comment.id.try_into().unwrap()) {
                 if cached_comment.is_none() {
                     info!("Handle a new comment... ({:?})", comment.id);
-                    if let Err(err) = handle_new_comment(&comment).await {
+                    if let Err(err) = handler.handle_new_comment(&comment).await {
                         error!("Failed to handle new comment: {:?}", err);
                     }
                 }
