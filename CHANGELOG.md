@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Refactor
 
+- Update cache set and get operations for efficiency
+- Update caching functions to use map and collect methods
+- Update notification messages for clarity and tracking
+
+## [1.0.0-alpha.6] - 2023-09-18
+
+### Refactor
+
 - Add new fields to Proposal and Vote in Prop House fetcher
 - Update notification handling for new Prop House proposals and votes
 - Move handler functions to DiscordHandler structs
