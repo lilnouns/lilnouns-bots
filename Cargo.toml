@@ -30,6 +30,7 @@ rocksdb = { version = "0.21.0", default-features = false, features = ["lz4"] }
 html2md = "0.2.14"
 chrono = "0.4.31"
 worker = "0.0.18"
+getrandom = { version = "0.2.10", features = ["js"] }
 
 [profile.release]
 lto = true
