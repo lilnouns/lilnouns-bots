@@ -34,10 +34,10 @@ pub async fn start() {
 
     if let Some(ideas) = fetch_ideas().await {
         for idea in &ideas {
-            if let Ok(cached_idea) = get_idea_cache(idea.id.try_into().unwrap()) {
+            if let Ok(cached_idea) = get_idea_cache(idea.id) {
                 if cached_idea.is_none() {
                     info!("Handle a new idea... ({:?})", idea.id);
-                    if let Err(err) = handler.handle_new_idea(&idea).await {
+                    if let Err(err) = handler.handle_new_idea(idea).await {
                         error!("Failed to handle new idea: {:?}", err);
                     }
                 }
@@ -47,10 +47,10 @@ pub async fn start() {
 
     if let Some(votes) = fetch_votes().await {
         for vote in &votes {
-            if let Ok(cached_vote) = get_vote_cache(vote.id.try_into().unwrap()) {
+            if let Ok(cached_vote) = get_vote_cache(vote.id) {
                 if cached_vote.is_none() {
                     info!("Handle a new vote... ({:?})", vote.id);
-                    if let Err(err) = handler.handle_new_vote(&vote).await {
+                    if let Err(err) = handler.handle_new_vote(vote).await {
                         error!("Failed to handle new vote: {:?}", err);
                     }
                 }
@@ -60,10 +60,10 @@ pub async fn start() {
 
     if let Some(comments) = fetch_comments().await {
         for comment in &comments {
-            if let Ok(cached_comment) = get_comment_cache(comment.id.try_into().unwrap()) {
+            if let Ok(cached_comment) = get_comment_cache(comment.id) {
                 if cached_comment.is_none() {
                     info!("Handle a new comment... ({:?})", comment.id);
-                    if let Err(err) = handler.handle_new_comment(&comment).await {
+                    if let Err(err) = handler.handle_new_comment(comment).await {
                         error!("Failed to handle new comment: {:?}", err);
                     }
                 }

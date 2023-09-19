@@ -1,6 +1,7 @@
 use std::env;
 
 use anyhow::{Context, Result};
+use chrono::Local;
 use serenity::json::Value;
 use serenity::{
     http::Http,
@@ -53,10 +54,15 @@ impl DiscordHandler {
                     &idea.creator_id[0..4],
                     &idea.creator_id[38..42]
                 ))
+                .url(format!("https://etherscan.io/address/{}", idea.creator_id))
             })
-            .title(format!("New Idea: {}", idea.title))
+            .title("New Prop Lot Proposal")
             .url(format!("{}/idea/{}", self.base_url, idea.id))
-            .description(&idea.tldr)
+            .description(format!(
+                "A new Prop Lot proposal has been created: {}",
+                idea.title
+            ))
+            .footer(|f| f.text(format!("{}", Local::now().format("%m/%d/%Y %I:%M %p"))))
             .colour(0xFFB911)
         });
 
@@ -78,17 +84,20 @@ impl DiscordHandler {
                     &vote.voter_id[0..4],
                     &vote.voter_id[38..42]
                 ))
+                .url(format!("https://etherscan.io/address/{}", vote.voter_id))
             })
-            .title(format!(
-                "New Vote {}: {}",
+            .title("New Prop Lot Proposal Vote")
+            .url(format!("{}/idea/{}", self.base_url, idea.id))
+            .description(format!(
+                "{} has voted {} Proposal ({})",
+                format!("{}...{}", &vote.voter_id[0..4], &vote.voter_id[38..42]),
                 match vote.direction {
-                    1 => "For",
-                    _ => "Against",
+                    1 => "for",
+                    _ => "against",
                 },
                 idea.title
             ))
-            .url(format!("{}/idea/{}", self.base_url, idea.id))
-            .description(&idea.tldr)
+            .footer(|f| f.text(format!("{}", Local::now().format("%m/%d/%Y %I:%M %p"))))
             .colour(0x8A2CE2)
         });
 
@@ -110,10 +119,23 @@ impl DiscordHandler {
                     &comment.author_id[0..4],
                     &comment.author_id[38..42]
                 ))
+                .url(format!(
+                    "https://etherscan.io/address/{}",
+                    comment.author_id
+                ))
             })
-            .title(format!("New Comment: {}", idea.title))
+            .title("New Prop Lot Proposal Comment")
             .url(format!("{}/idea/{}", self.base_url, idea.id))
-            .description(&comment.body)
+            .description(format!(
+                "{} has commented on Proposal ({})",
+                format!(
+                    "{}...{}",
+                    &comment.author_id[0..4],
+                    &comment.author_id[38..42]
+                ),
+                idea.title
+            ))
+            .footer(|f| f.text(format!("{}", Local::now().format("%m/%d/%Y %I:%M %p"))))
             .colour(0x8A2CE2)
         });
 
