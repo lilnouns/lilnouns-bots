@@ -30,6 +30,7 @@ rocksdb = { version = "0.21.0", default-features = false, features = ["lz4"] }
 html2md = "0.2.14"
 chrono = "0.4.31"
 worker = "0.0.18"
+
 [profile.release]
 lto = true
 strip = true
