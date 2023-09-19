@@ -6,6 +6,13 @@ include = ["*.graphql"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+# https://github.com/rustwasm/wasm-pack/issues/1247
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[lib]
+crate-type = ["cdylib"]
+
 [dependencies]
 graphql_client = { version = "0.13.0", features = ["reqwest"] }
 serde = { version = "1.0.188", features = ["derive"] }
@@ -22,3 +29,8 @@ serenity = { version = "0.11.6", default-features = false, features = ["rustls_b
 rocksdb = { version = "0.21.0", default-features = false, features = ["lz4"] }
 html2md = "0.2.14"
 chrono = "0.4.31"
+worker = "0.0.18"
+[profile.release]
+lto = true
+strip = true
+codegen-units = 1
