@@ -1,146 +1,131 @@
-use std::env;
-
-use anyhow::{Context, Result};
 use chrono::Local;
-use serenity::http::Http;
-use serenity::json::Value;
-use serenity::model::channel::Embed;
-use serenity::model::webhook::Webhook;
+use log::error;
+use reqwest::{header, Client};
+use serde_json::{json, Value};
+use worker::{Env, Result};
 
-use crate::prop_house::cacher::{
-    get_auction_cache, get_proposal_cache, set_auction_cache, set_proposal_cache, set_vote_cache,
-};
+use crate::cache::Cache;
 use crate::prop_house::fetcher::{Auction, Proposal, Vote};
 
-pub struct DiscordHandler {
+pub struct DiscordHandler<'a> {
     base_url: String,
-    http: Http,
-    webhook: Webhook,
+    webhook_url: String,
+    cache: Cache<'a>,
+    client: Client,
 }
 
-impl DiscordHandler {
-    pub async fn new() -> Result<Self> {
-        let base_url =
-            env::var("PROP_HOUSE_BASE_URL").context("PROP_HOUSE_BASE_URL is not set in env")?;
+impl<'a> DiscordHandler<'a> {
+    pub fn new(env: &'a Env) -> Result<DiscordHandler<'a>> {
+        let base_url = env.var("PROP_HOUSE_BASE_URL")?.to_string();
+        let webhook_url = env.var("PROP_HOUSE_DISCORD_WEBHOOK_URL")?.to_string();
 
-        let webhook_url = env::var("PROP_HOUSE_DISCORD_WEBHOOK_URL")
-            .context("PROP_HOUSE_DISCORD_WEBHOOK_URL is not set in env")?;
+        let cache = Cache::from(env);
+        let client = Client::new();
 
-        let http = Http::new("");
-        let webhook = Webhook::from_url(&http, webhook_url.as_str())
-            .await
-            .context("Failed to create webhook from URL")?;
-
-        Ok(Self {
+        Ok(DiscordHandler {
             base_url,
-            http,
-            webhook,
+            webhook_url,
+            cache,
+            client,
         })
     }
 
-    async fn execute_webhook(&self, message: Value) -> Result<()> {
-        self.webhook
-            .execute(&self.http, false, |w| w.embeds(vec![message]))
+    async fn execute_webhook(&self, embed: Value) -> Result<()> {
+        let msg_json = json!({"embeds": [embed]});
+
+        self.client
+            .post(&self.webhook_url)
+            .header(header::CONTENT_TYPE, "application/json")
+            .body(msg_json.to_string())
+            .send()
             .await
-            .context("Failed to execute webhook")?;
+            .map_err(|e| worker::Error::from(format!("Failed to execute webhook: {}", e)))?;
 
         Ok(())
     }
 
     pub(crate) async fn handle_new_auction(&self, auction: &Auction) -> Result<()> {
-        let message = Embed::fake(|e| {
-            e.title("New Prop House Round")
-                .url(format!(
-                    "{}/{}",
-                    self.base_url,
-                    auction.title.replace(' ', "-").to_lowercase()
-                ))
-                .description(format!(
-                    "A new Prop House round has been created: {}",
-                    auction.title
-                ))
-                .footer(|f| f.text(format!("{}", Local::now().format("%m/%d/%Y %I:%M %p"))))
-                .colour(0x8A2CE2)
+        let date = Local::now().format("%m/%d/%Y %I:%M %p");
+        let embed = json!({
+            "title": "New Prop House Round",
+            "description": format!("A new Prop House round has been created: {}", auction.title),
+            "url": format!("{}/{}", self.base_url, auction.title.replace(' ', "-").to_lowercase()),
+            "color": 0x8A2CE2,
+            "footer": {"text": format!("{}", date)}
         });
 
-        self.execute_webhook(message).await?;
+        self.execute_webhook(embed).await?;
 
-        set_auction_cache(auction)?;
+        self.cache
+            .put(&format!("{}{}", "PROP_HOUSE_AUCTION_", auction.id), auction)
+            .await;
 
         Ok(())
     }
 
     pub(crate) async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
-        let auction = get_auction_cache(proposal.auction_id)?
-            .ok_or_else(|| anyhow::anyhow!("No auction found for id {}", proposal.auction_id))?;
+        let auction = self
+            .cache
+            .get::<Auction>(&format!("{}{}", "PROP_HOUSE_AUCTION_", proposal.auction_id))
+            .await?
+            .unwrap();
 
-        let message = Embed::fake(|e| {
-            e.author(|a| {
-                a.name(format!(
-                    "{}...{}",
-                    &proposal.address[0..4],
-                    &proposal.address[38..42]
-                ))
-                .url(format!("https://etherscan.io/address/{}", proposal.address))
-            })
-            .title("New Prop House Proposal")
-            .url(format!(
-                "{}/{}/{}",
-                self.base_url,
-                auction.title.replace(' ', "-").to_lowercase(),
-                proposal.id
-            ))
-            .description(format!(
-                "A new Prop House proposal has been created: {}",
-                proposal.title
-            ))
-            .footer(|f| f.text(format!("{}", Local::now().format("%m/%d/%Y %I:%M %p"))))
-            .colour(0x8A2CE2)
+        let embed = json!({
+            "title": "New Prop House Proposal",
+            "description": format!("A new Prop House proposal has been created: {}", proposal.title),
+            "url": format!("{}/{}/{}", self.base_url, auction.title.replace(' ', "-").to_lowercase(), proposal.id),
+            "color": 0x8A2CE2,
+            "footer": {"text": format!("{}", Local::now().format("%m/%d/%Y %I:%M %p"))},
+            "author": {
+                "name": format!("{}...{}", &proposal.address[0..4], &proposal.address[38..42]),
+                "url": format!("https://etherscan.io/address/{}", proposal.address)
+            }
         });
 
-        self.execute_webhook(message).await?;
+        self.execute_webhook(embed).await?;
 
-        set_proposal_cache(proposal)?;
+        self.cache
+            .put(
+                &format!("{}{}", "PROP_HOUSE_PROPOSAL_", proposal.id),
+                proposal,
+            )
+            .await;
 
         Ok(())
     }
 
     pub(crate) async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
-        let proposal = get_proposal_cache(vote.proposal_id)?
-            .ok_or_else(|| anyhow::anyhow!("No proposal found for id {}", vote.proposal_id))?;
+        let proposal = match self
+            .cache
+            .get::<Proposal>(&format!("{}{}", "PROP_HOUSE_PROPOSAL_", vote.proposal_id))
+            .await?
+        {
+            Some(i) => i,
+            None => {
+                error!("Proposal not found for id: {}", vote.proposal_id);
+                return Ok(());
+            }
+        };
 
-        let message = Embed::fake(|e| {
-            e.author(|a| {
-                a.name(format!(
-                    "{}...{}",
-                    &vote.address[0..4],
-                    &vote.address[38..42]
-                ))
-                .url(format!("https://etherscan.io/address/{}", vote.address))
-            })
-            .title("New Prop House Proposal Vote")
-            .url(format!(
-                "{}/{}/{}",
-                self.base_url,
-                proposal.title.replace(' ', "-").to_lowercase(),
-                proposal.id
-            ))
-            .description(format!(
-                "{} has voted {} Proposal ({})",
-                format!("{}...{}", &vote.address[0..4], &vote.address[38..42]),
-                match vote.direction {
-                    1 => "for",
-                    _ => "against",
-                },
-                proposal.title
-            ))
-            .footer(|f| f.text(format!("{}", Local::now().format("%m/%d/%Y %I:%M %p"))))
-            .colour(0x8A2CE2)
+        let embed = json!({
+            "title": "New Prop House Proposal Vote",
+            "description": format!("{} has voted {} Proposal",
+                                   format!("{}...{}", &vote.address[0..4], &vote.address[38..42]),
+                                   match vote.direction {1 => "for", _ => "against"}),
+            "url": format!("{}/{}/{}", self.base_url, proposal.title.replace(' ', "-").to_lowercase(), proposal.id),
+            "color": 0x8A2CE2,
+            "footer": {"text": format!("{}", Local::now().format("%m/%d/%Y %I:%M %p"))},
+            "author": {
+                "name": format!("{}...{}", &vote.address[0..4], &vote.address[38..42]),
+                "url": format!("https://etherscan.io/address/{}", vote.address)
+            }
         });
 
-        self.execute_webhook(message).await?;
+        self.execute_webhook(embed).await?;
 
-        set_vote_cache(vote)?;
+        self.cache
+            .put(&format!("{}{}", "PROP_HOUSE_VOTE_", vote.id), vote)
+            .await;
 
         Ok(())
     }
