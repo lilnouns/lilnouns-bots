@@ -163,7 +163,7 @@ impl<'a> GraphQLFetcher<'a> {
             .flat_map(|comment| comment.iter())
             .map(|comment| Comment {
                 id: comment.id.try_into().unwrap(),
-                idea_id: comment.id.try_into().unwrap(),
+                idea_id: comment.idea_id.try_into().unwrap(),
                 author_id: comment.author_id.clone(),
                 body: comment.body.clone(),
             })
