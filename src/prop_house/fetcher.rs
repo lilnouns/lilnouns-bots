@@ -3,7 +3,7 @@ use graphql_client::GraphQLQuery;
 use log::error;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use worker::Env;
+use worker::{Env, Result};
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -59,124 +59,112 @@ pub(crate) struct Vote {
     pub(crate) direction: isize,
 }
 
-async fn fetch<QueryType: GraphQLQuery>(
-    env: &Env,
-    variables: <QueryType as GraphQLQuery>::Variables,
-) -> Option<<QueryType as GraphQLQuery>::ResponseData> {
-    let url = env
-        .var("PROP_HOUSE_GRAPHQL_URL")
-        .map_err(|_| {
-            error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
-        })
-        .ok()?
-        .to_string();
-
-    let client = Client::builder()
-        .build()
-        .map_err(|e| {
-            error!("Failed to create client: {}", e);
-        })
-        .ok()?;
-
-    post_graphql::<QueryType, _>(&client, url, variables)
-        .await
-        .map_err(|e| {
-            error!("Failed to execute GraphQL request: {}", e);
-        })
-        .ok()
-        .and_then(|response| response.data)
+pub struct GraphQLFetcher<'a> {
+    _env: &'a Env,
+    url: String,
+    community_id: String,
 }
 
-pub(crate) async fn fetch_auctions(env: &Env) -> Option<Vec<Auction>> {
-    let community_id = env
-        .var("PROP_HOUSE_COMMUNITY_ID")
-        .map_err(|_| {
-            error!("PROP_HOUSE_COMMUNITY_ID is not set in env");
+impl<'a> GraphQLFetcher<'a> {
+    pub fn new(env: &'a Env) -> Result<GraphQLFetcher<'a>> {
+        let url = env.var("PROP_HOUSE_GRAPHQL_URL")?.to_string();
+
+        let community_id = env.var("PROP_HOUSE_COMMUNITY_ID")?.to_string();
+
+        Ok(GraphQLFetcher {
+            _env: env,
+            url,
+            community_id,
         })
-        .ok()?
-        .to_string();
+    }
 
-    let variables = auction_query::Variables {
-        id: community_id.parse().unwrap(),
-    };
+    async fn fetch<QueryType: GraphQLQuery>(
+        &self,
+        variables: <QueryType as GraphQLQuery>::Variables,
+    ) -> Option<<QueryType as GraphQLQuery>::ResponseData> {
+        let client = Client::builder()
+            .build()
+            .map_err(|e| {
+                error!("Failed to create client: {}", e);
+            })
+            .ok()?;
 
-    let response = fetch::<AuctionQuery>(env, variables).await?;
+        post_graphql::<QueryType, _>(&client, &self.url, variables)
+            .await
+            .map_err(|e| {
+                error!("Failed to execute GraphQL request: {}", e);
+            })
+            .ok()
+            .and_then(|response| response.data)
+    }
 
-    let auctions = response
-        .community
-        .auctions
-        .iter()
-        .map(|auction| Auction {
-            id: auction.id.try_into().unwrap(),
-            title: auction.title.clone(),
-            description: html2md::parse_html(&auction.description),
-        })
-        .collect();
+    pub(crate) async fn fetch_auctions(&self) -> Option<Vec<Auction>> {
+        let variables = auction_query::Variables {
+            id: self.community_id.parse().unwrap(),
+        };
 
-    Some(auctions)
-}
+        let response = self.fetch::<AuctionQuery>(variables).await?;
 
-pub(crate) async fn fetch_proposals(env: &Env) -> Option<Vec<Proposal>> {
-    let community_id = env
-        .var("PROP_HOUSE_COMMUNITY_ID")
-        .map_err(|_| {
-            error!("PROP_HOUSE_COMMUNITY_ID is not set in env");
-        })
-        .ok()?
-        .to_string();
+        let auctions = response
+            .community
+            .auctions
+            .iter()
+            .map(|auction| Auction {
+                id: auction.id.try_into().unwrap(),
+                title: auction.title.clone(),
+                description: html2md::parse_html(&auction.description),
+            })
+            .collect();
 
-    let variables = proposal_query::Variables {
-        id: community_id.parse().unwrap(),
-    };
+        Some(auctions)
+    }
 
-    let response = fetch::<ProposalQuery>(env, variables).await?;
+    pub(crate) async fn fetch_proposals(&self) -> Option<Vec<Proposal>> {
+        let variables = proposal_query::Variables {
+            id: self.community_id.parse().unwrap(),
+        };
 
-    let proposals = response
-        .community
-        .auctions
-        .iter()
-        .flat_map(|auction| &auction.proposals)
-        .map(|proposal| Proposal {
-            id: proposal.id.try_into().unwrap(),
-            title: proposal.title.clone(),
-            tldr: proposal.tldr.clone(),
-            address: proposal.address.clone(),
-            auction_id: proposal.auction.id.try_into().unwrap(),
-        })
-        .collect();
+        let response = self.fetch::<ProposalQuery>(variables).await?;
 
-    Some(proposals)
-}
+        let proposals = response
+            .community
+            .auctions
+            .iter()
+            .flat_map(|auction| &auction.proposals)
+            .map(|proposal| Proposal {
+                id: proposal.id.try_into().unwrap(),
+                title: proposal.title.clone(),
+                tldr: proposal.tldr.clone(),
+                address: proposal.address.clone(),
+                auction_id: proposal.auction.id.try_into().unwrap(),
+            })
+            .collect();
 
-pub(crate) async fn fetch_votes(env: &Env) -> Option<Vec<Vote>> {
-    let community_id = env
-        .var("PROP_HOUSE_COMMUNITY_ID")
-        .map_err(|_| {
-            error!("PROP_HOUSE_COMMUNITY_ID is not set in env");
-        })
-        .ok()?
-        .to_string();
+        Some(proposals)
+    }
 
-    let variables = vote_query::Variables {
-        id: community_id.parse().unwrap(),
-    };
+    pub(crate) async fn fetch_votes(&self) -> Option<Vec<Vote>> {
+        let variables = vote_query::Variables {
+            id: self.community_id.parse().unwrap(),
+        };
 
-    let response = fetch::<VoteQuery>(env, variables).await?;
+        let response = self.fetch::<VoteQuery>(variables).await?;
 
-    let votes = response
-        .community
-        .auctions
-        .iter()
-        .flat_map(|auction| &auction.proposals)
-        .flat_map(|proposal| &proposal.votes)
-        .map(|vote| Vote {
-            id: vote.id.try_into().unwrap(),
-            address: vote.address.clone(),
-            auction_id: vote.auction_id.try_into().unwrap(),
-            proposal_id: vote.proposal_id.try_into().unwrap(),
-            direction: vote.direction.try_into().unwrap(),
-        })
-        .collect();
+        let votes = response
+            .community
+            .auctions
+            .iter()
+            .flat_map(|auction| &auction.proposals)
+            .flat_map(|proposal| &proposal.votes)
+            .map(|vote| Vote {
+                id: vote.id.try_into().unwrap(),
+                address: vote.address.clone(),
+                auction_id: vote.auction_id.try_into().unwrap(),
+                proposal_id: vote.proposal_id.try_into().unwrap(),
+                direction: vote.direction.try_into().unwrap(),
+            })
+            .collect();
 
-    Some(votes)
+        Some(votes)
+    }
 }
