@@ -1,73 +1,97 @@
 use log::{error, info};
+use worker::Result;
 
-use fetcher::fetch_auctions;
+use fetcher::{Auction, GraphQLFetcher, Proposal, Vote};
+use handler::DiscordHandler;
 
-use crate::prop_house::cacher::{
-    get_auction_cache, get_proposal_cache, get_vote_cache, set_auctions_cache, set_proposals_cache,
-    set_votes_cache,
-};
-use crate::prop_house::fetcher::{fetch_proposals, fetch_votes};
-use crate::prop_house::handler::DiscordHandler;
+use crate::cache::Cache;
 
-mod cacher;
-mod fetcher;
-mod handler;
+pub mod fetcher;
+pub mod handler;
 
-pub async fn setup() {
-    if let Some(auctions) = fetch_auctions().await {
-        set_auctions_cache(&auctions).unwrap();
+pub async fn setup(cache: &Cache<'_>, fetcher: &GraphQLFetcher<'_>) -> Result<()> {
+    if let Some(auctions) = fetcher.fetch_auctions().await {
+        for auction in auctions {
+            cache
+                .put(
+                    &format!("{}{}", "PROP_HOUSE_AUCTION_", auction.id),
+                    &auction,
+                )
+                .await;
+        }
     }
 
-    if let Some(proposals) = fetch_proposals().await {
-        set_proposals_cache(&proposals).unwrap();
+    if let Some(proposals) = fetcher.fetch_proposals().await {
+        for proposal in proposals {
+            cache
+                .put(
+                    &format!("{}{}", "PROP_HOUSE_PROPOSAL_", proposal.id),
+                    &proposal,
+                )
+                .await;
+        }
     }
 
-    if let Some(votes) = fetch_votes().await {
-        set_votes_cache(&votes).unwrap();
+    if let Some(votes) = fetcher.fetch_votes().await {
+        for vote in votes {
+            cache
+                .put(&format!("{}{}", "PROP_HOUSE_VOTE_", vote.id), &vote)
+                .await;
+        }
     }
+
+    Ok(())
 }
 
-pub async fn start() {
-    let handler = DiscordHandler::new()
-        .await
-        .expect("Could not create a new DiscordHandler");
-
-    if let Some(auctions) = fetch_auctions().await {
+pub async fn start(
+    cache: &Cache<'_>,
+    fetcher: &GraphQLFetcher<'_>,
+    handler: &DiscordHandler<'_>,
+) -> Result<()> {
+    if let Some(auctions) = fetcher.fetch_auctions().await {
         for auction in auctions {
-            if let Ok(cached_auction) = get_auction_cache(auction.id) {
-                if cached_auction.is_none() {
-                    info!("Handle a new auction... ({:?})", auction.id);
-                    if let Err(err) = handler.handle_new_auction(&auction).await {
-                        error!("Failed to handle new auction: {:?}", err);
-                    }
+            let cached_auction: Option<Auction> = cache
+                .get(&format!("{}{}", "PROP_HOUSE_AUCTION_", auction.id))
+                .await?;
+
+            if cached_auction.is_none() {
+                info!("Handle a new auction... ({:?})", auction.id);
+                if let Err(err) = handler.handle_new_auction(&auction).await {
+                    error!("Failed to handle new auction: {:?}", err);
                 }
             }
         }
     }
 
-    if let Some(proposals) = fetch_proposals().await {
+    if let Some(proposals) = fetcher.fetch_proposals().await {
         for proposal in proposals {
-            if let Ok(cached_proposal) = get_proposal_cache(proposal.id) {
-                if cached_proposal.is_none() {
-                    info!("Handle a new proposal... ({:?})", proposal.id);
-                    if let Err(err) = handler.handle_new_proposal(&proposal).await {
-                        error!("Failed to handle new proposal: {:?}", err);
-                    }
+            let cached_proposal: Option<Proposal> = cache
+                .get(&format!("{}{}", "PROP_HOUSE_PROPOSAL_", proposal.id))
+                .await?;
+
+            if cached_proposal.is_none() {
+                info!("Handle a new proposal... ({:?})", proposal.id);
+                if let Err(err) = handler.handle_new_proposal(&proposal).await {
+                    error!("Failed to handle new proposal: {:?}", err);
                 }
             }
         }
     }
 
-    if let Some(votes) = fetch_votes().await {
+    if let Some(votes) = fetcher.fetch_votes().await {
         for vote in votes {
-            if let Ok(cached_vote) = get_vote_cache(vote.id) {
-                if cached_vote.is_none() {
-                    info!("Handle a new vote... ({:?})", vote.id);
-                    if let Err(err) = handler.handle_new_vote(&vote).await {
-                        error!("Failed to handle new vote: {:?}", err);
-                    }
+            let cached_vote: Option<Vote> = cache
+                .get(&format!("{}{}", "PROP_HOUSE_VOTE_", vote.id))
+                .await?;
+
+            if cached_vote.is_none() {
+                info!("Handle a new vote... ({:?})", vote.id);
+                if let Err(err) = handler.handle_new_vote(&vote).await {
+                    error!("Failed to handle new vote: {:?}", err);
                 }
             }
         }
     }
+
+    Ok(())
 }
