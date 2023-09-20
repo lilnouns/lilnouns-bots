@@ -1,12 +1,11 @@
 use std::convert::TryInto;
-use std::env;
-use std::time::Duration;
 
 use graphql_client::reqwest::post_graphql;
 use graphql_client::GraphQLQuery;
 use log::error;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use worker::Env;
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -63,16 +62,18 @@ pub(crate) struct Comment {
 }
 
 async fn fetch<QueryType: GraphQLQuery>(
+    env: &Env,
     variables: <QueryType as GraphQLQuery>::Variables,
 ) -> Option<<QueryType as GraphQLQuery>::ResponseData> {
-    let url = env::var("PROP_LOT_GRAPHQL_URL")
+    let url = env
+        .var("PROP_LOT_GRAPHQL_URL")
         .map_err(|_| {
             error!("PROP_LOT_GRAPHQL_URL is not set in env");
         })
-        .ok()?;
+        .ok()?
+        .to_string();
 
     let client = Client::builder()
-        .timeout(Duration::from_secs(30))
         .build()
         .map_err(|e| {
             error!("Failed to create client: {}", e);
@@ -88,7 +89,7 @@ async fn fetch<QueryType: GraphQLQuery>(
         .and_then(|response| response.data)
 }
 
-pub(crate) async fn fetch_ideas() -> Option<Vec<Idea>> {
+pub(crate) async fn fetch_ideas(env: &Env) -> Option<Vec<Idea>> {
     let variables = idea_query::Variables {
         options: idea_query::IdeaInputOptions {
             idea_id: None,
@@ -96,7 +97,7 @@ pub(crate) async fn fetch_ideas() -> Option<Vec<Idea>> {
         },
     };
 
-    let response = fetch::<IdeaQuery>(variables).await?;
+    let response = fetch::<IdeaQuery>(env, variables).await?;
 
     let ideas = response
         .ideas
@@ -113,7 +114,7 @@ pub(crate) async fn fetch_ideas() -> Option<Vec<Idea>> {
     Some(ideas)
 }
 
-pub(crate) async fn fetch_votes() -> Option<Vec<Vote>> {
+pub(crate) async fn fetch_votes(env: &Env) -> Option<Vec<Vote>> {
     let variables = vote_query::Variables {
         options: vote_query::IdeaInputOptions {
             idea_id: None,
@@ -121,7 +122,7 @@ pub(crate) async fn fetch_votes() -> Option<Vec<Vote>> {
         },
     };
 
-    let response = fetch::<VoteQuery>(variables).await?;
+    let response = fetch::<VoteQuery>(env, variables).await?;
 
     let votes = response
         .ideas
@@ -141,7 +142,7 @@ pub(crate) async fn fetch_votes() -> Option<Vec<Vote>> {
     Some(votes)
 }
 
-pub(crate) async fn fetch_comments() -> Option<Vec<Comment>> {
+pub(crate) async fn fetch_comments(env: &Env) -> Option<Vec<Comment>> {
     let variables = comment_query::Variables {
         options: comment_query::IdeaInputOptions {
             idea_id: None,
@@ -149,7 +150,7 @@ pub(crate) async fn fetch_comments() -> Option<Vec<Comment>> {
         },
     };
 
-    let response = fetch::<CommentQuery>(variables).await?;
+    let response = fetch::<CommentQuery>(env, variables).await?;
 
     let comments = response
         .ideas

@@ -1,11 +1,9 @@
-use std::env;
-use std::time::Duration;
-
 use graphql_client::reqwest::post_graphql;
 use graphql_client::GraphQLQuery;
 use log::error;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use worker::Env;
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -62,16 +60,18 @@ pub(crate) struct Vote {
 }
 
 async fn fetch<QueryType: GraphQLQuery>(
+    env: &Env,
     variables: <QueryType as GraphQLQuery>::Variables,
 ) -> Option<<QueryType as GraphQLQuery>::ResponseData> {
-    let url = env::var("PROP_HOUSE_GRAPHQL_URL")
+    let url = env
+        .var("PROP_HOUSE_GRAPHQL_URL")
         .map_err(|_| {
             error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
         })
-        .ok()?;
+        .ok()?
+        .to_string();
 
     let client = Client::builder()
-        .timeout(Duration::from_secs(30))
         .build()
         .map_err(|e| {
             error!("Failed to create client: {}", e);
@@ -87,18 +87,20 @@ async fn fetch<QueryType: GraphQLQuery>(
         .and_then(|response| response.data)
 }
 
-pub(crate) async fn fetch_auctions() -> Option<Vec<Auction>> {
-    let community_id = env::var("PROP_HOUSE_COMMUNITY_ID")
+pub(crate) async fn fetch_auctions(env: &Env) -> Option<Vec<Auction>> {
+    let community_id = env
+        .var("PROP_HOUSE_COMMUNITY_ID")
         .map_err(|_| {
-            error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
+            error!("PROP_HOUSE_COMMUNITY_ID is not set in env");
         })
-        .ok()?;
+        .ok()?
+        .to_string();
 
     let variables = auction_query::Variables {
         id: community_id.parse().unwrap(),
     };
 
-    let response = fetch::<AuctionQuery>(variables).await?;
+    let response = fetch::<AuctionQuery>(env, variables).await?;
 
     let auctions = response
         .community
@@ -114,18 +116,20 @@ pub(crate) async fn fetch_auctions() -> Option<Vec<Auction>> {
     Some(auctions)
 }
 
-pub(crate) async fn fetch_proposals() -> Option<Vec<Proposal>> {
-    let community_id = env::var("PROP_HOUSE_COMMUNITY_ID")
+pub(crate) async fn fetch_proposals(env: &Env) -> Option<Vec<Proposal>> {
+    let community_id = env
+        .var("PROP_HOUSE_COMMUNITY_ID")
         .map_err(|_| {
-            error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
+            error!("PROP_HOUSE_COMMUNITY_ID is not set in env");
         })
-        .ok()?;
+        .ok()?
+        .to_string();
 
     let variables = proposal_query::Variables {
         id: community_id.parse().unwrap(),
     };
 
-    let response = fetch::<ProposalQuery>(variables).await?;
+    let response = fetch::<ProposalQuery>(env, variables).await?;
 
     let proposals = response
         .community
@@ -144,18 +148,20 @@ pub(crate) async fn fetch_proposals() -> Option<Vec<Proposal>> {
     Some(proposals)
 }
 
-pub(crate) async fn fetch_votes() -> Option<Vec<Vote>> {
-    let community_id = env::var("PROP_HOUSE_COMMUNITY_ID")
+pub(crate) async fn fetch_votes(env: &Env) -> Option<Vec<Vote>> {
+    let community_id = env
+        .var("PROP_HOUSE_COMMUNITY_ID")
         .map_err(|_| {
-            error!("PROP_HOUSE_GRAPHQL_URL is not set in env");
+            error!("PROP_HOUSE_COMMUNITY_ID is not set in env");
         })
-        .ok()?;
+        .ok()?
+        .to_string();
 
     let variables = vote_query::Variables {
         id: community_id.parse().unwrap(),
     };
 
-    let response = fetch::<VoteQuery>(variables).await?;
+    let response = fetch::<VoteQuery>(env, variables).await?;
 
     let votes = response
         .community
