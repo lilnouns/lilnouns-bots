@@ -39,19 +39,10 @@ jobs:
           target: wasm32-unknown-unknown
           override: true
 
-      - name: Install worker-build
-        uses: actions-rs/cargo@v1.0.3
-        with:
-          command: install
-          args: worker-build --force
-
-      - name: Build by worker-build
-        run: worker-build
-
       - name: Deploy to Workers
         uses: cloudflare/wrangler-action@v3.1.1
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           environment: dev
           preCommands: npx wrangler deploy --env dev
           secrets: |
