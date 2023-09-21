@@ -2,6 +2,10 @@ name = "lilnouns-bots"
 main = "build/worker/shim.mjs"
 compatibility_date = "2023-03-22"
 
+kv_namespaces = [
+    { binding = "LIL_NOUNS_BOTS", id = "c193c4943cd5475196cd5bdd3298a8ff", preview_id = "6456908fdbcf4ce1b89b3028a5bbbe87" }
+]
+
 [build]
 command = "cargo install -q -f worker-build && worker-build --release"
 
@@ -10,6 +14,6 @@ crons = ["*/5 * * * *"]
 
 [env.dev]
 kv_namespaces = [
-    { binding = "LIL_NOUNS_BOTS", id = "c193c4943cd5475196cd5bdd3298a8ff", preview_id = "6456908fdbcf4ce1b89b3028a5bbbe87" }
+    { binding = "LIL_NOUNS_BOTS_DEV", id = "555958da845347f5b52648ee144828cd", preview_id = "9d22f717f5d4479ab74209eb26277aee" }
 ]
 
