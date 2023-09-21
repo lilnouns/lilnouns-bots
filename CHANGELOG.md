@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.12] - 2023-09-21
+
+### Refactor
+
+- Update key names for prop lot and prop house setup
+- Improve cache handling for ideas, votes, comments
+- Add info logs in Prop Lot and Prop House setup checks
+- Update caching strategy in prop house handler
+- Update to fetch all ideas in vote and comment handlers
+- Improve caching and fetching logic in prop house module
+- Improve logging for fetch and handler operations
+- Add logging to DiscordHandler operations
+- Update data type in prop lot module
+
+### Miscellaneous Tasks
+
+- Add `dev` environment in `wrangler.toml`
+- Remove redundant worker-build steps from deploy workflow
+- Update API token reference in deployment workflow
+- Add KV namespace binding to wrangler.toml
+
 ## [1.0.0-alpha.11] - 2023-09-21
 
 ### Miscellaneous Tasks
