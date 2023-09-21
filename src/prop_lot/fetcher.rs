@@ -2,7 +2,7 @@ use std::convert::TryInto;
 
 use graphql_client::reqwest::post_graphql;
 use graphql_client::GraphQLQuery;
-use log::error;
+use log::{debug, error, info};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
@@ -29,7 +29,7 @@ struct VoteQuery;
 #[graphql(
     schema_path = "graphql/schemas/prop_lot_schema.graphql",
     query_path = "graphql/queries/prop_lot_query.graphql",
-    response_derives = "Clone",
+    response_derives = "Clone, Debug",
     deprecated = "warn"
 )]
 struct CommentQuery;
@@ -84,16 +84,23 @@ impl GraphQLFetcher {
             .build()
             .map_err(|e| {
                 error!("Failed to create client: {}", e);
+                debug!("Error details: {:?}", e);
             })
             .ok()?;
+
+        debug!("Executing GraphQL request");
 
         post_graphql::<QueryType, _>(&client, &self.graphql_url, variables)
             .await
             .map_err(|e| {
                 error!("Failed to execute GraphQL request: {}", e);
+                debug!("Failure details: {:?}", e);
             })
             .ok()
-            .and_then(|response| response.data)
+            .and_then(|response| {
+                info!("Received GraphQL response");
+                response.data
+            })
     }
 
     pub(crate) async fn fetch_ideas(&self) -> Option<Vec<Idea>> {

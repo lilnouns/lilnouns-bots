@@ -1,6 +1,6 @@
 use graphql_client::reqwest::post_graphql;
 use graphql_client::GraphQLQuery;
-use log::error;
+use log::{debug, error, info};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
@@ -27,7 +27,7 @@ struct ProposalQuery;
 #[graphql(
     schema_path = "graphql/schemas/prop_house_schema.graphql",
     query_path = "graphql/queries/prop_house_query.graphql",
-    response_derives = "Clone",
+    response_derives = "Clone, Debug",
     deprecated = "warn"
 )]
 struct VoteQuery;
@@ -87,16 +87,23 @@ impl GraphQLFetcher {
             .build()
             .map_err(|e| {
                 error!("Failed to create client: {}", e);
+                debug!("Error details: {:?}", e);
             })
             .ok()?;
+
+        debug!("Executing GraphQL request");
 
         post_graphql::<QueryType, _>(&client, &self.graphql_url, variables)
             .await
             .map_err(|e| {
                 error!("Failed to execute GraphQL request: {}", e);
+                debug!("Failure details: {:?}", e);
             })
             .ok()
-            .and_then(|response| response.data)
+            .and_then(|response| {
+                info!("Received GraphQL response");
+                response.data
+            })
     }
 
     pub(crate) async fn fetch_auctions(&self) -> Option<Vec<Auction>> {
@@ -105,7 +112,6 @@ impl GraphQLFetcher {
         };
 
         let response = self.fetch::<AuctionQuery>(variables).await?;
-
         let auctions = response
             .community
             .auctions
