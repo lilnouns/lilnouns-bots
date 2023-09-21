@@ -11,27 +11,15 @@ pub mod handler;
 
 pub async fn setup(cache: &Cache, fetcher: &GraphQLFetcher) -> Result<()> {
     if let Some(ideas) = fetcher.fetch_ideas().await {
-        for idea in ideas {
-            cache
-                .put(&format!("{}{}", "PROP_LOT_IDEA_", idea.id), &idea)
-                .await;
-        }
+        cache.put("prop_lot:ideas", &ideas).await;
     }
 
     if let Some(votes) = fetcher.fetch_votes().await {
-        for vote in votes {
-            cache
-                .put(&format!("{}{}", "PROP_LOT_VOTE_", vote.id), &vote)
-                .await;
-        }
+        cache.put("prop_lot:votes", &votes).await;
     }
 
     if let Some(comments) = fetcher.fetch_comments().await {
-        for comment in comments {
-            cache
-                .put(&format!("{}{}", "PROP_LOT_COMMENT_", comment.id), &comment)
-                .await;
-        }
+        cache.put("prop_lot:comments", &comments).await;
     }
 
     Ok(())
@@ -43,48 +31,57 @@ pub async fn start(
     handler: &DiscordHandler,
 ) -> Result<()> {
     if let Some(ideas) = fetcher.fetch_ideas().await {
-        for idea in &ideas {
-            let cached_idea: Option<Idea> = cache
-                .get(&format!("{}{}", "PROP_LOT_IDEA_", idea.id))
-                .await?;
+        if let Some(old_ideas) = cache.get::<Vec<Idea>>("prop_lot:ideas").await? {
+            let old_ids: Vec<_> = old_ideas.iter().map(|idea| &idea.id).collect();
+            let new_ideas: Vec<_> = ideas
+                .iter()
+                .filter(|idea| !old_ids.contains(&&idea.id))
+                .collect();
 
-            if cached_idea.is_none() {
+            for idea in new_ideas {
                 info!("Handle a new idea... ({:?})", idea.id);
                 if let Err(err) = handler.handle_new_idea(idea).await {
                     error!("Failed to handle new idea: {:?}", err);
                 }
             }
         }
+        cache.put("prop_lot:ideas", &ideas).await;
     }
 
     if let Some(votes) = fetcher.fetch_votes().await {
-        for vote in &votes {
-            let cached_vote: Option<Vote> = cache
-                .get(&format!("{}{}", "PROP_LOT_VOTE_", vote.id))
-                .await?;
+        if let Some(old_votes) = cache.get::<Vec<Vote>>("prop_lot:votes").await? {
+            let old_ids: Vec<_> = old_votes.iter().map(|vote| &vote.id).collect();
+            let new_votes: Vec<_> = votes
+                .iter()
+                .filter(|vote| !old_ids.contains(&&vote.id))
+                .collect();
 
-            if cached_vote.is_none() {
+            for vote in new_votes {
                 info!("Handle a new vote... ({:?})", vote.id);
                 if let Err(err) = handler.handle_new_vote(vote).await {
                     error!("Failed to handle new vote: {:?}", err);
                 }
             }
         }
+        cache.put("prop_lot:votes", &votes).await;
     }
 
     if let Some(comments) = fetcher.fetch_comments().await {
-        for comment in &comments {
-            let cached_comment: Option<Comment> = cache
-                .get(&format!("{}{}", "PROP_LOT_COMMENT_", comment.id))
-                .await?;
+        if let Some(old_comments) = cache.get::<Vec<Comment>>("prop_lot:comments").await? {
+            let old_ids: Vec<_> = old_comments.iter().map(|comment| &comment.id).collect();
+            let new_comments: Vec<_> = comments
+                .iter()
+                .filter(|comment| !old_ids.contains(&&comment.id))
+                .collect();
 
-            if cached_comment.is_none() {
+            for comment in new_comments {
                 info!("Handle a new comment... ({:?})", comment.id);
                 if let Err(err) = handler.handle_new_comment(comment).await {
                     error!("Failed to handle new comment: {:?}", err);
                 }
             }
         }
+        cache.put("prop_lot:comments", &comments).await;
     }
 
     Ok(())
