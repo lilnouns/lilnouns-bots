@@ -9,7 +9,7 @@ use crate::cache::Cache;
 pub mod fetcher;
 pub mod handler;
 
-pub async fn setup(cache: &Cache<'_>, fetcher: &GraphQLFetcher<'_>) -> Result<()> {
+pub async fn setup(cache: &Cache, fetcher: &GraphQLFetcher) -> Result<()> {
     if let Some(ideas) = fetcher.fetch_ideas().await {
         for idea in ideas {
             cache
@@ -41,6 +41,7 @@ pub async fn start(
     cache: &Cache<'_>,
     fetcher: &GraphQLFetcher<'_>,
     handler: &DiscordHandler<'_>,
+    cache: &Cache,
 ) -> Result<()> {
     if let Some(ideas) = fetcher.fetch_ideas().await {
         for idea in &ideas {

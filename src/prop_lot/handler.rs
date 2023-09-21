@@ -10,7 +10,7 @@ use crate::prop_lot::fetcher::{Comment, Idea, Vote};
 pub struct DiscordHandler<'a> {
     base_url: String,
     webhook_url: String,
-    cache: Cache<'a>,
+    cache: Cache,
     client: Client,
 }
 
