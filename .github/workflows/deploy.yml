@@ -52,6 +52,8 @@ jobs:
         uses: cloudflare/wrangler-action@v3.1.1
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
+          environment: dev
+          preCommands: npx wrangler deploy --env dev
           secrets: |
             KV_STORE_NAME
             PROP_HOUSE_COMMUNITY_ID
