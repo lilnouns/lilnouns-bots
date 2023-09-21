@@ -16,7 +16,7 @@ jobs:
 
       # Check out current repository
       - name: Fetch Sources
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4.0.0
         with:
           ref: ${{ github.event.release.tag_name }}
 
@@ -33,25 +33,43 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1.0.6
+        uses: actions-rs/toolchain@v1.0.7
         with:
           toolchain: stable
           target: wasm32-unknown-unknown
           override: true
 
       - name: Install worker-build
-        uses: actions-rs/cargo@v1.0.1
+        uses: actions-rs/cargo@v1.0.3
         with:
           command: install
-          args: worker-build
+          args: worker-build --force
 
       - name: Build by worker-build
         run: worker-build
 
       - name: Deploy to Workers
-        uses: cloudflare/wrangler-action@v3.1.0
+        uses: cloudflare/wrangler-action@v3.1.1
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
+          secrets: |
+            KV_STORE_NAME
+            PROP_HOUSE_COMMUNITY_ID
+            PROP_HOUSE_BASE_URL
+            PROP_HOUSE_GRAPHQL_URL
+            PROP_HOUSE_DISCORD_WEBHOOK_URL
+            PROP_LOT_BASE_URL
+            PROP_LOT_GRAPHQL_URL
+            PROP_LOT_DISCORD_WEBHOOK_URL
+        env:
+          KV_STORE_NAME: ${{ secrets.KV_STORE_NAME }}
+          PROP_HOUSE_COMMUNITY_ID: ${{ secrets.PROP_HOUSE_COMMUNITY_ID }}
+          PROP_HOUSE_BASE_URL: ${{ secrets.PROP_HOUSE_BASE_URL }}
+          PROP_HOUSE_GRAPHQL_URL: ${{ secrets.PROP_HOUSE_GRAPHQL_URL }}
+          PROP_HOUSE_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_HOUSE_DISCORD_WEBHOOK_URL }}
+          PROP_LOT_BASE_URL: ${{ secrets.PROP_LOT_BASE_URL }}
+          PROP_LOT_GRAPHQL_URL: ${{ secrets.PROP_LOT_GRAPHQL_URL }}
+          PROP_LOT_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_LOT_DISCORD_WEBHOOK_URL }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
