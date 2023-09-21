@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.15] - 2023-09-21
+
+### Refactor
+
+- Update `kv_namespaces` configuration in `wrangler.toml`
+
 ## [1.0.0-alpha.14] - 2023-09-21
 
 ### Refactor
