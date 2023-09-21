@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.14] - 2023-09-21
+
+### Refactor
+
+- Improve error handling and logging in fetchers
+- Add debug logging to cache operations
+
+### Miscellaneous Tasks
+
+- Update `build` command in `wrangler.toml`
+- Add new kv_namespace to wrangler.toml
+
 ## [1.0.0-alpha.13] - 2023-09-21
 
 ### Miscellaneous Tasks
