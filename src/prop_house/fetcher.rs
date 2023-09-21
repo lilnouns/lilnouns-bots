@@ -59,23 +59,24 @@ pub(crate) struct Vote {
     pub(crate) direction: isize,
 }
 
-pub struct GraphQLFetcher<'a> {
-    _env: &'a Env,
-    url: String,
+pub struct GraphQLFetcher {
+    graphql_url: String,
     community_id: String,
 }
 
-impl<'a> GraphQLFetcher<'a> {
-    pub fn new(env: &'a Env) -> Result<GraphQLFetcher<'a>> {
-        let url = env.var("PROP_HOUSE_GRAPHQL_URL")?.to_string();
+impl GraphQLFetcher {
+    pub fn new(graphql_url: String, community_id: String) -> Self {
+        Self {
+            graphql_url,
+            community_id,
+        }
+    }
 
+    pub fn from(env: &Env) -> Result<GraphQLFetcher> {
+        let graphql_url = env.var("PROP_HOUSE_GRAPHQL_URL")?.to_string();
         let community_id = env.var("PROP_HOUSE_COMMUNITY_ID")?.to_string();
 
-        Ok(GraphQLFetcher {
-            _env: env,
-            url,
-            community_id,
-        })
+        Ok(Self::new(graphql_url, community_id))
     }
 
     async fn fetch<QueryType: GraphQLQuery>(
@@ -89,7 +90,7 @@ impl<'a> GraphQLFetcher<'a> {
             })
             .ok()?;
 
-        post_graphql::<QueryType, _>(&client, &self.url, variables)
+        post_graphql::<QueryType, _>(&client, &self.graphql_url, variables)
             .await
             .map_err(|e| {
                 error!("Failed to execute GraphQL request: {}", e);
