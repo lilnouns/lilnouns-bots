@@ -39,32 +39,38 @@ async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
     let prop_house_handler = PropHouseDiscordHandler::from(&env).unwrap();
 
     if cache.get::<String>(prop_lot_key).await.ok().is_none() {
+        info!("Prop Lot setup date is not found in the cache. Setting up the Prop Lot.");
         match prop_lot::setup(&cache, &prop_lot_fetcher).await {
             Ok(_) => {
                 let now: String = chrono::Utc::now().to_string();
                 cache.put(prop_lot_key, &now).await;
+                info!("Prop Lot is successfully set up.");
             }
             Err(e) => {
                 error!("Failed to setup Prop Lot: {}", e);
             }
         }
     } else {
+        info!("Prop Lot setup date is found in the cache.");
         if let Err(e) = prop_lot::start(&cache, &prop_lot_fetcher, &prop_lot_handler).await {
             error!("Failed to start Prop Lot: {}", e);
         }
     }
 
     if cache.get::<String>(prop_house_key).await.ok().is_none() {
+        info!("Prop House setup date is not found in the cache. Setting up the Prop House.");
         match prop_house::setup(&cache, &prop_house_fetcher).await {
             Ok(_) => {
-                let now = chrono::Utc::now().to_string();
+                let now: String = chrono::Utc::now().to_string();
                 cache.put(prop_house_key, &now).await;
+                info!("Prop house is successfully set up.");
             }
             Err(e) => {
                 error!("Failed to setup Prop House: {}", e);
             }
         }
     } else {
+        info!("Prop House setup date is found in the cache.");
         if let Err(e) = prop_house::start(&cache, &prop_house_fetcher, &prop_house_handler).await {
             error!("Failed to start Prop House: {}", e);
         }
