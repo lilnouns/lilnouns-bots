@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.10] - 2023-09-21
+
+### Refactor
+
+- Improve error handling for Prop Lot and Prop House setup
+
+### Miscellaneous Tasks
+
+- Update triggers for Deploy & Publish Workflow
+
 ## [1.0.0-alpha.9] - 2023-09-21
 
 ### Refactor
