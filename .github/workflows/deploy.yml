@@ -43,7 +43,7 @@ jobs:
         uses: actions-rs/cargo@v1.0.1
         with:
           command: install
-          args: worker-build
+          args: worker-build --force
 
       - name: Build by worker-build
         run: worker-build
