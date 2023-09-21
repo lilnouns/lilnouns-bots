@@ -7,27 +7,31 @@ use worker::{Env, Result};
 use crate::cache::Cache;
 use crate::prop_house::fetcher::{Auction, Proposal, Vote};
 
-pub struct DiscordHandler<'a> {
+pub struct DiscordHandler {
     base_url: String,
     webhook_url: String,
     cache: Cache,
     client: Client,
 }
 
-impl<'a> DiscordHandler<'a> {
-    pub fn new(env: &'a Env) -> Result<DiscordHandler<'a>> {
+impl DiscordHandler {
+    pub fn new(base_url: String, webhook_url: String, cache: Cache, client: Client) -> Self {
+        Self {
+            base_url,
+            webhook_url,
+            cache,
+            client,
+        }
+    }
+
+    pub fn from(env: &Env) -> Result<DiscordHandler> {
         let base_url = env.var("PROP_HOUSE_BASE_URL")?.to_string();
         let webhook_url = env.var("PROP_HOUSE_DISCORD_WEBHOOK_URL")?.to_string();
 
         let cache = Cache::from(env);
         let client = Client::new();
 
-        Ok(DiscordHandler {
-            base_url,
-            webhook_url,
-            cache,
-            client,
-        })
+        Ok(Self::new(base_url, webhook_url, cache, client))
     }
 
     async fn execute_webhook(&self, embed: Value) -> Result<()> {

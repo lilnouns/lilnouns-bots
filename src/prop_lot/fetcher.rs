@@ -61,17 +61,21 @@ pub(crate) struct Comment {
     pub(crate) body: String,
 }
 
-pub struct GraphQLFetcher<'a> {
-    _env: &'a Env,
-    url: String,
+pub struct GraphQLFetcher {
+    graphql_url: String,
 }
 
-impl<'a> GraphQLFetcher<'a> {
-    pub fn new(env: &'a Env) -> Result<GraphQLFetcher<'a>> {
-        let url = env.var("PROP_LOT_GRAPHQL_URL")?.to_string();
-
-        Ok(GraphQLFetcher { _env: env, url })
+impl GraphQLFetcher {
+    pub fn new(graphql_url: String) -> Self {
+        Self { graphql_url }
     }
+
+    pub fn from(env: &Env) -> Result<GraphQLFetcher> {
+        let graphql_url = env.var("PROP_LOT_GRAPHQL_URL")?.to_string();
+
+        Ok(Self::new(graphql_url))
+    }
+
     async fn fetch<QueryType: GraphQLQuery>(
         &self,
         variables: <QueryType as GraphQLQuery>::Variables,
@@ -83,7 +87,7 @@ impl<'a> GraphQLFetcher<'a> {
             })
             .ok()?;
 
-        post_graphql::<QueryType, _>(&client, &self.url, variables)
+        post_graphql::<QueryType, _>(&client, &self.graphql_url, variables)
             .await
             .map_err(|e| {
                 error!("Failed to execute GraphQL request: {}", e);

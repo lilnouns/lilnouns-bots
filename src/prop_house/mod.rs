@@ -44,10 +44,9 @@ pub async fn setup(cache: &Cache, fetcher: &GraphQLFetcher) -> Result<()> {
 }
 
 pub async fn start(
-    cache: &Cache<'_>,
-    fetcher: &GraphQLFetcher<'_>,
-    handler: &DiscordHandler<'_>,
     cache: &Cache,
+    fetcher: &GraphQLFetcher,
+    handler: &DiscordHandler,
 ) -> Result<()> {
     if let Some(auctions) = fetcher.fetch_auctions().await {
         for auction in auctions {
