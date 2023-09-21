@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.11] - 2023-09-21
+
+### Miscellaneous Tasks
+
+- Update deployment settings in GitHub Actions
+- Add cron `triggers` to `wrangler.toml`
+
 ## [1.0.0-alpha.10] - 2023-09-21
 
 ### Refactor
