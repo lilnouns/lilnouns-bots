@@ -12,17 +12,6 @@ on:
   pull_request: # Also on pull request events.
   workflow_dispatch: # Allows you to run this workflow manually from the Actions tab.
 
-env:
-  CARGO_TERM_COLOR: always
-  BOT_LOG_LEVEL: ${{ secrets.BOT_LOG_LEVEL }}
-  PROP_HOUSE_COMMUNITY_ID: ${{ secrets.PROP_HOUSE_COMMUNITY_ID }}
-  PROP_HOUSE_BASE_URL: ${{ secrets.PROP_HOUSE_BASE_URL }}
-  PROP_HOUSE_GRAPHQL_URL: ${{ secrets.PROP_HOUSE_GRAPHQL_URL }}
-  PROP_HOUSE_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_HOUSE_DISCORD_WEBHOOK_URL }}
-  PROP_LOT_BASE_URL: ${{ secrets.PROP_LOT_BASE_URL }}
-  PROP_LOT_GRAPHQL_URL: ${{ secrets.PROP_LOT_GRAPHQL_URL }}
-  PROP_LOT_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_LOT_DISCORD_WEBHOOK_URL }}
-
 jobs:
   guard:
     name: Usage guard
