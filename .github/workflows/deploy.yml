@@ -40,7 +40,7 @@ jobs:
           override: true
 
       - name: Install worker-build
-        uses: actions-rs/cargo@v1.0.1
+        uses: actions-rs/cargo@v1.0.3
         with:
           command: install
           args: worker-build --force
