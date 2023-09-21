@@ -30,11 +30,11 @@ async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
 
     let cache = Cache::from(&env);
 
-    let prop_lot_key = "PROP_LOT_SETUP";
+    let prop_lot_key = "prop_lot:setup_date";
     let prop_lot_fetcher = PropLotGraphQLFetcher::from(&env).unwrap();
     let prop_lot_handler = PropLotDiscordHandler::from(&env).unwrap();
 
-    let prop_house_key = "PROP_HOUSE_SETUP";
+    let prop_house_key = "prop_house:setup_date";
     let prop_house_fetcher = PropHouseGraphQLFetcher::from(&env).unwrap();
     let prop_house_handler = PropHouseDiscordHandler::from(&env).unwrap();
 
