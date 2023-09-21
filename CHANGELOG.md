@@ -2,7 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [1.0.0-alpha.8] - 2023-09-21
+
+### Bug Fixes
+
+- Replace incorrect field mapping in Prop House comment model
+
+### Refactor
+
+- Remove caching system from project
+- Update fetcher functions to use worker env
+- Update fetcher to use GraphQLFetcher struct
+- Add caching functionality to enhance performance
+- Move code into `lib.rs` for modularity and error handling
+- Update caching and fetching mechanism
+- Update the `pnpm-lock.yaml` and `Cargo.lock` files
+- Update DiscordHandler to use a custom in-memory cache system
+- Update formatting and date variable in prop handlers
+
+### Miscellaneous Tasks
+
+- Add `package.json` for LilNouns bots project
+- Add `wrangler.toml` configuration for deployment
+- Add `wasm-pack` and additional dependencies in `Cargo.toml`
+- Add `node_modules` to `.gitignore`
+- Update `package.json` for deployment and development
+- Add `wasm32` target to Cargo configuration
+- Update and rearrange dependencies
+- Update `dev` script in `package.json`
+- Add `.wrangler` to `.gitignore`
+- Update build process in GitHub Actions workflow
+
+## [1.0.0-alpha.7] - 2023-09-19
 
 ### Refactor
 
