@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.9] - 2023-09-21
+
+### Refactor
+
+- Update Cache struct to hold KvStore directly
+- Update DiscordHandler and GraphQLFetcher to remove lifetime notations
+
+### Miscellaneous Tasks
+
+- Move secret environment variables to deploy workflow
+- Add PNPM dependencies maintenance to dependabot
+- Optimize worker-build installation in GitHub workflows
+
 ## [1.0.0-alpha.8] - 2023-09-21
 
 ### Bug Fixes
@@ -32,6 +45,8 @@ All notable changes to this project will be documented in this file.
 - Update `dev` script in `package.json`
 - Add `.wrangler` to `.gitignore`
 - Update build process in GitHub Actions workflow
+- Update build command in GitHub Actions workflow
+- Add deployment workflow for GitHub Actions
 
 ## [1.0.0-alpha.7] - 2023-09-19
 
