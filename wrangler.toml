@@ -7,3 +7,5 @@ command = "cargo install -q worker-build && worker-build --release"
 
 [triggers]
 crons = ["*/5 * * * *"]
+
+[env.dev]
