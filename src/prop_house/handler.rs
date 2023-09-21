@@ -1,5 +1,4 @@
 use chrono::Local;
-use log::error;
 use reqwest::{header, Client};
 use serde_json::{json, Value};
 use worker::{Env, Result};
@@ -66,21 +65,22 @@ impl DiscordHandler {
 
         self.execute_webhook(embed).await?;
 
-        self.cache
-            .put(&format!("{}{}", "PROP_HOUSE_AUCTION_", auction.id), auction)
-            .await;
-
         Ok(())
     }
 
     pub(crate) async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
         let date = Local::now().format("%m/%d/%Y %I:%M %p");
 
-        let auction = self
+        let auctions = self
             .cache
-            .get::<Auction>(&format!("{}{}", "PROP_HOUSE_AUCTION_", proposal.auction_id))
+            .get::<Vec<Auction>>("prop_house:auctions")
             .await?
             .unwrap();
+        let auction = auctions
+            .iter()
+            .find(|&a| a.id == proposal.auction_id)
+            .unwrap()
+            .clone();
 
         let embed = json!({
             "title": "New Prop House Proposal",
@@ -113,30 +113,22 @@ impl DiscordHandler {
 
         self.execute_webhook(embed).await?;
 
-        self.cache
-            .put(
-                &format!("{}{}", "PROP_HOUSE_PROPOSAL_", proposal.id),
-                proposal,
-            )
-            .await;
-
         Ok(())
     }
 
     pub(crate) async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
         let date = Local::now().format("%m/%d/%Y %I:%M %p");
 
-        let proposal = match self
+        let proposals = self
             .cache
-            .get::<Proposal>(&format!("{}{}", "PROP_HOUSE_PROPOSAL_", vote.proposal_id))
+            .get::<Vec<Proposal>>("prop_house:proposals")
             .await?
-        {
-            Some(i) => i,
-            None => {
-                error!("Proposal not found for id: {}", vote.proposal_id);
-                return Ok(());
-            }
-        };
+            .unwrap();
+        let proposal = proposals
+            .iter()
+            .find(|&a| a.id == vote.proposal_id)
+            .unwrap()
+            .clone();
 
         let embed = json!({
             "title": "New Prop House Proposal Vote",
@@ -176,10 +168,6 @@ impl DiscordHandler {
         });
 
         self.execute_webhook(embed).await?;
-
-        self.cache
-            .put(&format!("{}{}", "PROP_HOUSE_VOTE_", vote.id), vote)
-            .await;
 
         Ok(())
     }
