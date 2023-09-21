@@ -46,13 +46,18 @@ impl<'a> DiscordHandler<'a> {
 
     pub(crate) async fn handle_new_idea(&self, idea: &Idea) -> Result<()> {
         let date = Local::now().format("%m/%d/%Y %I:%M %p");
+
         let embed = json!({
             "title": "New Prop Lot Proposal",
             "description": format!(
                 "A new Prop Lot proposal has been created: {}",
                 idea.title
             ),
-            "url": format!("{}/idea/{}", self.base_url, idea.id),
+            "url": format!(
+                "{}/idea/{}",
+                self.base_url,
+                idea.id
+            ),
             "color": 0xFFB911,
             "footer": {
                 "text": format!("{}", date)
@@ -63,7 +68,11 @@ impl<'a> DiscordHandler<'a> {
                     &idea.creator_id[0..4],
                     &idea.creator_id[38..42]
                 ),
-                "url": format!("{}/idea/{}", self.base_url, idea.id)
+                "url": format!(
+                    "{}/idea/{}",
+                    self.base_url,
+                    idea.id
+                )
             }
         });
 
@@ -77,6 +86,8 @@ impl<'a> DiscordHandler<'a> {
     }
 
     pub(crate) async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
+        let date = Local::now().format("%m/%d/%Y %I:%M %p");
+
         let idea = match self
             .cache
             .get::<Idea>(&format!("{}{}", "PROP_LOT_IDEA_", vote.idea_id))
@@ -93,14 +104,25 @@ impl<'a> DiscordHandler<'a> {
             "title": "New Prop Lot Proposal Vote",
             "description": format!(
                 "{} has voted {} Proposal ({})",
-                format!("{}...{}", &vote.voter_id[0..4], &vote.voter_id[38..42]),
-                match vote.direction {1 => "for",_ => "against",},
+                format!(
+                    "{}...{}",
+                    &vote.voter_id[0..4],
+                    &vote.voter_id[38..42]
+                ),
+                match vote.direction {
+                    1 => "for",
+                    _ => "against",
+                },
                 idea.title
             ),
-            "url": format!("{}/idea/{}", self.base_url, idea.id),
+            "url": format!(
+                "{}/idea/{}",
+                self.base_url,
+                idea.id
+            ),
             "color": 0xFFB911,
             "footer": {
-                "text": format!("{}", Local::now().format("%m/%d/%Y %I:%M %p"))
+                "text": format!("{}", date)
             },
             "author": {
                 "name": format!(
@@ -108,7 +130,10 @@ impl<'a> DiscordHandler<'a> {
                     &vote.voter_id[0..4],
                     &vote.voter_id[38..42]
                 ),
-                "url": format!("https://etherscan.io/address/{}", vote.voter_id)
+                "url": format!(
+                    "https://etherscan.io/address/{}",
+                    vote.voter_id
+                )
             }
         });
 
@@ -122,6 +147,8 @@ impl<'a> DiscordHandler<'a> {
     }
 
     pub(crate) async fn handle_new_comment(&self, comment: &Comment) -> Result<()> {
+        let date = Local::now().format("%m/%d/%Y %I:%M %p");
+
         let idea = match self
             .cache
             .get::<Idea>(&format!("{}{}", "PROP_LOT_IDEA_", comment.idea_id))
@@ -145,10 +172,14 @@ impl<'a> DiscordHandler<'a> {
                 ),
                 idea.title
             ),
-            "url": format!("{}/idea/{}", self.base_url, idea.id),
+            "url": format!(
+                "{}/idea/{}",
+                self.base_url,
+                idea.id
+            ),
             "color": 0xFFB911,
             "footer": {
-                "text": format!("{}", Local::now().format("%m/%d/%Y %I:%M %p"))
+                "text": format!("{}", date)
             },
             "author": {
                 "name": format!(
