@@ -59,13 +59,26 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      # This compiles the application.
-      - name: Build the application and export it
-        run: cargo build --verbose
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+          override: true
 
-      # Runs unit tests for the application using Jest.
-      - name: Execute tests using Cargo
-        run: cargo test --verbose
+      - name: Check for errors
+        uses: actions-rs/cargo@v1.0.1
+        with:
+          command: check
+
+      - name: Install worker-build
+        uses: actions-rs/cargo@v1.0.1
+        with:
+          command: install
+          args: worker-build
+
+      - name: Build by worker-build
+        run: worker-build
 
   release:
     name: Create Release

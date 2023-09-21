@@ -1,3 +1,5 @@
 /target
 /tmp
 /report.*
+/node_modules
+/.wrangler
