@@ -5,6 +5,7 @@ use fetcher::{GraphQLFetcher, Idea, Vote};
 use handler::DiscordHandler;
 
 use crate::cache::Cache;
+use crate::prop_lot::fetcher::Comment;
 
 pub mod fetcher;
 pub mod handler;
@@ -103,7 +104,7 @@ pub async fn start(
     if let Some(comments) = fetcher.fetch_comments().await {
         debug!("Fetched {:?} comments.", comments.len());
 
-        if let Some(old_comments) = cache.get::<Vec<Vote>>("prop_lot:comments").await? {
+        if let Some(old_comments) = cache.get::<Vec<Comment>>("prop_lot:comments").await? {
             let old_ids: Vec<_> = old_comments.iter().map(|comment| &comment.id).collect();
             let new_comments: Vec<_> = comments
                 .iter()
