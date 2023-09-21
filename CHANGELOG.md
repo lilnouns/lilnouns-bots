@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.13] - 2023-09-21
+
+### Miscellaneous Tasks
+
+- Move `kv_namespaces` to `env.dev` in `wrangler.toml`
+
 ## [1.0.0-alpha.12] - 2023-09-21
 
 ### Refactor
