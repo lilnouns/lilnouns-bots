@@ -1,4 +1,5 @@
 use chrono::Local;
+use log::{error, info};
 use reqwest::{header, Client};
 use serde_json::{json, Value};
 use worker::{Env, Result};
@@ -15,6 +16,7 @@ pub struct DiscordHandler {
 
 impl DiscordHandler {
     pub fn new(base_url: String, webhook_url: String, cache: Cache, client: Client) -> Self {
+        info!("Initializing DiscordHandler with provided parameters.");
         Self {
             base_url,
             webhook_url,
@@ -24,16 +26,19 @@ impl DiscordHandler {
     }
 
     pub fn from(env: &Env) -> Result<DiscordHandler> {
+        info!("Constructing DiscordHandler from environment variables.");
         let base_url = env.var("PROP_HOUSE_BASE_URL")?.to_string();
         let webhook_url = env.var("PROP_HOUSE_DISCORD_WEBHOOK_URL")?.to_string();
 
         let cache = Cache::from(env);
         let client = Client::new();
 
+        info!("DiscordHandler successfully constructed from environment variables.");
         Ok(Self::new(base_url, webhook_url, cache, client))
     }
 
     async fn execute_webhook(&self, embed: Value) -> Result<()> {
+        info!("Executing webhook.");
         let msg_json = json!({"embeds": [embed]});
 
         self.client
@@ -42,12 +47,17 @@ impl DiscordHandler {
             .body(msg_json.to_string())
             .send()
             .await
-            .map_err(|e| worker::Error::from(format!("Failed to execute webhook: {}", e)))?;
+            .map_err(|e| {
+                error!("Failed to execute webhook: {}", e);
+                worker::Error::from(format!("Failed to execute webhook: {}", e))
+            })?;
 
+        info!("Webhook successfully executed.");
         Ok(())
     }
 
     pub(crate) async fn handle_new_auction(&self, auction: &Auction) -> Result<()> {
+        info!("Handling new auction: {}", auction.title);
         let date = Local::now().format("%m/%d/%Y %I:%M %p");
 
         let embed = json!({
@@ -64,11 +74,12 @@ impl DiscordHandler {
         });
 
         self.execute_webhook(embed).await?;
-
+        info!("New auction handled successfully.");
         Ok(())
     }
 
     pub(crate) async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
+        info!("Handling new proposal: {}", proposal.title);
         let date = Local::now().format("%m/%d/%Y %I:%M %p");
 
         let auctions = self
@@ -112,11 +123,12 @@ impl DiscordHandler {
         });
 
         self.execute_webhook(embed).await?;
-
+        info!("New proposal handled successfully.");
         Ok(())
     }
 
     pub(crate) async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
+        info!("Handling new vote from address: {}", vote.address);
         let date = Local::now().format("%m/%d/%Y %I:%M %p");
 
         let proposals = self
@@ -168,7 +180,7 @@ impl DiscordHandler {
         });
 
         self.execute_webhook(embed).await?;
-
+        info!("New vote handled successfully.");
         Ok(())
     }
 }
