@@ -1,7 +1,7 @@
 name: Deploy & Publish
 on:
   release:
-    types: [ prereleased, released ]
+    types: [ published ]
 
 jobs:
 

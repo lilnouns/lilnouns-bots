@@ -39,31 +39,35 @@ async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
     let prop_house_handler = PropHouseDiscordHandler::from(&env).unwrap();
 
     if cache.get::<String>(prop_lot_key).await.ok().is_none() {
-        if let Err(e) = prop_lot::setup(&cache, &prop_lot_fetcher).await {
-            error!("Failed to setup prop_lot: {}", e);
-        } else {
-            // On successful setup, set the key in the cache.
-            let now: String = chrono::Utc::now().to_string();
-            cache.put(prop_lot_key, &now).await;
+        match prop_lot::setup(&cache, &prop_lot_fetcher).await {
+            Ok(_) => {
+                let now: String = chrono::Utc::now().to_string();
+                cache.put(prop_lot_key, &now).await;
+            }
+            Err(e) => {
+                error!("Failed to setup Prop Lot: {}", e);
+            }
         }
-    }
-
-    if let Err(e) = prop_lot::start(&cache, &prop_lot_fetcher, &prop_lot_handler).await {
-        error!("Failed to start prop_lot: {}", e);
+    } else {
+        if let Err(e) = prop_lot::start(&cache, &prop_lot_fetcher, &prop_lot_handler).await {
+            error!("Failed to start Prop Lot: {}", e);
+        }
     }
 
     if cache.get::<String>(prop_house_key).await.ok().is_none() {
-        if let Err(e) = prop_house::setup(&cache, &prop_house_fetcher).await {
-            error!("Failed to setup prop_house: {}", e);
-        } else {
-            // On successful setup, set the key in the cache.
-            let now = chrono::Utc::now().to_string();
-            cache.put(prop_house_key, &now).await;
+        match prop_house::setup(&cache, &prop_house_fetcher).await {
+            Ok(_) => {
+                let now = chrono::Utc::now().to_string();
+                cache.put(prop_house_key, &now).await;
+            }
+            Err(e) => {
+                error!("Failed to setup Prop House: {}", e);
+            }
         }
-    }
-
-    if let Err(e) = prop_house::start(&cache, &prop_house_fetcher, &prop_house_handler).await {
-        error!("Failed to start prop_house: {}", e);
+    } else {
+        if let Err(e) = prop_house::start(&cache, &prop_house_fetcher, &prop_house_handler).await {
+            error!("Failed to start Prop House: {}", e);
+        }
     }
 }
 
