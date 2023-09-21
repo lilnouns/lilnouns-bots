@@ -1,5 +1,4 @@
 use chrono::Local;
-use log::error;
 use reqwest::{header, Client};
 use serde_json::{json, Value};
 use worker::{Env, Result};
@@ -82,27 +81,22 @@ impl DiscordHandler {
 
         self.execute_webhook(embed).await?;
 
-        self.cache
-            .put(&format!("{}{}", "PROP_LOT_IDEA_", idea.id), idea)
-            .await;
-
         Ok(())
     }
 
     pub(crate) async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
         let date = Local::now().format("%m/%d/%Y %I:%M %p");
 
-        let idea = match self
+        let ideas = self
             .cache
-            .get::<Idea>(&format!("{}{}", "PROP_LOT_IDEA_", vote.idea_id))
+            .get::<Vec<Idea>>("prop_house:ideas")
             .await?
-        {
-            Some(i) => i,
-            None => {
-                error!("Idea not found for id: {}", vote.idea_id);
-                return Ok(());
-            }
-        };
+            .unwrap();
+        let idea = ideas
+            .iter()
+            .find(|&a| a.id == vote.idea_id)
+            .unwrap()
+            .clone();
 
         let embed = json!({
             "title": "New Prop Lot Proposal Vote",
@@ -143,27 +137,22 @@ impl DiscordHandler {
 
         self.execute_webhook(embed).await?;
 
-        self.cache
-            .put(&format!("{}{}", "PROP_LOT_VOTE_", vote.id), vote)
-            .await;
-
         Ok(())
     }
 
     pub(crate) async fn handle_new_comment(&self, comment: &Comment) -> Result<()> {
         let date = Local::now().format("%m/%d/%Y %I:%M %p");
 
-        let idea = match self
+        let ideas = self
             .cache
-            .get::<Idea>(&format!("{}{}", "PROP_LOT_IDEA_", comment.idea_id))
+            .get::<Vec<Idea>>("prop_house:ideas")
             .await?
-        {
-            Some(i) => i,
-            None => {
-                error!("Idea not found for id: {}", comment.idea_id);
-                return Ok(());
-            }
-        };
+            .unwrap();
+        let idea = ideas
+            .iter()
+            .find(|&a| a.id == comment.idea_id)
+            .unwrap()
+            .clone();
 
         let embed = json!({
             "title": "New Prop Lot Proposal Comment",
@@ -199,10 +188,6 @@ impl DiscordHandler {
         });
 
         self.execute_webhook(embed).await?;
-
-        self.cache
-            .put(&format!("{}{}", "PROP_LOT_COMMENT_", comment.id), comment)
-            .await;
 
         Ok(())
     }
