@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.16] - 2023-09-22
+
+### Refactor
+
+- Remove HTML parsing from property description
+
+### Miscellaneous Tasks
+
+- Update wrangler dev command in `package.json`
+
 ## [1.0.0-alpha.15] - 2023-09-21
 
 ### Refactor
