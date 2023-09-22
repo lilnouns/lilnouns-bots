@@ -119,7 +119,7 @@ impl GraphQLFetcher {
             .map(|auction| Auction {
                 id: auction.id.try_into().unwrap(),
                 title: auction.title.clone(),
-                description: html2md::parse_html(&auction.description),
+                description: auction.description.clone(),
             })
             .collect();
 
