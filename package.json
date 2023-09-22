@@ -2,7 +2,7 @@
 	"private": true,
 	"scripts": {
 		"deploy": "wrangler deploy",
-		"dev": "wrangler dev --test-scheduled"
+		"dev": "wrangler dev --env dev --test-scheduled"
 	},
 	"devDependencies": {
 		"wrangler": "3.9.0"
