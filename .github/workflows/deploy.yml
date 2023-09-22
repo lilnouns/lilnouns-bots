@@ -44,7 +44,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           environment: dev
-          command: deploy --env dev
+          preCommands: npx wrangler deploy --env dev
           secrets: |
             KV_STORE_NAME
             PROP_HOUSE_COMMUNITY_ID
