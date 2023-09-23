@@ -33,12 +33,14 @@ async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
     let prop_lot_key = "prop_lot:setup_date";
     let prop_lot_fetcher = PropLotGraphQLFetcher::from(&env).unwrap();
     let prop_lot_handler = PropLotDiscordHandler::from(&env).unwrap();
+    let prop_lot_setup_date = cache.get::<String>(prop_lot_key).await.unwrap();
 
     let prop_house_key = "prop_house:setup_date";
     let prop_house_fetcher = PropHouseGraphQLFetcher::from(&env).unwrap();
     let prop_house_handler = PropHouseDiscordHandler::from(&env).unwrap();
+    let prop_house_setup_date = cache.get::<String>(prop_house_key).await.unwrap();
 
-    if cache.get::<String>(prop_lot_key).await.ok().is_none() {
+    if prop_lot_setup_date.is_none() {
         info!("Prop Lot setup date is not found in the cache. Setting up the Prop Lot.");
         match prop_lot::setup(&cache, &prop_lot_fetcher).await {
             Ok(_) => {
@@ -57,7 +59,7 @@ async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
         }
     }
 
-    if cache.get::<String>(prop_house_key).await.ok().is_none() {
+    if prop_house_setup_date.is_none() {
         info!("Prop House setup date is not found in the cache. Setting up the Prop House.");
         match prop_house::setup(&cache, &prop_house_fetcher).await {
             Ok(_) => {
