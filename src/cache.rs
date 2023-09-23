@@ -33,9 +33,12 @@ impl Cache {
     }
 
     pub async fn has(&self, key: &str) -> bool {
-        match self.get::<String>(key).await {
-            Ok(val) => val.is_some(),
-            Err(_) => false,
+        match self.store.list().execute().await {
+            Ok(key_list) => key_list.keys.iter().any(|k| k.name == key),
+            Err(e) => {
+                error!("Failed to retrieve list of keys: {}", e);
+                false
+            }
         }
     }
 }
