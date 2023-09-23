@@ -34,14 +34,14 @@ struct VoteQuery;
 
 type DateTime = String;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub(crate) struct Auction {
     pub(crate) id: isize,
     pub(crate) title: String,
     pub(crate) description: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone)]
 pub(crate) struct Proposal {
     pub(crate) id: isize,
     pub(crate) title: String,
@@ -50,7 +50,7 @@ pub(crate) struct Proposal {
     pub(crate) auction_id: isize,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone)]
 pub(crate) struct Vote {
     pub(crate) id: isize,
     pub(crate) address: String,

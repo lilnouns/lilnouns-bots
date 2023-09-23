@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.18] - 2023-09-23
+
+### Refactor
+
+- Add Clone trait to struct in fetchers for performance optimization
+- Improve caching for auctions, proposals, votes, ideas, and comments
+
+### Miscellaneous Tasks
+
+- Remove unused dependencies from `Cargo.toml`
+- Add metadata to `Cargo.toml`
+
+### Revert
+
+- Update deployment command in GitHub Actions
+
 ## [1.0.0-alpha.17] - 2023-09-22
 
 ### Miscellaneous Tasks
