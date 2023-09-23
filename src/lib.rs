@@ -31,16 +31,52 @@ async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
     let cache = Cache::from(&env);
 
     let prop_lot_key = "prop_lot:setup_date";
-    let prop_lot_fetcher = PropLotGraphQLFetcher::from(&env).unwrap();
-    let prop_lot_handler = PropLotDiscordHandler::from(&env).unwrap();
-    let prop_lot_setup_date = cache.get::<String>(prop_lot_key).await;
+    let prop_lot_fetcher = match PropLotGraphQLFetcher::from(&env) {
+        Ok(fetcher) => fetcher,
+        Err(e) => {
+            error!("Failed to create prop lot fetcher: {}", e);
+            return;
+        }
+    };
+    let prop_lot_handler = match PropLotDiscordHandler::from(&env) {
+        Ok(handler) => handler,
+        Err(e) => {
+            error!("Failed to create prop lot handler: {}", e);
+            return;
+        }
+    };
+    let prop_lot_setup_date = match cache.get::<String>(prop_lot_key).await {
+        Ok(setup_date) => setup_date,
+        Err(e) => {
+            error!("Failed to get setup date from cache: {}", e);
+            return;
+        }
+    };
 
     let prop_house_key = "prop_house:setup_date";
-    let prop_house_fetcher = PropHouseGraphQLFetcher::from(&env).unwrap();
-    let prop_house_handler = PropHouseDiscordHandler::from(&env).unwrap();
-    let prop_house_setup_date = cache.get::<String>(prop_house_key).await;
+    let prop_house_fetcher = match PropHouseGraphQLFetcher::from(&env) {
+        Ok(fetcher) => fetcher,
+        Err(e) => {
+            error!("Failed to create prop house fetcher: {}", e);
+            return;
+        }
+    };
+    let prop_house_handler = match PropHouseDiscordHandler::from(&env) {
+        Ok(handler) => handler,
+        Err(e) => {
+            error!("Failed to create prop house handler: {}", e);
+            return;
+        }
+    };
+    let prop_house_setup_date = match cache.get::<String>(prop_house_key).await {
+        Ok(setup_date) => setup_date,
+        Err(e) => {
+            error!("Failed to get setup date from cache: {}", e);
+            return;
+        }
+    };
 
-    if prop_lot_setup_date.is_err() || prop_lot_setup_date.unwrap().is_none() {
+    if prop_lot_setup_date.is_none() {
         info!("Prop Lot setup date is not found in the cache. Setting up the Prop Lot.");
         match prop_lot::setup(&cache, &prop_lot_fetcher).await {
             Ok(_) => {
@@ -59,7 +95,7 @@ async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
         }
     }
 
-    if prop_house_setup_date.is_err() || prop_house_setup_date.unwrap().is_none() {
+    if prop_house_setup_date.is_none() {
         info!("Prop House setup date is not found in the cache. Setting up the Prop House.");
         match prop_house::setup(&cache, &prop_house_fetcher).await {
             Ok(_) => {
