@@ -21,9 +21,6 @@ fragment ProposalFragment on Proposal {
     what
     tldr
     createdDate
-    auction {
-        ...AuctionFragment
-    }
 }
 
 fragment VoteFragment on Vote {
@@ -47,6 +44,7 @@ query AuctionQuery($id: Int!) {
 query ProposalQuery($id: Int!) {
     community(id: $id) {
         auctions {
+            ...AuctionFragment
             proposals {
                 ...ProposalFragment
             }

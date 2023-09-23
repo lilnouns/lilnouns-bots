@@ -1,4 +1,4 @@
-use log::{debug, error};
+use log::error;
 use serde::de::DeserializeOwned;
 use serde::ser::Serialize;
 use worker::kv::{KvError, KvStore};
@@ -10,12 +10,10 @@ pub struct Cache {
 
 impl Cache {
     pub fn new(store: KvStore) -> Self {
-        debug!("Creating new Cache instance");
         Self { store }
     }
 
     pub fn from(env: &Env) -> Self {
-        debug!("Creating Cache from Env");
         let store_name = env.var("KV_STORE_NAME").unwrap().to_string();
         let store = env.kv(&store_name).unwrap();
 
@@ -23,18 +21,24 @@ impl Cache {
     }
 
     pub async fn put<T: Serialize>(&self, key: &str, value: &T) {
-        debug!("Putting value in KV Store");
         if let Ok(put) = self.store.put(key, value) {
             if let Err(pe) = put.execute().await {
                 error!("Failed updating KV: {}", pe);
-            } else {
-                debug!("Successfully updated KV");
             }
         }
     }
 
     pub async fn get<T: DeserializeOwned>(&self, key: &str) -> Result<Option<T>, KvError> {
-        debug!("Getting value from KV Store");
         self.store.get(key).json::<T>().await
+    }
+
+    pub async fn has(&self, key: &str) -> bool {
+        match self.store.list().execute().await {
+            Ok(key_list) => key_list.keys.iter().any(|k| k.name == key),
+            Err(e) => {
+                error!("Failed to retrieve list of keys: {}", e);
+                false
+            }
+        }
     }
 }

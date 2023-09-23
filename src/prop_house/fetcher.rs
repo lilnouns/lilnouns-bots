@@ -1,6 +1,6 @@
 use graphql_client::reqwest::post_graphql;
 use graphql_client::GraphQLQuery;
-use log::{debug, error, info};
+use log::{debug, error};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
@@ -91,8 +91,6 @@ impl GraphQLFetcher {
             })
             .ok()?;
 
-        debug!("Executing GraphQL request");
-
         post_graphql::<QueryType, _>(&client, &self.graphql_url, variables)
             .await
             .map_err(|e| {
@@ -100,10 +98,7 @@ impl GraphQLFetcher {
                 debug!("Failure details: {:?}", e);
             })
             .ok()
-            .and_then(|response| {
-                info!("Received GraphQL response");
-                response.data
-            })
+            .and_then(|response| response.data)
     }
 
     pub(crate) async fn fetch_auctions(&self) -> Option<Vec<Auction>> {
@@ -137,13 +132,17 @@ impl GraphQLFetcher {
             .community
             .auctions
             .iter()
-            .flat_map(|auction| &auction.proposals)
-            .map(|proposal| Proposal {
+            .flat_map(|auction| {
+                auction.proposals.iter().map(move |proposal| {
+                    (auction.auction_fragment.id.try_into().unwrap(), proposal)
+                })
+            })
+            .map(|(auction_id, proposal)| Proposal {
                 id: proposal.id.try_into().unwrap(),
                 title: proposal.title.clone(),
                 tldr: proposal.tldr.clone(),
                 address: proposal.address.clone(),
-                auction_id: proposal.auction.id.try_into().unwrap(),
+                auction_id,
             })
             .collect();
 
