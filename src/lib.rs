@@ -23,11 +23,7 @@ cfg_if! {
     }
 }
 
-#[event(scheduled)]
-async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
-    worker_logger::init_with_level(&Level::Debug);
-    set_panic_hook();
-
+async fn start(env: &Env) -> bool {
     let cache = Cache::from(&env);
 
     let prop_lot_key = "prop_lot:setup_date";
@@ -35,21 +31,21 @@ async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
         Ok(fetcher) => fetcher,
         Err(e) => {
             error!("Failed to create prop lot fetcher: {}", e);
-            return;
+            return true;
         }
     };
     let prop_lot_handler = match PropLotDiscordHandler::from(&env) {
         Ok(handler) => handler,
         Err(e) => {
             error!("Failed to create prop lot handler: {}", e);
-            return;
+            return true;
         }
     };
     let prop_lot_setup_date = match cache.get::<String>(prop_lot_key).await {
         Ok(setup_date) => setup_date,
         Err(e) => {
             error!("Failed to get setup date from cache: {}", e);
-            return;
+            return true;
         }
     };
 
@@ -58,21 +54,21 @@ async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
         Ok(fetcher) => fetcher,
         Err(e) => {
             error!("Failed to create prop house fetcher: {}", e);
-            return;
+            return true;
         }
     };
     let prop_house_handler = match PropHouseDiscordHandler::from(&env) {
         Ok(handler) => handler,
         Err(e) => {
             error!("Failed to create prop house handler: {}", e);
-            return;
+            return true;
         }
     };
     let prop_house_setup_date = match cache.get::<String>(prop_house_key).await {
         Ok(setup_date) => setup_date,
         Err(e) => {
             error!("Failed to get setup date from cache: {}", e);
-            return;
+            return true;
         }
     };
 
@@ -113,10 +109,21 @@ async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
             error!("Failed to start Prop House: {}", e);
         }
     }
+    false
+}
+
+#[event(scheduled)]
+async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
+    worker_logger::init_with_level(&Level::Debug);
+    set_panic_hook();
+
+    if start(&env).await {
+        return;
+    }
 }
 
 #[event(fetch)]
-pub async fn main(req: Request, _env: Env, _ctx: worker::Context) -> Result<Response> {
+pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Response> {
     worker_logger::init_with_level(&Level::Debug);
     set_panic_hook();
 
@@ -127,6 +134,8 @@ pub async fn main(req: Request, _env: Env, _ctx: worker::Context) -> Result<Resp
         req.cf().coordinates().unwrap_or_default(),
         req.cf().region().unwrap_or_else(|| "unknown region".into())
     );
+
+    start(&env).await;
 
     Response::error("Bad Request", 400)
 }
