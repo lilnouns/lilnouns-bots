@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.19] - 2023-09-23
+
+### Refactor
+
+- Improve cache access efficiency for setup dates
+- Update cache retrieval to avoid panic
+- Improve error handling in PropLot and PropHouse initialization
+- Update cron function for better error handling
+- Update codebase to use PropHouse and PropLot structs
+- Add cache checking before fetching data
+- Remove unnecessary logging in handlers and cache
+- Update cache `has` method to use store list
+- Update debug statement in start function
+- Simplify logging in fetcher modules
+- Revise graphql queries and fetcher for prop house
+
+### Miscellaneous Tasks
+
+- Add Cloudflare API token to GitHub workflows
+- Update `deploy` script in `package.json`
+
 ## [1.0.0-alpha.18] - 2023-09-23
 
 ### Refactor
