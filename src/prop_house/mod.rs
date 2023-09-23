@@ -69,9 +69,9 @@ impl PropHouse {
     }
 
     pub async fn start(&self) -> Result<()> {
-        debug!("Start function started.");
-
         self.setup().await;
+
+        debug!("Start function started.");
 
         if let Some(auctions) = self.fetcher.fetch_auctions().await {
             debug!("Fetched {:?} auctions.", auctions.len());

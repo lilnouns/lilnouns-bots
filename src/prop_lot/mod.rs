@@ -68,9 +68,9 @@ impl PropLot {
     }
 
     pub async fn start(&self) -> Result<()> {
-        debug!("Start function started.");
-
         self.setup().await;
+
+        debug!("Start function started.");
 
         if let Some(ideas) = self.fetcher.fetch_ideas().await {
             debug!("Fetched {:?} ideas.", ideas.len());
