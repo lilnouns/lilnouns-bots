@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.20] - 2023-09-23
+
+### Miscellaneous Tasks
+
+- Update deployment configuration in GitHub Actions
+
 ## [1.0.0-alpha.19] - 2023-09-23
 
 ### Refactor
