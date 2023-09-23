@@ -36,7 +36,7 @@ struct CommentQuery;
 
 type Date = String;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub(crate) struct Idea {
     pub(crate) id: isize,
     pub(crate) title: String,
@@ -44,7 +44,7 @@ pub(crate) struct Idea {
     pub(crate) creator_id: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone)]
 pub(crate) struct Vote {
     pub(crate) id: isize,
     pub(crate) voter_id: String,
@@ -53,7 +53,7 @@ pub(crate) struct Vote {
     pub(crate) voter_weight: isize,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone)]
 pub(crate) struct Comment {
     pub(crate) id: isize,
     pub(crate) idea_id: isize,
