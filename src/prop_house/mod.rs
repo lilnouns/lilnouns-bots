@@ -35,29 +35,35 @@ impl PropHouse {
     pub async fn setup(&self) {
         debug!("Setup function started.");
 
-        if let Some(auctions) = self.fetcher.fetch_auctions().await {
-            info!("Fetched {:?} auctions.", auctions.len());
-            debug!("Putting fetched auctions into cache.");
-            self.cache.put("prop_house:auctions", &auctions).await;
-        } else {
-            warn!("Failed to fetch auctions");
-        }
+        if !self.cache.has("prop_house:auctions").await {
+            if let Some(auctions) = self.fetcher.fetch_auctions().await {
+                info!("Fetched {:?} auctions.", auctions.len());
+                debug!("Putting fetched auctions into cache.");
+                self.cache.put("prop_house:auctions", &auctions).await;
+            } else {
+                warn!("Failed to fetch auctions");
+            }
+        };
 
-        if let Some(proposals) = self.fetcher.fetch_proposals().await {
-            info!("Fetched {:?} proposals.", proposals.len());
-            debug!("Putting fetched proposals into cache.");
-            self.cache.put("prop_house:proposals", &proposals).await;
-        } else {
-            warn!("Failed to fetch proposals");
-        }
+        if !self.cache.has("prop_house:proposals").await {
+            if let Some(proposals) = self.fetcher.fetch_proposals().await {
+                info!("Fetched {:?} proposals.", proposals.len());
+                debug!("Putting fetched proposals into cache.");
+                self.cache.put("prop_house:proposals", &proposals).await;
+            } else {
+                warn!("Failed to fetch proposals");
+            }
+        };
 
-        if let Some(votes) = self.fetcher.fetch_votes().await {
-            info!("Fetched {:?} votes.", votes.len());
-            debug!("Putting fetched votes into cache.");
-            self.cache.put("prop_house:votes", &votes).await;
-        } else {
-            warn!("Failed to fetch votes");
-        }
+        if !self.cache.has("prop_house:votes").await {
+            if let Some(votes) = self.fetcher.fetch_votes().await {
+                info!("Fetched {:?} votes.", votes.len());
+                debug!("Putting fetched votes into cache.");
+                self.cache.put("prop_house:votes", &votes).await;
+            } else {
+                warn!("Failed to fetch votes");
+            }
+        };
 
         debug!("Setup function finished.");
     }

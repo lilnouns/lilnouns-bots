@@ -37,4 +37,12 @@ impl Cache {
         debug!("Getting value from KV Store");
         self.store.get(key).json::<T>().await
     }
+
+    pub async fn has(&self, key: &str) -> bool {
+        debug!("Checking if key exists in KV Store");
+        match self.get::<String>(key).await {
+            Ok(val) => val.is_some(),
+            Err(_) => false,
+        }
+    }
 }

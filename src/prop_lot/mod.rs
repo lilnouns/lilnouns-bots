@@ -34,28 +34,34 @@ impl PropLot {
     pub async fn setup(&self) {
         debug!("Setup function started.");
 
-        if let Some(ideas) = self.fetcher.fetch_ideas().await {
-            info!("Fetched {:?} idea.", ideas.len());
-            debug!("Putting fetched ideas into cache.");
-            self.cache.put("prop_lot:ideas", &ideas).await;
-        } else {
-            warn!("Failed to fetch ideas");
+        if !self.cache.has("prop_lot:ideas").await {
+            if let Some(ideas) = self.fetcher.fetch_ideas().await {
+                info!("Fetched {:?} idea.", ideas.len());
+                debug!("Putting fetched ideas into cache.");
+                self.cache.put("prop_lot:ideas", &ideas).await;
+            } else {
+                warn!("Failed to fetch ideas");
+            }
         }
 
-        if let Some(votes) = self.fetcher.fetch_votes().await {
-            info!("Fetched {:?} votes.", votes.len());
-            debug!("Putting fetched votes into cache.");
-            self.cache.put("prop_lot:votes", &votes).await;
-        } else {
-            warn!("Failed to fetch votes");
+        if !self.cache.has("prop_lot:votes").await {
+            if let Some(votes) = self.fetcher.fetch_votes().await {
+                info!("Fetched {:?} votes.", votes.len());
+                debug!("Putting fetched votes into cache.");
+                self.cache.put("prop_lot:votes", &votes).await;
+            } else {
+                warn!("Failed to fetch votes");
+            }
         }
 
-        if let Some(comments) = self.fetcher.fetch_comments().await {
-            info!("Fetched {:?} comments.", comments.len());
-            debug!("Putting fetched comments into cache.");
-            self.cache.put("prop_lot:comments", &comments).await;
-        } else {
-            warn!("Failed to fetch comments");
+        if !self.cache.has("prop_lot:comments").await {
+            if let Some(comments) = self.fetcher.fetch_comments().await {
+                info!("Fetched {:?} comments.", comments.len());
+                debug!("Putting fetched comments into cache.");
+                self.cache.put("prop_lot:comments", &comments).await;
+            } else {
+                warn!("Failed to fetch comments");
+            }
         }
 
         debug!("Setup function finished.");
