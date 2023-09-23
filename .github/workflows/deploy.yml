@@ -42,9 +42,10 @@ jobs:
       - name: Deploy to Workers
         uses: cloudflare/wrangler-action@v3.1.1
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CF_API_TOKEN }}
           environment: dev
-          preCommands: npx wrangler deploy --env dev
+          command: deploy --env dev
           secrets: |
             KV_STORE_NAME
             PROP_HOUSE_COMMUNITY_ID
@@ -55,7 +56,6 @@ jobs:
             PROP_LOT_GRAPHQL_URL
             PROP_LOT_DISCORD_WEBHOOK_URL
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           KV_STORE_NAME: ${{ secrets.KV_STORE_NAME }}
           PROP_HOUSE_COMMUNITY_ID: ${{ secrets.PROP_HOUSE_COMMUNITY_ID }}
           PROP_HOUSE_BASE_URL: ${{ secrets.PROP_HOUSE_BASE_URL }}
