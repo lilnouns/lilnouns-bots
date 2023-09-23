@@ -132,13 +132,17 @@ impl GraphQLFetcher {
             .community
             .auctions
             .iter()
-            .flat_map(|auction| &auction.proposals)
-            .map(|proposal| Proposal {
+            .flat_map(|auction| {
+                auction.proposals.iter().map(move |proposal| {
+                    (auction.auction_fragment.id.try_into().unwrap(), proposal)
+                })
+            })
+            .map(|(auction_id, proposal)| Proposal {
                 id: proposal.id.try_into().unwrap(),
                 title: proposal.title.clone(),
                 tldr: proposal.tldr.clone(),
                 address: proposal.address.clone(),
-                auction_id: proposal.auction.id.try_into().unwrap(),
+                auction_id,
             })
             .collect();
 
