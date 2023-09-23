@@ -1,6 +1,6 @@
 use graphql_client::reqwest::post_graphql;
 use graphql_client::GraphQLQuery;
-use log::{debug, error, info};
+use log::{debug, error};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
@@ -91,8 +91,6 @@ impl GraphQLFetcher {
             })
             .ok()?;
 
-        debug!("Executing GraphQL request");
-
         post_graphql::<QueryType, _>(&client, &self.graphql_url, variables)
             .await
             .map_err(|e| {
@@ -100,10 +98,7 @@ impl GraphQLFetcher {
                 debug!("Failure details: {:?}", e);
             })
             .ok()
-            .and_then(|response| {
-                info!("Received GraphQL response");
-                response.data
-            })
+            .and_then(|response| response.data)
     }
 
     pub(crate) async fn fetch_auctions(&self) -> Option<Vec<Auction>> {
