@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.22] - 2023-09-24
+
+### Refactor
+
+- Update error handling in webhook execution
+- Rename function and add address helper functions
+- Update handlers to improve user-friendly naming
+
 ## [1.0.0-alpha.21] - 2023-09-24
 
 ### Refactor
