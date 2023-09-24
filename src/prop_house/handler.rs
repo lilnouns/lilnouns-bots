@@ -6,7 +6,7 @@ use worker::{Env, Error, Result};
 
 use crate::cache::Cache;
 use crate::prop_house::fetcher::{Auction, Proposal, Vote};
-use crate::utils::get_ens;
+use crate::utils::{get_domain_name, get_explorer_address, get_short_address};
 
 pub struct DiscordHandler {
     base_url: String,
@@ -54,19 +54,21 @@ impl DiscordHandler {
 
     pub(crate) async fn handle_new_auction(&self, auction: &Auction) -> Result<()> {
         info!("Handling new auction: {}", auction.title);
-        let date = Local::now().format("%m/%d/%Y %I:%M %p");
+
+        let url = format!(
+            "{}/{}",
+            self.base_url,
+            auction.title.replace(' ', "-").to_lowercase()
+        );
+        let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+        let description = format!("A new Prop House round has been created: {}", auction.title);
 
         let embed = json!({
             "title": "New Prop House Round",
-            "description": format!(
-                "A new Prop House round has been created: {}",
-                auction.title
-            ),
-            "url": format!("{}/{}", self.base_url, auction.title.replace(' ', "-").to_lowercase()),
+            "description": description,
+            "url": url,
             "color": 0x8A2CE2,
-            "footer": {
-                "text": format!("{}", date)
-            }
+            "footer": {"text": date}
         });
 
         self.execute_webhook(embed).await?;
@@ -76,46 +78,44 @@ impl DiscordHandler {
 
     pub(crate) async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
         info!("Handling new proposal: {}", proposal.title);
-        let date = Local::now().format("%m/%d/%Y %I:%M %p");
-        let ens_or_address = get_ens(&proposal.address).await.unwrap_or(format!(
-            "{}...{}",
-            &proposal.address[0..4],
-            &proposal.address[38..42]
-        ));
 
         let auctions = self
             .cache
             .get::<Vec<Auction>>("prop_house:auctions")
             .await?
             .unwrap();
+
         let auction = auctions
             .iter()
             .find(|&a| a.id == proposal.auction_id)
             .unwrap()
             .clone();
 
+        let url = format!(
+            "{}/{}/{}",
+            self.base_url,
+            auction.title.replace(' ', "-").to_lowercase(),
+            proposal.id
+        );
+        let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+        let wallet = get_domain_name(&proposal.address)
+            .await
+            .unwrap_or(get_short_address(&proposal.address));
+        let description = format!(
+            "A new Prop House proposal has been created: {}",
+            proposal.title
+        );
+        let explorer = get_explorer_address(&proposal.address);
+
         let embed = json!({
             "title": "New Prop House Proposal",
-            "description": format!(
-                "A new Prop House proposal has been created: {}",
-                proposal.title
-            ),
-            "url": format!(
-                "{}/{}/{}",
-                self.base_url,
-                auction.title.replace(' ', "-").to_lowercase(),
-                proposal.id
-            ),
+            "description": description,
+            "url": url,
             "color": 0x8A2CE2,
-            "footer": {
-                "text": format!("{}", date)
-            },
+            "footer": {"text": date},
             "author": {
-                "name": ens_or_address,
-                "url": format!(
-                    "https://etherscan.io/address/{}",
-                    proposal.address
-                )
+                "name": wallet,
+                "url": explorer,
             }
         });
 
@@ -126,50 +126,49 @@ impl DiscordHandler {
 
     pub(crate) async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
         info!("Handling new vote from address: {}", vote.address);
-        let date = Local::now().format("%m/%d/%Y %I:%M %p");
-        let ens_or_address = get_ens(&vote.address).await.unwrap_or(format!(
-            "{}...{}",
-            &vote.address[0..4],
-            &vote.address[38..42]
-        ));
 
         let proposals = self
             .cache
             .get::<Vec<Proposal>>("prop_house:proposals")
             .await?
             .unwrap();
+
         let proposal = proposals
             .iter()
             .find(|&a| a.id == vote.proposal_id)
             .unwrap()
             .clone();
 
+        let url = format!(
+            "{}/{}/{}",
+            self.base_url,
+            proposal.title.replace(' ', "-").to_lowercase(),
+            proposal.id
+        );
+        let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+        let wallet = get_domain_name(&vote.address)
+            .await
+            .unwrap_or(get_short_address(&vote.address));
+
+        let description = format!(
+            "{} has voted {} Proposal",
+            wallet,
+            match vote.direction {
+                1 => "for",
+                _ => "against",
+            }
+        );
+        let explorer = get_explorer_address(&vote.address);
+
         let embed = json!({
             "title": "New Prop House Proposal Vote",
-            "description": format!(
-                "{} has voted {} Proposal",
-                ens_or_address,
-                match vote.direction {
-                    1 => "for",
-                    _ => "against"
-                }
-            ),
-            "url": format!(
-                "{}/{}/{}",
-                self.base_url,
-                proposal.title.replace(' ', "-").to_lowercase(),
-                proposal.id
-            ),
+            "description": description,
+            "url": url,
             "color": 0x8A2CE2,
-            "footer": {
-                "text": format!("{}", date)
-            },
+            "footer": {"text": date},
             "author": {
-                "name": ens_or_address,
-                "url": format!(
-                    "https://etherscan.io/address/{}",
-                    vote.address
-                )
+                "name": wallet,
+                "url": explorer,
             }
         });
 
