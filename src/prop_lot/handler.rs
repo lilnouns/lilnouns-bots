@@ -2,7 +2,7 @@ use chrono::Local;
 use log::{error, info};
 use reqwest::{header, Client};
 use serde_json::{json, Value};
-use worker::{Env, Result};
+use worker::{Env, Error, Result};
 
 use crate::cache::Cache;
 use crate::prop_lot::fetcher::{Comment, Idea, Vote};
@@ -46,7 +46,7 @@ impl DiscordHandler {
             .await
             .map_err(|e| {
                 error!("Failed to execute webhook: {}", e);
-                worker::Error::from(format!("Failed to execute webhook: {}", e))
+                Error::from(format!("Failed to execute webhook: {}", e))
             })?;
 
         Ok(())
