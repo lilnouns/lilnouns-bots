@@ -6,6 +6,7 @@ use worker::{Env, Result};
 
 use crate::cache::Cache;
 use crate::prop_house::fetcher::{Auction, Proposal, Vote};
+use crate::utils::get_ens;
 
 pub struct DiscordHandler {
     base_url: String,
@@ -76,6 +77,11 @@ impl DiscordHandler {
     pub(crate) async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
         info!("Handling new proposal: {}", proposal.title);
         let date = Local::now().format("%m/%d/%Y %I:%M %p");
+        let ens_or_address = get_ens(&proposal.address).await.unwrap_or(format!(
+            "{}...{}",
+            &proposal.address[0..4],
+            &proposal.address[38..42]
+        ));
 
         let auctions = self
             .cache
@@ -105,11 +111,7 @@ impl DiscordHandler {
                 "text": format!("{}", date)
             },
             "author": {
-                "name": format!(
-                    "{}...{}",
-                    &proposal.address[0..4],
-                    &proposal.address[38..42]
-                ),
+                "name": ens_or_address,
                 "url": format!(
                     "https://etherscan.io/address/{}",
                     proposal.address
@@ -125,6 +127,11 @@ impl DiscordHandler {
     pub(crate) async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
         info!("Handling new vote from address: {}", vote.address);
         let date = Local::now().format("%m/%d/%Y %I:%M %p");
+        let ens_or_address = get_ens(&vote.address).await.unwrap_or(format!(
+            "{}...{}",
+            &vote.address[0..4],
+            &vote.address[38..42]
+        ));
 
         let proposals = self
             .cache
@@ -141,11 +148,7 @@ impl DiscordHandler {
             "title": "New Prop House Proposal Vote",
             "description": format!(
                 "{} has voted {} Proposal",
-                format!(
-                    "{}...{}",
-                    &vote.address[0..4],
-                    &vote.address[38..42]
-                ),
+                ens_or_address,
                 match vote.direction {
                     1 => "for",
                     _ => "against"
@@ -162,11 +165,7 @@ impl DiscordHandler {
                 "text": format!("{}", date)
             },
             "author": {
-                "name": format!(
-                    "{}...{}",
-                    &vote.address[0..4],
-                    &vote.address[38..42]
-                ),
+                "name": ens_or_address,
                 "url": format!(
                     "https://etherscan.io/address/{}",
                     vote.address

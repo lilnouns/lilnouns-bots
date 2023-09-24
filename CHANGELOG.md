@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.21] - 2023-09-24
+
+### Refactor
+
+- Add utility for resolving ENS from Ethereum addresses
+- Add ENS support for handlers in prop lot and prop house
+
 ## [1.0.0-alpha.20] - 2023-09-23
 
 ### Miscellaneous Tasks
