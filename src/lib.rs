@@ -8,6 +8,7 @@ use crate::prop_lot::PropLot;
 mod cache;
 mod prop_house;
 mod prop_lot;
+mod utils;
 
 cfg_if! {
     // https://github.com/rustwasm/console_error_panic_hook#readme
