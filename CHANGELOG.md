@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.23] - 2023-09-25
+
+### Miscellaneous Tasks
+
+- Update ethers to disable default features
+- Enable `logpush`, disable `workers_dev` in config for `wrangler`
+
 ## [1.0.0-alpha.22] - 2023-09-24
 
 ### Refactor
