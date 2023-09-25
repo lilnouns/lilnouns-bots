@@ -10,6 +10,7 @@ use worker::{Env, Result};
     schema_path = "graphql/schemas/prop_house_schema.graphql",
     query_path = "graphql/queries/prop_house_query.graphql",
     response_derives = "Clone",
+    skip_serializing_none,
     deprecated = "warn"
 )]
 struct AuctionQuery;
@@ -19,6 +20,7 @@ struct AuctionQuery;
     schema_path = "graphql/schemas/prop_house_schema.graphql",
     query_path = "graphql/queries/prop_house_query.graphql",
     response_derives = "Clone",
+    skip_serializing_none,
     deprecated = "warn"
 )]
 struct ProposalQuery;
@@ -28,6 +30,7 @@ struct ProposalQuery;
     schema_path = "graphql/schemas/prop_house_schema.graphql",
     query_path = "graphql/queries/prop_house_query.graphql",
     response_derives = "Clone, Debug",
+    skip_serializing_none,
     deprecated = "warn"
 )]
 struct VoteQuery;
