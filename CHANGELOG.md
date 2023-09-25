@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.25] - 2023-09-25
+
+### Refactor
+
+- Switch fetching of Discord Webhooks URLs to secrets
+
+### Miscellaneous Tasks
+
+- Update `wrangler.toml` configuration for `dev` environment
+- Add `skip_serializing_none` option to queries in prop house fetcher
+
 ## [1.0.0-alpha.24] - 2023-09-25
 
 ### Refactor
