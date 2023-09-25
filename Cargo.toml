@@ -1,6 +1,6 @@
 [package]
 name = "lilnouns-bots"
-version = "1.0.0-alpha.22"
+version = "1.0.0-alpha.23"
 edition = "2021"
 description = "Our bots are designed to keep the Lil Nouns DAO community informed and engaged."
 repository = "https://github.com/lilnouns/lilnouns-bots"
@@ -24,7 +24,7 @@ anyhow = "1.0.75"
 cfg-if = "1.0.0"
 chrono = "0.4.31"
 console_error_panic_hook = { version = "0.1.7", optional = true }
-ethers = "2.0.10"
+ethers = { version = "2.0.10", default-features = false }
 getrandom = { version = "0.2.10", features = ["js"] }
 graphql_client = { version = "0.13.0", features = ["reqwest"] }
 log = "0.4.20"
