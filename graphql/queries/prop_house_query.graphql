@@ -4,7 +4,6 @@ fragment AuctionFragment on Auction {
     startTime
     proposalEndTime
     votingEndTime
-    fundingAmount
     currencyType
     description
     numWinners
