@@ -19,6 +19,7 @@ PROP_HOUSE_COMMUNITY_ID = 2
 PROP_HOUSE_GRAPHQL_URL = "https://prod.backend.prop.house/graphql"
 PROP_LOT_BASE_URL = "https://lilnouns.proplot.wtf"
 PROP_LOT_GRAPHQL_URL = "https://lilnouns.proplot.wtf/api/graphql"
+ETHEREUM_MAINNET_RPC_URL = "https://eth.llamarpc.com"
 
 [env.dev]
 [[env.dev.kv_namespaces]]
