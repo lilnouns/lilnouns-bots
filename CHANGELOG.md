@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.27] - 2023-09-25
+
+### Refactor
+
+- Remove `fundingAmount` field from prop house query
+
 ## [1.0.0-alpha.26] - 2023-09-25
 
 ### Miscellaneous Tasks

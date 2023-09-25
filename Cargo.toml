@@ -1,6 +1,6 @@
 [package]
 name = "lilnouns-bots"
-version = "1.0.0-alpha.26"
+version = "1.0.0-alpha.27"
 edition = "2021"
 description = "Our bots are designed to keep the Lil Nouns DAO community informed and engaged."
 repository = "https://github.com/lilnouns/lilnouns-bots"
