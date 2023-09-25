@@ -27,7 +27,7 @@ impl DiscordHandler {
 
     pub fn from(env: &Env) -> Result<DiscordHandler> {
         let base_url = env.var("PROP_LOT_BASE_URL")?.to_string();
-        let webhook_url = env.var("PROP_LOT_DISCORD_WEBHOOK_URL")?.to_string();
+        let webhook_url = env.secret("PROP_LOT_DISCORD_WEBHOOK_URL")?.to_string();
 
         let cache = Cache::from(env);
         let client = Client::new();
