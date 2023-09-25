@@ -1,6 +1,6 @@
 use cfg_if::cfg_if;
 use log::{error, info, Level};
-use worker::{event, Date, Env, Request, Response, Result, ScheduleContext, ScheduledEvent};
+use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 
 use crate::prop_house::PropHouse;
 use crate::prop_lot::PropLot;
@@ -51,25 +51,4 @@ async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
         Ok(_) => info!("Operation was a success."),
         Err(e) => error!("An error occurred: {:?}", e),
     }
-}
-
-#[event(fetch)]
-pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Response> {
-    worker_logger::init_with_level(&Level::Debug);
-    set_panic_hook();
-
-    info!(
-        "{} - [{}], located at: {:?}, within: {}",
-        Date::now().to_string(),
-        req.path(),
-        req.cf().coordinates().unwrap_or_default(),
-        req.cf().region().unwrap_or_else(|| "unknown region".into())
-    );
-
-    match start(&env).await {
-        Ok(_) => info!("Operation was a success."),
-        Err(e) => error!("An error occurred: {:?}", e),
-    }
-
-    Response::error("Bad Request", 400)
 }
