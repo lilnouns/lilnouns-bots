@@ -47,22 +47,10 @@ jobs:
           environment: dev
           command: deploy --env dev
           secrets: |
-            KV_STORE_NAME
-            PROP_HOUSE_COMMUNITY_ID
-            PROP_HOUSE_BASE_URL
-            PROP_HOUSE_GRAPHQL_URL
             PROP_HOUSE_DISCORD_WEBHOOK_URL
-            PROP_LOT_BASE_URL
-            PROP_LOT_GRAPHQL_URL
             PROP_LOT_DISCORD_WEBHOOK_URL
         env:
-          KV_STORE_NAME: ${{ secrets.KV_STORE_NAME }}
-          PROP_HOUSE_COMMUNITY_ID: ${{ secrets.PROP_HOUSE_COMMUNITY_ID }}
-          PROP_HOUSE_BASE_URL: ${{ secrets.PROP_HOUSE_BASE_URL }}
-          PROP_HOUSE_GRAPHQL_URL: ${{ secrets.PROP_HOUSE_GRAPHQL_URL }}
           PROP_HOUSE_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_HOUSE_DISCORD_WEBHOOK_URL }}
-          PROP_LOT_BASE_URL: ${{ secrets.PROP_LOT_BASE_URL }}
-          PROP_LOT_GRAPHQL_URL: ${{ secrets.PROP_LOT_GRAPHQL_URL }}
           PROP_LOT_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_LOT_DISCORD_WEBHOOK_URL }}
 
 concurrency:

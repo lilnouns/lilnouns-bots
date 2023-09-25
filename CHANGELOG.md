@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.24] - 2023-09-25
+
+### Refactor
+
+- Remove redundant main function in lib
+
+### Miscellaneous Tasks
+
+- Add `unbound` usage model to `wrangler` config
+- Add environment variables to `wrangler.toml`
+- Add Ethereum Mainnet RPC URL to `wrangler.toml`
+- Simplify workflow by removing unused secrets
+
 ## [1.0.0-alpha.23] - 2023-09-25
 
 ### Miscellaneous Tasks
