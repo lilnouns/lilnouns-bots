@@ -4,6 +4,7 @@ compatibility_date = "2023-03-22"
 
 workers_dev = false
 logpush = true
+usage_model = "unbound"
 
 [build]
 command = "cargo install -q -f worker-build && worker-build --release"
