@@ -12,6 +12,14 @@ command = "cargo install -q -f worker-build && worker-build --release"
 [triggers]
 crons = ["*/5 * * * *"]
 
+[vars]
+KV_STORE_NAME = "LIL_NOUNS_BOTS"
+PROP_HOUSE_BASE_URL = "https://prop.house/lil-nouns"
+PROP_HOUSE_COMMUNITY_ID = 2
+PROP_HOUSE_GRAPHQL_URL = "https://prod.backend.prop.house/graphql"
+PROP_LOT_BASE_URL = "https://lilnouns.proplot.wtf"
+PROP_LOT_GRAPHQL_URL = "https://lilnouns.proplot.wtf/api/graphql"
+
 [env.dev]
 [[env.dev.kv_namespaces]]
 binding = "LIL_NOUNS_BOTS"
