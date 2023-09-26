@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.30] - 2023-09-26
+
+### Refactor
+
+- Replace incorrect quotation marks in string formatting
+
+### Miscellaneous Tasks
+
+- Add `rustfmt.toml` configuration file
+
+### Styling
+
+- Refactor code to improve readability
+
 ## [1.0.0-alpha.29] - 2023-09-26
 
 ### Refactor
