@@ -1,7 +1,5 @@
 use log::{debug, error, info, warn};
-use worker::{Env, Result};
-
-use handler::discord::DiscordHandler;
+use worker::Result;
 
 use crate::cache::Cache;
 use crate::prop_lot::{
@@ -9,7 +7,7 @@ use crate::prop_lot::{
     handler::Handler,
 };
 
-mod fetcher;
+pub(crate) mod fetcher;
 pub(crate) mod handler;
 
 pub struct PropLot<H>
@@ -31,14 +29,6 @@ where
             fetcher,
             handler,
         }
-    }
-
-    pub fn from(env: &Env) -> Result<Self> {
-        let cache = Cache::from(env);
-        let fetcher = GraphQLFetcher::from(env)?;
-        let handler = DiscordHandler::from(env)?;
-
-        Ok(Self::new(cache, fetcher, handler))
     }
 
     pub async fn setup(&self) {
