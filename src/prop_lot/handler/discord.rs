@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use chrono::Local;
 use log::{error, info};
 use reqwest::{header, Client};
@@ -5,7 +6,10 @@ use serde_json::{json, Value};
 use worker::{Env, Error};
 
 use crate::cache::Cache;
-use crate::prop_lot::fetcher::{Comment, Idea, Vote};
+use crate::prop_lot::{
+    fetcher::{Comment, Idea, Vote},
+    handler::Handler,
+};
 use crate::utils::{get_domain_name, get_explorer_address, get_short_address};
 
 pub struct DiscordHandler {
@@ -51,8 +55,11 @@ impl DiscordHandler {
 
         Ok(())
     }
+}
 
-    pub(crate) async fn handle_new_idea(&self, idea: &Idea) -> worker::Result<()> {
+#[async_trait]
+impl Handler for DiscordHandler {
+    async fn handle_new_idea(&self, idea: &Idea) -> worker::Result<()> {
         info!("Handling new idea: {}", idea.title);
 
         let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
@@ -79,8 +86,7 @@ impl DiscordHandler {
 
         Ok(())
     }
-
-    pub(crate) async fn handle_new_vote(&self, vote: &Vote) -> worker::Result<()> {
+    async fn handle_new_vote(&self, vote: &Vote) -> worker::Result<()> {
         info!("Handling new vote from address: {}", vote.voter_id);
 
         let ideas = self
@@ -127,8 +133,7 @@ impl DiscordHandler {
 
         Ok(())
     }
-
-    pub(crate) async fn handle_new_comment(&self, comment: &Comment) -> worker::Result<()> {
+    async fn handle_new_comment(&self, comment: &Comment) -> worker::Result<()> {
         info!("Handling new comment from address: {}", comment.author_id);
 
         let ideas = self

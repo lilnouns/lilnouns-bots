@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use chrono::Local;
 use log::{debug, error, info};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE};
@@ -6,7 +7,10 @@ use serde_json::{json, Value};
 use worker::{Env, Error, Result};
 
 use crate::cache::Cache;
-use crate::prop_lot::fetcher::{Comment, Idea, Vote};
+use crate::prop_lot::{
+    fetcher::{Comment, Idea, Vote},
+    handler::Handler,
+};
 use crate::utils::{get_domain_name, get_explorer_address, get_short_address};
 
 pub struct FarcasterHandler {
@@ -64,7 +68,10 @@ impl FarcasterHandler {
 
         Ok(())
     }
+}
 
+#[async_trait]
+impl Handler for FarcasterHandler {
     async fn handle_new_idea(&self, idea: &Idea) -> Result<()> {
         info!("Handling new idea: {}", idea.title);
         let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
@@ -85,7 +92,6 @@ impl FarcasterHandler {
 
         Ok(())
     }
-
     async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
         info!("Handling new vote from address: {}", vote.voter_id);
 
@@ -125,7 +131,6 @@ impl FarcasterHandler {
 
         Ok(())
     }
-
     async fn handle_new_comment(&self, comment: &Comment) -> Result<()> {
         info!("Handling new comment from address: {}", comment.author_id);
 
