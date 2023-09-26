@@ -28,6 +28,7 @@ impl FarcasterHandler {
             client,
         }
     }
+
     pub fn from(env: &Env) -> Result<FarcasterHandler> {
         let base_url = env.var("PROP_LOT_BASE_URL")?.to_string();
         let bearer_token = env.secret("PROP_LOT_WARP_CAST_TOKEN")?.to_string();
@@ -55,7 +56,7 @@ impl FarcasterHandler {
             .client
             .post(url)
             .headers(headers)
-            .json(&request_data) // Use json() method to serialize the request_data
+            .json(&request_data)
             .send()
             .await
             .map_err(|e| {
