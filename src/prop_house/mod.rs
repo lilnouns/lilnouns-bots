@@ -3,6 +3,7 @@ use worker::{Env, Result};
 
 use fetcher::{Auction, GraphQLFetcher, Proposal, Vote};
 use handler::discord::DiscordHandler;
+use handler::Handler;
 
 use crate::cache::Cache;
 

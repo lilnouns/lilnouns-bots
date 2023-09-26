@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use chrono::Local;
 use log::{error, info};
 use reqwest::{header, Client};
@@ -6,6 +7,7 @@ use worker::{Env, Error};
 
 use crate::cache::Cache;
 use crate::prop_house::fetcher::{Auction, Proposal, Vote};
+use crate::prop_house::handler::Handler;
 use crate::utils::{get_domain_name, get_explorer_address, get_short_address};
 
 pub struct DiscordHandler {
@@ -51,8 +53,11 @@ impl DiscordHandler {
 
         Ok(())
     }
+}
 
-    pub(crate) async fn handle_new_auction(&self, auction: &Auction) -> worker::Result<()> {
+#[async_trait(? Send)]
+impl Handler for DiscordHandler {
+    async fn handle_new_auction(&self, auction: &Auction) -> worker::Result<()> {
         info!("Handling new auction: {}", auction.title);
 
         let url = format!(
@@ -78,8 +83,7 @@ impl DiscordHandler {
 
         Ok(())
     }
-
-    pub(crate) async fn handle_new_proposal(&self, proposal: &Proposal) -> worker::Result<()> {
+    async fn handle_new_proposal(&self, proposal: &Proposal) -> worker::Result<()> {
         info!("Handling new proposal: {}", proposal.title);
 
         let auctions = self
@@ -126,8 +130,7 @@ impl DiscordHandler {
 
         Ok(())
     }
-
-    pub(crate) async fn handle_new_vote(&self, vote: &Vote) -> worker::Result<()> {
+    async fn handle_new_vote(&self, vote: &Vote) -> worker::Result<()> {
         info!("Handling new vote from address: {}", vote.address);
 
         let proposals = self
