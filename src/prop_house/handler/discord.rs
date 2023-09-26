@@ -67,7 +67,7 @@ impl Handler for DiscordHandler {
         );
         let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
         let description = format!(
-            "A new Prop House round has been created: “{}“",
+            "A new Prop House round has been created: “{}”",
             auction.title
         );
 
@@ -109,7 +109,7 @@ impl Handler for DiscordHandler {
             .await
             .unwrap_or(get_short_address(&proposal.address));
         let description = format!(
-            "A new Prop House proposal has been created: “{}“",
+            "A new Prop House proposal has been created: “{}”",
             proposal.title
         );
         let explorer = get_explorer_address(&proposal.address);
@@ -157,7 +157,7 @@ impl Handler for DiscordHandler {
             .unwrap_or(get_short_address(&vote.address));
 
         let description = format!(
-            "{} has voted “{}“ proposal.",
+            "{} has voted “{}” proposal.",
             wallet,
             match vote.direction {
                 1 => "for",

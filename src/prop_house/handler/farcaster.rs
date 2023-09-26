@@ -79,7 +79,7 @@ impl Handler for FarcasterHandler {
             auction.title.replace(' ', "-").to_lowercase()
         );
         let description = format!(
-            "A new Prop House round has been created: “{}“",
+            "A new Prop House round has been created: “{}”",
             auction.title
         );
 
@@ -118,7 +118,7 @@ impl Handler for FarcasterHandler {
             .await
             .unwrap_or(get_short_address(&proposal.address));
         let description = format!(
-            "{} created a new proposal on Prop House: “{}“",
+            "{} created a new proposal on Prop House: “{}”",
             wallet, proposal.title
         );
 
@@ -158,7 +158,7 @@ impl Handler for FarcasterHandler {
             .unwrap_or(get_short_address(&vote.address));
 
         let description = format!(
-            "{} has voted “{}“ proposal.",
+            "{} has voted “{}” proposal.",
             wallet,
             match vote.direction {
                 1 => "for",

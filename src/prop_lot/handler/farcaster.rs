@@ -79,7 +79,7 @@ impl Handler for FarcasterHandler {
             .await
             .unwrap_or(get_short_address(&idea.creator_id));
         let description = format!(
-            "{} created a new proposal on Prop Lot: “{}“",
+            "{} created a new proposal on Prop Lot: “{}”",
             wallet, idea.title
         );
 
@@ -113,7 +113,7 @@ impl Handler for FarcasterHandler {
             .unwrap_or(get_short_address(&vote.voter_id));
         let url = format!("{}/idea/{}", self.base_url, idea.id);
         let description = format!(
-            "{} has voted {} “{}“ proposal.",
+            "{} has voted {} “{}” proposal.",
             wallet,
             match vote.direction {
                 1 => "for",
@@ -151,7 +151,7 @@ impl Handler for FarcasterHandler {
         let wallet = get_domain_name(&comment.author_id)
             .await
             .unwrap_or(get_short_address(&comment.author_id));
-        let description = format!("{} has commented on “{}“ proposal.", wallet, idea.title);
+        let description = format!("{} has commented on “{}” proposal.", wallet, idea.title);
 
         let request_data = json!({
             "text": description,
