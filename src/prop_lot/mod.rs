@@ -1,35 +1,44 @@
 use log::{debug, error, info, warn};
 use worker::{Env, Result};
 
-use handler::discord::DiscordHandler;
-
 use crate::cache::Cache;
-use crate::prop_lot::fetcher::{Comment, GraphQLFetcher, Idea, Vote};
+use crate::prop_lot::handler::discord::DiscordHandler;
+use crate::prop_lot::handler::farcaster::FarcasterHandler;
+use crate::prop_lot::{
+    fetcher::{Comment, GraphQLFetcher, Idea, Vote},
+    handler::Handler,
+};
 
-mod fetcher;
-mod handler;
+pub(crate) mod fetcher;
+pub(crate) mod handler;
 
 pub struct PropLot {
     cache: Cache,
     fetcher: GraphQLFetcher,
-    handler: DiscordHandler,
+    handlers: Vec<Box<dyn Handler>>,
 }
 
 impl PropLot {
-    pub fn new(cache: Cache, fetcher: GraphQLFetcher, handler: DiscordHandler) -> Self {
+    pub fn new(cache: Cache, fetcher: GraphQLFetcher, handlers: Vec<Box<dyn Handler>>) -> Self {
         Self {
             cache,
             fetcher,
-            handler,
+            handlers,
         }
     }
 
     pub fn from(env: &Env) -> Result<Self> {
         let cache = Cache::from(env);
         let fetcher = GraphQLFetcher::from(env)?;
-        let handler = DiscordHandler::from(env)?;
+        let mut handlers = vec![];
 
-        Ok(Self::new(cache, fetcher, handler))
+        let discord_handler: Box<dyn Handler> = Box::new(DiscordHandler::from(env)?);
+        let farcaster_handler: Box<dyn Handler> = Box::new(FarcasterHandler::from(env)?);
+
+        handlers.push(discord_handler);
+        handlers.push(farcaster_handler);
+
+        Ok(Self::new(cache, fetcher, handlers))
     }
 
     pub async fn setup(&self) {
@@ -90,10 +99,12 @@ impl PropLot {
 
                 for idea in &new_ideas {
                     info!("Handle a new idea...");
-                    if let Err(err) = self.handler.handle_new_idea(idea).await {
-                        error!("Failed to handle new idea: {:?}", err);
-                    } else {
-                        debug!("Successfully handled new idea: {:?}", idea.id);
+                    for handler in &self.handlers {
+                        if let Err(err) = handler.handle_new_idea(idea).await {
+                            error!("Failed to handle new idea: {:?}", err);
+                        } else {
+                            debug!("Successfully handled new idea: {:?}", idea.id);
+                        }
                     }
                 }
             }
@@ -123,10 +134,12 @@ impl PropLot {
 
                 for vote in &new_votes {
                     info!("Handling a new vote...");
-                    if let Err(err) = self.handler.handle_new_vote(vote).await {
-                        error!("Failed to handle new vote: {:?}", err);
-                    } else {
-                        debug!("Successfully handled new vote: {:?}", vote.id);
+                    for handler in &self.handlers {
+                        if let Err(err) = handler.handle_new_vote(vote).await {
+                            error!("Failed to handle new vote: {:?}", err);
+                        } else {
+                            debug!("Successfully handled new vote: {:?}", vote.id);
+                        }
                     }
                 }
             }
@@ -156,10 +169,12 @@ impl PropLot {
 
                 for comment in &new_comments {
                     info!("Handling a new comment...");
-                    if let Err(err) = self.handler.handle_new_comment(comment).await {
-                        error!("Failed to handle new comment: {:?}", err);
-                    } else {
-                        debug!("Successfully handled new comment: {:?}", comment.id);
+                    for handler in &self.handlers {
+                        if let Err(err) = handler.handle_new_comment(comment).await {
+                            error!("Failed to handle new comment: {:?}", err);
+                        } else {
+                            debug!("Successfully handled new comment: {:?}", comment.id);
+                        }
                     }
                 }
             }

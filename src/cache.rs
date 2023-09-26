@@ -4,6 +4,7 @@ use serde::ser::Serialize;
 use worker::kv::{KvError, KvStore};
 use worker::Env;
 
+#[derive(Clone)]
 pub struct Cache {
     store: KvStore,
 }

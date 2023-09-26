@@ -1,62 +1,75 @@
 use async_trait::async_trait;
-use chrono::Local;
-use log::{error, info};
-use reqwest::{header, Client};
+use log::{debug, error, info};
+use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE};
+use reqwest::Client;
 use serde_json::{json, Value};
-use worker::{Env, Error};
+use worker::{Env, Error, Result};
 
 use crate::cache::Cache;
 use crate::prop_house::fetcher::{Auction, Proposal, Vote};
 use crate::prop_house::handler::Handler;
-use crate::utils::{get_domain_name, get_explorer_address, get_short_address};
+use crate::utils::{get_domain_name, get_short_address};
 
-pub struct DiscordHandler {
+pub struct FarcasterHandler {
     base_url: String,
-    webhook_url: String,
+    bearer_token: String,
     cache: Cache,
     client: Client,
 }
 
-impl DiscordHandler {
-    pub fn new(base_url: String, webhook_url: String, cache: Cache, client: Client) -> Self {
+impl FarcasterHandler {
+    pub fn new(base_url: String, bearer_token: String, cache: Cache, client: Client) -> Self {
         Self {
             base_url,
-            webhook_url,
+            bearer_token,
             cache,
             client,
         }
     }
 
-    pub fn from(env: &Env) -> worker::Result<DiscordHandler> {
+    pub fn from(env: &Env) -> Result<FarcasterHandler> {
         let base_url = env.var("PROP_HOUSE_BASE_URL")?.to_string();
-        let webhook_url = env.secret("PROP_HOUSE_DISCORD_WEBHOOK_URL")?.to_string();
+        let bearer_token = env.secret("PROP_HOUSE_WARP_CAST_TOKEN")?.to_string();
 
         let cache = Cache::from(env);
         let client = Client::new();
 
-        Ok(Self::new(base_url, webhook_url, cache, client))
+        Ok(Self::new(base_url, bearer_token, cache, client))
     }
 
-    async fn execute_webhook(&self, embed: Value) -> worker::Result<()> {
-        let msg_json = json!({"embeds": [embed]});
+    async fn make_http_request(&self, request_data: Value) -> Result<()> {
+        let url = "https://api.warpcast.com/v2/casts";
+        let token = format!("Bearer {}", self.bearer_token);
+        let mut headers = HeaderMap::new();
 
-        self.client
-            .post(&self.webhook_url)
-            .header(header::CONTENT_TYPE, "application/json")
-            .body(msg_json.to_string())
+        let parsed_token =
+            HeaderValue::from_str(&token).map_err(|_| Error::from("Error while parsing token"))?;
+
+        headers.insert(AUTHORIZATION, parsed_token);
+        headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
+        headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+
+        // Send the HTTP POST request
+        let response = self
+            .client
+            .post(url)
+            .headers(headers)
+            .json(&request_data)
             .send()
             .await
             .map_err(|e| {
-                error!("Failed to execute webhook: {}", e);
-                Error::from(format!("Failed to execute webhook: {}", e))
+                error!("Failed to execute request: {}", e);
+                Error::from(format!("Failed to execute request: {}", e))
             })?;
+
+        debug!("Response status: {:?}", response.status());
 
         Ok(())
     }
 }
 
 #[async_trait(? Send)]
-impl Handler for DiscordHandler {
+impl Handler for FarcasterHandler {
     async fn handle_new_auction(&self, auction: &Auction) -> worker::Result<()> {
         info!("Handling new auction: {}", auction.title);
 
@@ -65,21 +78,18 @@ impl Handler for DiscordHandler {
             self.base_url,
             auction.title.replace(' ', "-").to_lowercase()
         );
-        let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
         let description = format!(
             "A new Prop House round has been created: “{}“",
             auction.title
         );
 
-        let embed = json!({
-            "title": "New Prop House Round",
-            "description": description,
-            "url": url,
-            "color": 0x8A2CE2,
-            "footer": {"text": date}
+        let request_data = json!({
+            "text": description,
+            "embeds": [url],
+            // "channelKey": "lil-nouns"
         });
 
-        self.execute_webhook(embed).await?;
+        self.make_http_request(request_data).await?;
 
         Ok(())
     }
@@ -104,29 +114,21 @@ impl Handler for DiscordHandler {
             auction.title.replace(' ', "-").to_lowercase(),
             proposal.id
         );
-        let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
         let wallet = get_domain_name(&proposal.address)
             .await
             .unwrap_or(get_short_address(&proposal.address));
         let description = format!(
-            "A new Prop House proposal has been created: “{}“",
-            proposal.title
+            "{} created a new proposal on Prop House: “{}“",
+            wallet, proposal.title
         );
-        let explorer = get_explorer_address(&proposal.address);
 
-        let embed = json!({
-            "title": "New Prop House Proposal",
-            "description": description,
-            "url": url,
-            "color": 0x8A2CE2,
-            "footer": {"text": date},
-            "author": {
-                "name": wallet,
-                "url": explorer,
-            }
+        let request_data = json!({
+            "text": description,
+            "embeds": [url],
+            // "channelKey": "lil-nouns"
         });
 
-        self.execute_webhook(embed).await?;
+        self.make_http_request(request_data).await?;
 
         Ok(())
     }
@@ -151,7 +153,6 @@ impl Handler for DiscordHandler {
             proposal.title.replace(' ', "-").to_lowercase(),
             proposal.id
         );
-        let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
         let wallet = get_domain_name(&vote.address)
             .await
             .unwrap_or(get_short_address(&vote.address));
@@ -164,21 +165,14 @@ impl Handler for DiscordHandler {
                 _ => "against",
             }
         );
-        let explorer = get_explorer_address(&vote.address);
 
-        let embed = json!({
-            "title": "New Prop House Proposal Vote",
-            "description": description,
-            "url": url,
-            "color": 0x8A2CE2,
-            "footer": {"text": date},
-            "author": {
-                "name": wallet,
-                "url": explorer,
-            }
+        let request_data = json!({
+            "text": description,
+            "embeds": [url],
+            // "channelKey": "lil-nouns"
         });
 
-        self.execute_webhook(embed).await?;
+        self.make_http_request(request_data).await?;
 
         Ok(())
     }

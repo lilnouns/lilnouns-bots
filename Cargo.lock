@@ -1556,6 +1556,7 @@ name = "lilnouns-bots"
 version = "1.0.0-alpha.28"
 dependencies = [
  "anyhow",
+ "async-trait",
  "cfg-if",
  "chrono",
  "console_error_panic_hook",
