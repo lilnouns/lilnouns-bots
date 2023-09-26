@@ -37,28 +37,28 @@ struct CommentQuery;
 type Date = String;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub(crate) struct Idea {
-    pub(crate) id: isize,
-    pub(crate) title: String,
-    pub(crate) tldr: String,
-    pub(crate) creator_id: String,
+pub struct Idea {
+    pub id: isize,
+    pub title: String,
+    pub tldr: String,
+    pub creator_id: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub(crate) struct Vote {
-    pub(crate) id: isize,
-    pub(crate) voter_id: String,
-    pub(crate) idea_id: isize,
-    pub(crate) direction: isize,
-    pub(crate) voter_weight: isize,
+pub struct Vote {
+    pub id: isize,
+    pub voter_id: String,
+    pub idea_id: isize,
+    pub direction: isize,
+    pub voter_weight: isize,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub(crate) struct Comment {
-    pub(crate) id: isize,
-    pub(crate) idea_id: isize,
-    pub(crate) author_id: String,
-    pub(crate) body: String,
+pub struct Comment {
+    pub id: isize,
+    pub idea_id: isize,
+    pub author_id: String,
+    pub body: String,
 }
 
 pub struct GraphQLFetcher {
@@ -98,7 +98,7 @@ impl GraphQLFetcher {
             .and_then(|response| response.data)
     }
 
-    pub(crate) async fn fetch_ideas(&self) -> Option<Vec<Idea>> {
+    pub async fn fetch_ideas(&self) -> Option<Vec<Idea>> {
         let variables = idea_query::Variables {
             options: idea_query::IdeaInputOptions {
                 idea_id: None,
@@ -123,7 +123,7 @@ impl GraphQLFetcher {
         Some(ideas)
     }
 
-    pub(crate) async fn fetch_votes(&self) -> Option<Vec<Vote>> {
+    pub async fn fetch_votes(&self) -> Option<Vec<Vote>> {
         let variables = vote_query::Variables {
             options: vote_query::IdeaInputOptions {
                 idea_id: None,
@@ -151,7 +151,7 @@ impl GraphQLFetcher {
         Some(votes)
     }
 
-    pub(crate) async fn fetch_comments(&self) -> Option<Vec<Comment>> {
+    pub async fn fetch_comments(&self) -> Option<Vec<Comment>> {
         let variables = comment_query::Variables {
             options: comment_query::IdeaInputOptions {
                 idea_id: None,
