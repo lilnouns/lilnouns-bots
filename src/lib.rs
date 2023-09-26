@@ -1,3 +1,4 @@
+use crate::prop_lot::handler::discord::DiscordHandler;
 use cfg_if::cfg_if;
 use log::{error, info, Level};
 use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
@@ -21,7 +22,7 @@ cfg_if! {
 }
 
 async fn start(env: &Env) -> Result<()> {
-    match PropLot::from(env) {
+    match PropLot::<DiscordHandler>::from(env) {
         Ok(result) => match result.start().await {
             Ok(_) => info!("PropLot started successfully"),
             Err(error) => error!("Failed to start PropLot: {:?}", error),

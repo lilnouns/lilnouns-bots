@@ -4,19 +4,28 @@ use worker::{Env, Result};
 use handler::discord::DiscordHandler;
 
 use crate::cache::Cache;
-use crate::prop_lot::fetcher::{Comment, GraphQLFetcher, Idea, Vote};
+use crate::prop_lot::{
+    fetcher::{Comment, GraphQLFetcher, Idea, Vote},
+    handler::Handler,
+};
 
 mod fetcher;
-mod handler;
+pub(crate) mod handler;
 
-pub struct PropLot {
+pub struct PropLot<H>
+where
+    H: Handler,
+{
     cache: Cache,
     fetcher: GraphQLFetcher,
-    handler: DiscordHandler,
+    handler: H,
 }
 
-impl PropLot {
-    pub fn new(cache: Cache, fetcher: GraphQLFetcher, handler: DiscordHandler) -> Self {
+impl<H: Handler> PropLot<H>
+where
+    H: Handler,
+{
+    pub fn new(cache: Cache, fetcher: GraphQLFetcher, handler: H) -> PropLot<H> {
         Self {
             cache,
             fetcher,
