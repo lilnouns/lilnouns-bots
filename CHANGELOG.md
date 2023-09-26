@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.28] - 2023-09-26
+
+### Miscellaneous Tasks
+
+- Update `Cargo.toml` with author details
+- Update `kv_namespaces` and var binding in `wrangler` config
+
 ## [1.0.0-alpha.27] - 2023-09-25
 
 ### Refactor
