@@ -28,7 +28,7 @@ impl FarcasterHandler {
             client,
         }
     }
-    fn from(env: &Env) -> Result<FarcasterHandler> {
+    pub fn from(env: &Env) -> Result<FarcasterHandler> {
         let base_url = env.var("PROP_LOT_BASE_URL")?.to_string();
         let bearer_token = env.secret("PROP_LOT_WARP_CAST_TOKEN")?.to_string();
 
