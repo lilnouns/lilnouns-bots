@@ -54,13 +54,14 @@ impl DiscordHandler {
 
     pub(crate) async fn handle_new_idea(&self, idea: &Idea) -> worker::Result<()> {
         info!("Handling new idea: {}", idea.title);
+
         let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
         let url = format!("{}/idea/{}", self.base_url, idea.id);
         let wallet = get_domain_name(&idea.creator_id)
             .await
             .unwrap_or(get_short_address(&idea.creator_id));
         let explorer = get_explorer_address(&idea.creator_id);
-        let description = format!("A new Prop Lot proposal has been created: {}", idea.title);
+        let description = format!("A new Prop Lot proposal has been created: “{}“", idea.title);
 
         let embed = json!({
             "title": "New Prop Lot Proposal",
@@ -101,7 +102,7 @@ impl DiscordHandler {
         let explorer = get_explorer_address(&vote.voter_id);
         let url = format!("{}/idea/{}", self.base_url, idea.id);
         let description = format!(
-            "{} has voted {} Proposal ({})",
+            "{} has voted {} “{}“ proposal.",
             wallet,
             match vote.direction {
                 1 => "for",
@@ -147,7 +148,7 @@ impl DiscordHandler {
             .await
             .unwrap_or(get_short_address(&comment.author_id));
         let explorer = get_explorer_address(&comment.author_id);
-        let description = format!("{} has commented on Proposal ({})", wallet, idea.title);
+        let description = format!("{} has commented on “{}“ proposal.", wallet, idea.title);
 
         let embed = json!({
             "title": "New Prop Lot Proposal Comment",
