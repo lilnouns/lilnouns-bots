@@ -2,7 +2,7 @@ use log::{debug, error, info, warn};
 use worker::{Env, Result};
 
 use fetcher::{Auction, GraphQLFetcher, Proposal, Vote};
-use handler::DiscordHandler;
+use handler::discord::DiscordHandler;
 
 use crate::cache::Cache;
 

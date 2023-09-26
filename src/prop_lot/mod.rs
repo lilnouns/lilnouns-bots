@@ -1,9 +1,10 @@
 use log::{debug, error, info, warn};
 use worker::{Env, Result};
 
+use handler::discord::DiscordHandler;
+
 use crate::cache::Cache;
 use crate::prop_lot::fetcher::{Comment, GraphQLFetcher, Idea, Vote};
-use crate::prop_lot::handler::DiscordHandler;
 
 mod fetcher;
 mod handler;
