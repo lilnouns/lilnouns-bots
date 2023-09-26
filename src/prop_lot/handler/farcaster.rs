@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-use chrono::Local;
 use log::{debug, error, info};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE};
 use reqwest::Client;
@@ -11,7 +10,7 @@ use crate::prop_lot::{
     fetcher::{Comment, Idea, Vote},
     handler::Handler,
 };
-use crate::utils::{get_domain_name, get_explorer_address, get_short_address};
+use crate::utils::{get_domain_name, get_short_address};
 
 pub struct FarcasterHandler {
     base_url: String,
@@ -74,13 +73,14 @@ impl FarcasterHandler {
 impl Handler for FarcasterHandler {
     async fn handle_new_idea(&self, idea: &Idea) -> Result<()> {
         info!("Handling new idea: {}", idea.title);
-        let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
         let url = format!("{}/idea/{}", self.base_url, idea.id);
         let wallet = get_domain_name(&idea.creator_id)
             .await
             .unwrap_or(get_short_address(&idea.creator_id));
-        let explorer = get_explorer_address(&idea.creator_id);
-        let description = format!("A new Prop Lot proposal has been created: {}", idea.title);
+        let description = format!(
+            "{} created a new proposal on Prop Lot: “{}“",
+            wallet, idea.title
+        );
 
         let request_data = json!({
             "text": description,
@@ -147,11 +147,9 @@ impl Handler for FarcasterHandler {
             .clone();
 
         let url = format!("{}/idea/{}", self.base_url, idea.id);
-        let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
         let wallet = get_domain_name(&comment.author_id)
             .await
             .unwrap_or(get_short_address(&comment.author_id));
-        let explorer = get_explorer_address(&comment.author_id);
         let description = format!("{} has commented on “{}“ proposal.", wallet, idea.title);
 
         let request_data = json!({
