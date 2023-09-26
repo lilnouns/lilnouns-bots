@@ -57,7 +57,7 @@ impl DiscordHandler {
     }
 }
 
-#[async_trait]
+#[async_trait(? Send)]
 impl Handler for DiscordHandler {
     async fn handle_new_idea(&self, idea: &Idea) -> worker::Result<()> {
         info!("Handling new idea: {}", idea.title);

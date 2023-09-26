@@ -69,7 +69,7 @@ impl FarcasterHandler {
     }
 }
 
-#[async_trait]
+#[async_trait(? Send)]
 impl Handler for FarcasterHandler {
     async fn handle_new_idea(&self, idea: &Idea) -> Result<()> {
         info!("Handling new idea: {}", idea.title);
