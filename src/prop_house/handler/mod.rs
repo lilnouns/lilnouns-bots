@@ -3,6 +3,7 @@ use async_trait::async_trait;
 use crate::prop_house::fetcher::{Auction, Proposal, Vote};
 
 pub(crate) mod discord;
+mod farcaster;
 
 #[async_trait(? Send)]
 pub(crate) trait Handler {
