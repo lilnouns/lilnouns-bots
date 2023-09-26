@@ -2,12 +2,8 @@ use cfg_if::cfg_if;
 use log::{error, info, Level};
 use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 
-use crate::cache::Cache;
 use crate::prop_house::PropHouse;
-use crate::prop_lot::handler::farcaster::FarcasterHandler;
-use crate::prop_lot::{
-    fetcher::GraphQLFetcher as PropLotFetcher, handler::discord::DiscordHandler, PropLot,
-};
+use crate::prop_lot::PropLot;
 
 mod cache;
 mod prop_house;
@@ -25,30 +21,13 @@ cfg_if! {
 }
 
 async fn start(env: &Env) -> Result<()> {
-    let cache = Cache::from(env);
+    match PropLot::from(env) {
+        Ok(result) => match result.start().await {
+            Ok(_) => info!("PropLot started successfully"),
+            Err(error) => error!("Failed to start PropLot: {:?}", error),
+        },
 
-    match PropLot::<DiscordHandler>::new(
-        cache.clone(),
-        PropLotFetcher::from(env)?,
-        DiscordHandler::from(env)?,
-    )
-    .start()
-    .await
-    {
-        Ok(_) => info!("PropLot started successfully"),
-        Err(error) => error!("Failed to start PropLot: {:?}", error),
-    }
-
-    match PropLot::<FarcasterHandler>::new(
-        cache.clone(),
-        PropLotFetcher::from(env)?,
-        FarcasterHandler::from(env)?,
-    )
-    .start()
-    .await
-    {
-        Ok(_) => info!("PropLot started successfully"),
-        Err(error) => error!("Failed to start PropLot: {:?}", error),
+        Err(error) => error!("Failed to create PropLot: {:?}", error),
     }
 
     match PropHouse::from(env) {
