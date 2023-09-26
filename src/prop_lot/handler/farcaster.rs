@@ -1,166 +1,172 @@
 use async_trait::async_trait;
 use log::{debug, error, info};
-use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE};
-use reqwest::Client;
+use reqwest::{
+  header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
+  Client,
+};
 use serde_json::{json, Value};
 use worker::{Env, Error, Result};
 
-use crate::cache::Cache;
-use crate::prop_lot::{
+use crate::{
+  cache::Cache,
+  prop_lot::{
     fetcher::{Comment, Idea, Vote},
     handler::Handler,
+  },
+  utils::{get_domain_name, get_short_address},
 };
-use crate::utils::{get_domain_name, get_short_address};
 
 pub struct FarcasterHandler {
-    base_url: String,
-    bearer_token: String,
-    cache: Cache,
-    client: Client,
+  base_url: String,
+  bearer_token: String,
+  cache: Cache,
+  client: Client,
 }
 
 impl FarcasterHandler {
-    pub fn new(base_url: String, bearer_token: String, cache: Cache, client: Client) -> Self {
-        Self {
-            base_url,
-            bearer_token,
-            cache,
-            client,
-        }
+  pub fn new(base_url: String, bearer_token: String, cache: Cache, client: Client) -> Self {
+    Self {
+      base_url,
+      bearer_token,
+      cache,
+      client,
     }
+  }
 
-    pub fn from(env: &Env) -> Result<FarcasterHandler> {
-        let base_url = env.var("PROP_LOT_BASE_URL")?.to_string();
-        let bearer_token = env.secret("PROP_LOT_WARP_CAST_TOKEN")?.to_string();
+  pub fn from(env: &Env) -> Result<FarcasterHandler> {
+    let base_url = env.var("PROP_LOT_BASE_URL")?.to_string();
+    let bearer_token = env.secret("PROP_LOT_WARP_CAST_TOKEN")?.to_string();
 
-        let cache = Cache::from(env);
-        let client = Client::new();
+    let cache = Cache::from(env);
+    let client = Client::new();
 
-        Ok(Self::new(base_url, bearer_token, cache, client))
-    }
+    Ok(Self::new(base_url, bearer_token, cache, client))
+  }
 
-    async fn make_http_request(&self, request_data: Value) -> Result<()> {
-        let url = "https://api.warpcast.com/v2/casts";
-        let token = format!("Bearer {}", self.bearer_token);
-        let mut headers = HeaderMap::new();
+  async fn make_http_request(&self, request_data: Value) -> Result<()> {
+    let url = "https://api.warpcast.com/v2/casts";
+    let token = format!("Bearer {}", self.bearer_token);
+    let mut headers = HeaderMap::new();
 
-        let parsed_token =
-            HeaderValue::from_str(&token).map_err(|_| Error::from("Error while parsing token"))?;
+    let parsed_token =
+      HeaderValue::from_str(&token).map_err(|_| Error::from("Error while parsing token"))?;
 
-        headers.insert(AUTHORIZATION, parsed_token);
-        headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
-        headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+    headers.insert(AUTHORIZATION, parsed_token);
+    headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
+    headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
-        // Send the HTTP POST request
-        let response = self
-            .client
-            .post(url)
-            .headers(headers)
-            .json(&request_data)
-            .send()
-            .await
-            .map_err(|e| {
-                error!("Failed to execute request: {}", e);
-                Error::from(format!("Failed to execute request: {}", e))
-            })?;
+    // Send the HTTP POST request
+    let response = self
+      .client
+      .post(url)
+      .headers(headers)
+      .json(&request_data)
+      .send()
+      .await
+      .map_err(|e| {
+        error!("Failed to execute request: {}", e);
+        Error::from(format!("Failed to execute request: {}", e))
+      })?;
 
-        debug!("Response status: {:?}", response.status());
+    debug!("Response status: {:?}", response.status());
 
-        Ok(())
-    }
+    Ok(())
+  }
 }
 
 #[async_trait(? Send)]
 impl Handler for FarcasterHandler {
-    async fn handle_new_idea(&self, idea: &Idea) -> Result<()> {
-        info!("Handling new idea: {}", idea.title);
-        let url = format!("{}/idea/{}", self.base_url, idea.id);
-        let wallet = get_domain_name(&idea.creator_id)
-            .await
-            .unwrap_or(get_short_address(&idea.creator_id));
-        let description = format!(
-            "{} created a new proposal on Prop Lot: “{}”",
-            wallet, idea.title
-        );
+  async fn handle_new_idea(&self, idea: &Idea) -> Result<()> {
+    info!("Handling new idea: {}", idea.title);
+    let url = format!("{}/idea/{}", self.base_url, idea.id);
+    let wallet = get_domain_name(&idea.creator_id)
+      .await
+      .unwrap_or(get_short_address(&idea.creator_id));
+    let description = format!(
+      "{} created a new proposal on Prop Lot: “{}”",
+      wallet, idea.title
+    );
 
-        let request_data = json!({
-            "text": description,
-            "embeds": [url],
-            // "channelKey": "lil-nouns"
-        });
+    let request_data = json!({
+        "text": description,
+        "embeds": [url],
+        // "channelKey": "lil-nouns"
+    });
 
-        self.make_http_request(request_data).await?;
+    self.make_http_request(request_data).await?;
 
-        Ok(())
-    }
-    async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
-        info!("Handling new vote from address: {}", vote.voter_id);
+    Ok(())
+  }
 
-        let ideas = self
-            .cache
-            .get::<Vec<Idea>>("prop_lot:ideas")
-            .await?
-            .unwrap();
+  async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
+    info!("Handling new vote from address: {}", vote.voter_id);
 
-        let idea = ideas
-            .iter()
-            .find(|&a| a.id == vote.idea_id)
-            .unwrap()
-            .clone();
+    let ideas = self
+      .cache
+      .get::<Vec<Idea>>("prop_lot:ideas")
+      .await?
+      .unwrap();
 
-        let wallet = get_domain_name(&vote.voter_id)
-            .await
-            .unwrap_or(get_short_address(&vote.voter_id));
-        let url = format!("{}/idea/{}", self.base_url, idea.id);
-        let description = format!(
-            "{} has voted {} “{}” proposal.",
-            wallet,
-            match vote.direction {
-                1 => "for",
-                _ => "against",
-            },
-            idea.title
-        );
+    let idea = ideas
+      .iter()
+      .find(|&a| a.id == vote.idea_id)
+      .unwrap()
+      .clone();
 
-        let request_data = json!({
-            "text": description,
-            "embeds": [url],
-            // "channelKey": "lil-nouns"
-        });
+    let wallet = get_domain_name(&vote.voter_id)
+      .await
+      .unwrap_or(get_short_address(&vote.voter_id));
+    let url = format!("{}/idea/{}", self.base_url, idea.id);
+    let description = format!(
+      "{} has voted {} “{}” proposal.",
+      wallet,
+      match vote.direction {
+        1 => "for",
+        _ => "against",
+      },
+      idea.title
+    );
 
-        self.make_http_request(request_data).await?;
+    let request_data = json!({
+        "text": description,
+        "embeds": [url],
+        // "channelKey": "lil-nouns"
+    });
 
-        Ok(())
-    }
-    async fn handle_new_comment(&self, comment: &Comment) -> Result<()> {
-        info!("Handling new comment from address: {}", comment.author_id);
+    self.make_http_request(request_data).await?;
 
-        let ideas = self
-            .cache
-            .get::<Vec<Idea>>("prop_lot:ideas")
-            .await?
-            .unwrap();
+    Ok(())
+  }
 
-        let idea = ideas
-            .iter()
-            .find(|&a| a.id == comment.idea_id)
-            .unwrap()
-            .clone();
+  async fn handle_new_comment(&self, comment: &Comment) -> Result<()> {
+    info!("Handling new comment from address: {}", comment.author_id);
 
-        let url = format!("{}/idea/{}", self.base_url, idea.id);
-        let wallet = get_domain_name(&comment.author_id)
-            .await
-            .unwrap_or(get_short_address(&comment.author_id));
-        let description = format!("{} has commented on “{}” proposal.", wallet, idea.title);
+    let ideas = self
+      .cache
+      .get::<Vec<Idea>>("prop_lot:ideas")
+      .await?
+      .unwrap();
 
-        let request_data = json!({
-            "text": description,
-            "embeds": [url],
-            // "channelKey": "lil-nouns"
-        });
+    let idea = ideas
+      .iter()
+      .find(|&a| a.id == comment.idea_id)
+      .unwrap()
+      .clone();
 
-        self.make_http_request(request_data).await?;
+    let url = format!("{}/idea/{}", self.base_url, idea.id);
+    let wallet = get_domain_name(&comment.author_id)
+      .await
+      .unwrap_or(get_short_address(&comment.author_id));
+    let description = format!("{} has commented on “{}” proposal.", wallet, idea.title);
 
-        Ok(())
-    }
+    let request_data = json!({
+        "text": description,
+        "embeds": [url],
+        // "channelKey": "lil-nouns"
+    });
+
+    self.make_http_request(request_data).await?;
+
+    Ok(())
+  }
 }
