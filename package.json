@@ -5,6 +5,6 @@
 		"dev": "wrangler dev --env dev --test-scheduled"
 	},
 	"devDependencies": {
-		"wrangler": "3.9.0"
+		"wrangler": "3.9.1"
 	}
 }
