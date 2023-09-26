@@ -2,7 +2,9 @@ use log::{debug, error, info, warn};
 use worker::{Env, Result};
 
 use fetcher::{Auction, GraphQLFetcher, Proposal, Vote};
-use handler::DiscordHandler;
+use handler::discord::DiscordHandler;
+use handler::farcaster::FarcasterHandler;
+use handler::Handler;
 
 use crate::cache::Cache;
 
@@ -12,24 +14,30 @@ pub mod handler;
 pub struct PropHouse {
     cache: Cache,
     fetcher: GraphQLFetcher,
-    handler: DiscordHandler,
+    handlers: Vec<Box<dyn Handler>>,
 }
 
 impl PropHouse {
-    pub fn new(cache: Cache, fetcher: GraphQLFetcher, handler: DiscordHandler) -> Self {
+    pub fn new(cache: Cache, fetcher: GraphQLFetcher, handlers: Vec<Box<dyn Handler>>) -> Self {
         Self {
             cache,
             fetcher,
-            handler,
+            handlers,
         }
     }
 
     pub fn from(env: &Env) -> Result<Self> {
         let cache = Cache::from(env);
         let fetcher = GraphQLFetcher::from(env)?;
-        let handler = DiscordHandler::from(env)?;
+        let mut handlers = vec![];
 
-        Ok(Self::new(cache, fetcher, handler))
+        let discord_handler: Box<dyn Handler> = Box::new(DiscordHandler::from(env)?);
+        let farcaster_handler: Box<dyn Handler> = Box::new(FarcasterHandler::from(env)?);
+
+        handlers.push(discord_handler);
+        handlers.push(farcaster_handler);
+
+        Ok(Self::new(cache, fetcher, handlers))
     }
 
     pub async fn setup(&self) {
@@ -94,10 +102,12 @@ impl PropHouse {
 
                 for auction in &new_auctions {
                     info!("Handling a new auction...");
-                    if let Err(err) = self.handler.handle_new_auction(auction).await {
-                        error!("Failed to handle new auction: {:?}", err);
-                    } else {
-                        debug!("Successfully handled new auction: {:?}", auction.id);
+                    for handler in &self.handlers {
+                        if let Err(err) = handler.handle_new_auction(auction).await {
+                            error!("Failed to handle new auction: {:?}", err);
+                        } else {
+                            debug!("Successfully handled new auction: {:?}", auction.id);
+                        }
                     }
                 }
             }
@@ -131,10 +141,12 @@ impl PropHouse {
 
                 for proposal in &new_proposals {
                     info!("Handling a new proposal... ({:?})", proposal.id);
-                    if let Err(err) = self.handler.handle_new_proposal(proposal).await {
-                        error!("Failed to handle new proposal: {:?}", err);
-                    } else {
-                        debug!("Successfully handled new proposal: {:?}", proposal.id);
+                    for handler in &self.handlers {
+                        if let Err(err) = handler.handle_new_proposal(proposal).await {
+                            error!("Failed to handle new proposal: {:?}", err);
+                        } else {
+                            debug!("Successfully handled new proposal: {:?}", proposal.id);
+                        }
                     }
                 }
             }
@@ -164,10 +176,12 @@ impl PropHouse {
 
                 for vote in &new_votes {
                     info!("Handling a new vote...");
-                    if let Err(err) = self.handler.handle_new_vote(vote).await {
-                        error!("Failed to handle new vote: {:?}", err);
-                    } else {
-                        debug!("Successfully handled new vote: {:?}", vote.id);
+                    for handler in &self.handlers {
+                        if let Err(err) = handler.handle_new_vote(vote).await {
+                            error!("Failed to handle new vote: {:?}", err);
+                        } else {
+                            debug!("Successfully handled new vote: {:?}", vote.id);
+                        }
                     }
                 }
             }

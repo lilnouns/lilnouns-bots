@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.29] - 2023-09-26
+
+### Refactor
+
+- Move handlers into respective module directories
+- Move Discord handlers into separate modules
+- Update notification string formatting in discord handlers
+- Add Farcaster handler in prop lot module
+- Add Handler trait to `prop_lot` module
+- Update Discord and Farcaster handler to use async traits
+- Integrate Handler trait with PropLot struct
+- Optimize imports and modify fetcher in `prop_lot` module
+- Update visibility of Idea, Vote, Comment struct and their methods
+- Improve format and remove unused variables in FarcasterHandler
+- Update `async_trait` definition for Handlers
+- Improve code modularity and caching utility
+- Implement Handler trait for DiscordHandler
+- Add FarcasterHandler to manage incoming requests in Prop House
+- Update farcaster for better readability
+- Update struct and function visibility in fetcher
+- Update handlers to support multiple types
+- Update PropLot to support multiple handlers
+
+### Miscellaneous Tasks
+
+- Add Warp Cast tokens to deploy workflow
+
 ## [1.0.0-alpha.28] - 2023-09-26
 
 ### Miscellaneous Tasks

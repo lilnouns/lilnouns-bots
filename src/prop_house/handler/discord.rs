@@ -1,11 +1,13 @@
+use async_trait::async_trait;
 use chrono::Local;
 use log::{error, info};
 use reqwest::{header, Client};
 use serde_json::{json, Value};
-use worker::{Env, Error, Result};
+use worker::{Env, Error};
 
 use crate::cache::Cache;
 use crate::prop_house::fetcher::{Auction, Proposal, Vote};
+use crate::prop_house::handler::Handler;
 use crate::utils::{get_domain_name, get_explorer_address, get_short_address};
 
 pub struct DiscordHandler {
@@ -25,7 +27,7 @@ impl DiscordHandler {
         }
     }
 
-    pub fn from(env: &Env) -> Result<DiscordHandler> {
+    pub fn from(env: &Env) -> worker::Result<DiscordHandler> {
         let base_url = env.var("PROP_HOUSE_BASE_URL")?.to_string();
         let webhook_url = env.secret("PROP_HOUSE_DISCORD_WEBHOOK_URL")?.to_string();
 
@@ -35,7 +37,7 @@ impl DiscordHandler {
         Ok(Self::new(base_url, webhook_url, cache, client))
     }
 
-    async fn execute_webhook(&self, embed: Value) -> Result<()> {
+    async fn execute_webhook(&self, embed: Value) -> worker::Result<()> {
         let msg_json = json!({"embeds": [embed]});
 
         self.client
@@ -51,8 +53,11 @@ impl DiscordHandler {
 
         Ok(())
     }
+}
 
-    pub(crate) async fn handle_new_auction(&self, auction: &Auction) -> Result<()> {
+#[async_trait(? Send)]
+impl Handler for DiscordHandler {
+    async fn handle_new_auction(&self, auction: &Auction) -> worker::Result<()> {
         info!("Handling new auction: {}", auction.title);
 
         let url = format!(
@@ -61,7 +66,10 @@ impl DiscordHandler {
             auction.title.replace(' ', "-").to_lowercase()
         );
         let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
-        let description = format!("A new Prop House round has been created: {}", auction.title);
+        let description = format!(
+            "A new Prop House round has been created: “{}“",
+            auction.title
+        );
 
         let embed = json!({
             "title": "New Prop House Round",
@@ -75,8 +83,7 @@ impl DiscordHandler {
 
         Ok(())
     }
-
-    pub(crate) async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
+    async fn handle_new_proposal(&self, proposal: &Proposal) -> worker::Result<()> {
         info!("Handling new proposal: {}", proposal.title);
 
         let auctions = self
@@ -102,7 +109,7 @@ impl DiscordHandler {
             .await
             .unwrap_or(get_short_address(&proposal.address));
         let description = format!(
-            "A new Prop House proposal has been created: {}",
+            "A new Prop House proposal has been created: “{}“",
             proposal.title
         );
         let explorer = get_explorer_address(&proposal.address);
@@ -123,8 +130,7 @@ impl DiscordHandler {
 
         Ok(())
     }
-
-    pub(crate) async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
+    async fn handle_new_vote(&self, vote: &Vote) -> worker::Result<()> {
         info!("Handling new vote from address: {}", vote.address);
 
         let proposals = self
@@ -151,7 +157,7 @@ impl DiscordHandler {
             .unwrap_or(get_short_address(&vote.address));
 
         let description = format!(
-            "{} has voted {} Proposal",
+            "{} has voted “{}“ proposal.",
             wallet,
             match vote.direction {
                 1 => "for",

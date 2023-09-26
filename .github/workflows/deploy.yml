@@ -48,10 +48,14 @@ jobs:
           command: deploy --env dev
           secrets: |
             PROP_HOUSE_DISCORD_WEBHOOK_URL
+            PROP_HOUSE_WARP_CAST_TOKEN
             PROP_LOT_DISCORD_WEBHOOK_URL
+            PROP_LOT_WARP_CAST_TOKEN
         env:
           PROP_HOUSE_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_HOUSE_DISCORD_WEBHOOK_URL }}
+          PROP_HOUSE_WARP_CAST_TOKEN: ${{ secrets.PROP_HOUSE_WARP_CAST_TOKEN }}
           PROP_LOT_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_LOT_DISCORD_WEBHOOK_URL }}
+          PROP_LOT_WARP_CAST_TOKEN: ${{ secrets.PROP_LOT_WARP_CAST_TOKEN }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

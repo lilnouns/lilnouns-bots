@@ -38,28 +38,28 @@ struct VoteQuery;
 type DateTime = String;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub(crate) struct Auction {
-    pub(crate) id: isize,
-    pub(crate) title: String,
-    pub(crate) description: String,
+pub struct Auction {
+    pub id: isize,
+    pub title: String,
+    pub description: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub(crate) struct Proposal {
-    pub(crate) id: isize,
-    pub(crate) title: String,
-    pub(crate) tldr: String,
-    pub(crate) address: String,
-    pub(crate) auction_id: isize,
+pub struct Proposal {
+    pub id: isize,
+    pub title: String,
+    pub tldr: String,
+    pub address: String,
+    pub auction_id: isize,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub(crate) struct Vote {
-    pub(crate) id: isize,
-    pub(crate) address: String,
-    pub(crate) auction_id: isize,
-    pub(crate) proposal_id: isize,
-    pub(crate) direction: isize,
+pub struct Vote {
+    pub id: isize,
+    pub address: String,
+    pub auction_id: isize,
+    pub proposal_id: isize,
+    pub direction: isize,
 }
 
 pub struct GraphQLFetcher {
@@ -104,7 +104,7 @@ impl GraphQLFetcher {
             .and_then(|response| response.data)
     }
 
-    pub(crate) async fn fetch_auctions(&self) -> Option<Vec<Auction>> {
+    pub async fn fetch_auctions(&self) -> Option<Vec<Auction>> {
         let variables = auction_query::Variables {
             id: self.community_id.parse().unwrap(),
         };
@@ -124,7 +124,7 @@ impl GraphQLFetcher {
         Some(auctions)
     }
 
-    pub(crate) async fn fetch_proposals(&self) -> Option<Vec<Proposal>> {
+    pub async fn fetch_proposals(&self) -> Option<Vec<Proposal>> {
         let variables = proposal_query::Variables {
             id: self.community_id.parse().unwrap(),
         };
@@ -152,7 +152,7 @@ impl GraphQLFetcher {
         Some(proposals)
     }
 
-    pub(crate) async fn fetch_votes(&self) -> Option<Vec<Vote>> {
+    pub async fn fetch_votes(&self) -> Option<Vec<Vote>> {
         let variables = vote_query::Variables {
             id: self.community_id.parse().unwrap(),
         };
