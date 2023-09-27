@@ -2,7 +2,7 @@ use cfg_if::cfg_if;
 use log::{error, info, Level};
 use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 
-use crate::{prop_house::PropHouse, prop_lot::PropLot};
+use crate::{meta_gov::MetaGov, prop_house::PropHouse, prop_lot::PropLot};
 
 mod cache;
 mod meta_gov;
@@ -21,6 +21,15 @@ cfg_if! {
 }
 
 async fn start(env: &Env) -> Result<()> {
+  match MetaGov::from(env) {
+    Ok(result) => match result.start().await {
+      Ok(_) => info!("MetaGov started successfully"),
+      Err(error) => error!("Failed to start MetaGov: {:?}", error),
+    },
+
+    Err(error) => error!("Failed to create MetaGov: {:?}", error),
+  }
+
   match PropLot::new_from_env(env) {
     Ok(result) => match result.start().await {
       Ok(_) => info!("PropLot started successfully"),
