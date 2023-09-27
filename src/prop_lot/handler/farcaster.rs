@@ -90,7 +90,7 @@ impl Handler for FarcasterHandler {
     let request_data = json!({
         "text": description,
         "embeds": [url],
-        // "channelKey": "lil-nouns"
+        "channelKey": "lil-nouns"
     });
 
     self.make_http_request(request_data).await?;
@@ -130,7 +130,7 @@ impl Handler for FarcasterHandler {
     let request_data = json!({
         "text": description,
         "embeds": [url],
-        // "channelKey": "lil-nouns"
+        "channelKey": "lil-nouns"
     });
 
     self.make_http_request(request_data).await?;
@@ -162,7 +162,7 @@ impl Handler for FarcasterHandler {
     let request_data = json!({
         "text": description,
         "embeds": [url],
-        // "channelKey": "lil-nouns"
+        "channelKey": "lil-nouns"
     });
 
     self.make_http_request(request_data).await?;
