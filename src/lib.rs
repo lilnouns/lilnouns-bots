@@ -5,6 +5,7 @@ use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 use crate::{prop_house::PropHouse, prop_lot::PropLot};
 
 mod cache;
+mod meta_gov;
 mod prop_house;
 mod prop_lot;
 mod utils;
