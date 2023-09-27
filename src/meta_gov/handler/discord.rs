@@ -1,5 +1,6 @@
 use async_trait::async_trait;
-use log::error;
+use chrono::Local;
+use log::{error, info};
 use reqwest::{header, Client};
 use serde_json::{json, Value};
 use worker::{Env, Error, Result};
@@ -7,6 +8,7 @@ use worker::{Env, Error, Result};
 use crate::cache::Cache;
 use crate::meta_gov::fetcher::{Proposal, Vote};
 use crate::meta_gov::handler::Handler;
+use crate::utils::{get_domain_name, get_explorer_address, get_short_address};
 
 pub struct DiscordHandler {
   pub base_url: String,
@@ -57,10 +59,76 @@ impl DiscordHandler {
 #[async_trait(? Send)]
 impl Handler for DiscordHandler {
   async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
-    todo!()
+    info!("Handling new proposal: {}", proposal.title);
+
+    let url = format!("{}/{}", self.base_url, proposal.id);
+    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+    let description = format!("A new Meta Gov proposal has been created: “{}”", "");
+
+    let embed = json!({
+        "title": "New Meta Gov Proposal",
+        "description": description,
+        "url": url,
+        "color": 0x8A2CE2,
+        "footer": {"text": date}
+    });
+
+    self.execute_webhook(embed).await?;
+
+    Ok(())
   }
 
   async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
-    todo!()
+    info!("Handling new vote from address: {}", vote.voter);
+
+    let proposals = self
+      .cache
+      .get::<Vec<Proposal>>("meta_gov:proposals")
+      .await?
+      .unwrap();
+
+    let proposal = proposals
+      .iter()
+      .find(|&a| a.id == vote.proposal_id)
+      .unwrap()
+      .clone();
+
+    let url = format!(
+      "{}/{}/{}",
+      self.base_url,
+      proposal.title.replace(' ', "-").to_lowercase(),
+      proposal.id
+    );
+    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+    let wallet = get_domain_name(&vote.voter)
+      .await
+      .unwrap_or(get_short_address(&vote.voter));
+
+    let description = format!(
+      "{} has voted “{}” proposal.",
+      wallet,
+      match vote.choice {
+        0 => "for",
+        1 => "against",
+        _ => "abstain on",
+      }
+    );
+    let explorer = get_explorer_address(&vote.voter);
+
+    let embed = json!({
+        "title": "New Meta Gov Proposal Vote",
+        "description": description,
+        "url": url,
+        "color": 0x8A2CE2,
+        "footer": {"text": date},
+        "author": {
+            "name": wallet,
+            "url": explorer,
+        }
+    });
+
+    self.execute_webhook(embed).await?;
+
+    Ok(())
   }
 }
