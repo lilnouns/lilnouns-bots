@@ -1,0 +1,44 @@
+fragment ProposalFragment on Proposal {
+    id
+    created
+    title
+    body
+    start
+    end
+    snapshot
+    state
+}
+
+fragment VoteFragment on Vote {
+    id
+    voter
+    created
+    choice
+    metadata
+    reason
+    proposal {
+        ...ProposalFragment
+    }
+}
+
+query ProposalQuery($space: String) {
+    proposals(
+        first: 100
+        where: { space: $space, state: "active" }
+        orderBy: "created"
+        orderDirection: asc
+    ) {
+        ...ProposalFragment
+    }
+}
+
+query VoteQuery($space: String, $created_gt: Int) {
+    votes(
+        first: 1000
+        where: { space: $space, created_gt: $created_gt}
+        orderBy: "created"
+        orderDirection: asc
+    ) {
+        ...VoteFragment
+    }
+}
