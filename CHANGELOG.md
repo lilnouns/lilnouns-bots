@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.31] - 2023-09-27
+
+### Refactor
+
+- Enable channel key for Farcaster handlers
+
 ## [1.0.0-alpha.30] - 2023-09-26
 
 ### Refactor
