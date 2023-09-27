@@ -12,7 +12,7 @@ use crate::meta_gov::handler::Handler;
 mod fetcher;
 mod handler;
 
-struct MetaGov {
+pub struct MetaGov {
   cache: Cache,
   fetcher: GraphQLFetcher,
   handlers: Vec<Box<dyn Handler>>,

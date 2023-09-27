@@ -31,15 +31,16 @@ struct VoteQuery;
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Proposal {
   pub(crate) id: String,
-  title: String,
+  pub(crate) title: String,
   body: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Vote {
   pub(crate) id: String,
-  voter: String,
-  choice: isize,
+  pub(crate) voter: String,
+  pub(crate) choice: isize,
+  pub(crate) proposal_id: String,
 }
 
 pub struct GraphQLFetcher {
@@ -126,6 +127,7 @@ impl GraphQLFetcher {
         id: vote.id.to_string(),
         voter: vote.voter.to_string(),
         choice: vote.choice.parse().unwrap(),
+        proposal_id: vote.proposal.clone().unwrap().id,
       })
       .collect();
 
