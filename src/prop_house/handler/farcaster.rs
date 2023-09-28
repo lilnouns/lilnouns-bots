@@ -165,12 +165,13 @@ impl Handler for FarcasterHandler {
     let wallet = get_wallet_handle(&vote.address, "xyz.farcaster").await;
 
     let description = format!(
-      "{} has voted “{}” proposal.",
-      wallet,
+      "“{}” voted {} by {}.",
+      proposal.title.to_uppercase(),
       match vote.direction {
         1 => "for",
         _ => "against",
-      }
+      },
+      wallet,
     );
 
     let request_data = json!({
