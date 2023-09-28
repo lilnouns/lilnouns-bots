@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.32] - 2023-09-28
+
+### Refactor
+
+- Rename `from` methods to `new_from_env`
+- Create GraphQL queries for snapshot data
+- Add MetaGov module for fetching and handling proposals and votes
+- Add proposal and vote handling in DiscordHandler of meta gov
+- Updated visibility and added proposal reference to Vote in `meta_gov` module
+- Integrate MetaGov into startup process
+- Implement handling for new proposals and votes
+- Improve module initialization and clean up imports
+- Change data type of choice and remove metadata for meta gov fetcher
+- Add function to extract proposal information on meta gov handler
+- Remove duplicate code in meta gov discord handler
+- Add environment based handler initializations
+- Add a function to extract proposal information on meta gov farcaster
+
+### Miscellaneous Tasks
+
+- Add GraphQL schema for data queries in Snapshot
+- Add meta gov dev environment variables
+- Add new configurable variables to dev environment
+- Enable Farcaster, Prop House, and Prop Lot functionalities
+
 ## [1.0.0-alpha.31] - 2023-09-27
 
 ### Refactor
