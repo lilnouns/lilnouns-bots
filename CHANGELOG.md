@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.38] - 2023-09-28
+
+### Refactor
+
+- Update vote description formatting in farcaster
+
 ## [1.0.0-alpha.37] - 2023-09-28
 
 ### Refactor
