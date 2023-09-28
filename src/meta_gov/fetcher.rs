@@ -56,8 +56,8 @@ impl GraphQLFetcher {
   }
 
   pub fn new_from_env(env: &Env) -> Result<GraphQLFetcher> {
-    let graphql_url = env.var("SNAPSHOT_GRAPHQL_URL")?.to_string();
-    let space_id = env.var("SNAPSHOT_SPACE_ID")?.to_string();
+    let graphql_url = env.var("META_GOV_SNAPSHOT_GRAPHQL_URL")?.to_string();
+    let space_id = env.var("META_GOV_SNAPSHOT_SPACE_ID")?.to_string();
 
     Ok(Self::new(graphql_url, space_id))
   }

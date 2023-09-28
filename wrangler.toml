@@ -20,6 +20,9 @@ id = "c193c4943cd5475196cd5bdd3298a8ff"
 
 [env.dev.vars]
 KV_STORE_NAME = "CACHE"
+META_GOV_BASE_URL = "https://lilnouns.wtf/vote/nounsdao"
+META_GOV_SNAPSHOT_GRAPHQL_URL = "https://hub.snapshot.org/graphql"
+META_GOV_SNAPSHOT_SPACE_ID = "leagueoflils.eth"
 PROP_HOUSE_BASE_URL = "https://prop.house/lil-nouns"
 PROP_HOUSE_COMMUNITY_ID = "2"
 PROP_HOUSE_GRAPHQL_URL = "https://prod.backend.prop.house/graphql"
