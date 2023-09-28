@@ -47,11 +47,15 @@ jobs:
           environment: dev
           command: deploy --env dev
           secrets: |
+            META_GOV_DISCORD_WEBHOOK_URL
+            META_GOV_WARP_CAST_TOKEN
             PROP_HOUSE_DISCORD_WEBHOOK_URL
             PROP_HOUSE_WARP_CAST_TOKEN
             PROP_LOT_DISCORD_WEBHOOK_URL
             PROP_LOT_WARP_CAST_TOKEN
         env:
+          META_GOV_DISCORD_WEBHOOK_URL: ${{ secrets.META_GOV_DISCORD_WEBHOOK_URL }}
+          META_GOV_WARP_CAST_TOKEN: ${{ secrets.META_GOV_WARP_CAST_TOKEN }}
           PROP_HOUSE_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_HOUSE_DISCORD_WEBHOOK_URL }}
           PROP_HOUSE_WARP_CAST_TOKEN: ${{ secrets.PROP_HOUSE_WARP_CAST_TOKEN }}
           PROP_LOT_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_LOT_DISCORD_WEBHOOK_URL }}
