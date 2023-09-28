@@ -21,31 +21,37 @@ cfg_if! {
 }
 
 async fn start(env: &Env) -> Result<()> {
-  match MetaGov::new_from_env(env) {
-    Ok(result) => match result.start().await {
-      Ok(_) => info!("MetaGov started successfully"),
-      Err(error) => error!("Failed to start MetaGov: {:?}", error),
-    },
+  if env.var("META_GOV_ENABLED").unwrap().to_string() == "true" {
+    match MetaGov::new_from_env(env) {
+      Ok(result) => match result.start().await {
+        Ok(_) => info!("MetaGov started successfully"),
+        Err(error) => error!("Failed to start MetaGov: {:?}", error),
+      },
 
-    Err(error) => error!("Failed to create MetaGov: {:?}", error),
+      Err(error) => error!("Failed to create MetaGov: {:?}", error),
+    }
+  };
+
+  if env.var("PROP_HOUSE_ENABLED").unwrap().to_string() == "true" {
+    match PropHouse::new_from_env(env) {
+      Ok(result) => match result.start().await {
+        Ok(_) => info!("PropHouse started successfully"),
+        Err(error) => error!("Failed to start PropHouse: {:?}", error),
+      },
+
+      Err(error) => error!("Failed to create PropHouse: {:?}", error),
+    }
   }
 
-  match PropLot::new_from_env(env) {
-    Ok(result) => match result.start().await {
-      Ok(_) => info!("PropLot started successfully"),
-      Err(error) => error!("Failed to start PropLot: {:?}", error),
-    },
+  if env.var("PROP_LOT_ENABLED").unwrap().to_string() == "true" {
+    match PropLot::new_from_env(env) {
+      Ok(result) => match result.start().await {
+        Ok(_) => info!("PropLot started successfully"),
+        Err(error) => error!("Failed to start PropLot: {:?}", error),
+      },
 
-    Err(error) => error!("Failed to create PropLot: {:?}", error),
-  }
-
-  match PropHouse::new_from_env(env) {
-    Ok(result) => match result.start().await {
-      Ok(_) => info!("PropHouse started successfully"),
-      Err(error) => error!("Failed to start PropHouse: {:?}", error),
-    },
-
-    Err(error) => error!("Failed to create PropHouse: {:?}", error),
+      Err(error) => error!("Failed to create PropLot: {:?}", error),
+    }
   }
 
   Ok(())
