@@ -13,7 +13,7 @@ use crate::{
     fetcher::{Auction, Proposal, Vote},
     handler::Handler,
   },
-  utils::{ens::get_domain_name, get_short_address},
+  utils::ens::get_wallet_handle,
 };
 
 pub struct FarcasterHandler {
@@ -121,9 +121,9 @@ impl Handler for FarcasterHandler {
       auction.title.replace(' ', "-").to_lowercase(),
       proposal.id
     );
-    let wallet = get_domain_name(&proposal.address)
-      .await
-      .unwrap_or(get_short_address(&proposal.address));
+
+    let wallet = get_wallet_handle(&proposal.address, "xyz.farcaster").await;
+
     let description = format!(
       "{} created a new proposal on Prop House: “{}”",
       wallet, proposal.title
@@ -161,9 +161,8 @@ impl Handler for FarcasterHandler {
       proposal.title.replace(' ', "-").to_lowercase(),
       proposal.id
     );
-    let wallet = get_domain_name(&vote.address)
-      .await
-      .unwrap_or(get_short_address(&vote.address));
+
+    let wallet = get_wallet_handle(&vote.address, "xyz.farcaster").await;
 
     let description = format!(
       "{} has voted “{}” proposal.",

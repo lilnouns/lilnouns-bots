@@ -13,7 +13,7 @@ use crate::{
     fetcher::{Comment, Idea, Vote},
     handler::Handler,
   },
-  utils::{ens::get_domain_name, get_short_address},
+  utils::ens::get_wallet_handle,
 };
 
 pub struct FarcasterHandler {
@@ -79,9 +79,9 @@ impl Handler for FarcasterHandler {
   async fn handle_new_idea(&self, idea: &Idea) -> Result<()> {
     info!("Handling new idea: {}", idea.title);
     let url = format!("{}/idea/{}", self.base_url, idea.id);
-    let wallet = get_domain_name(&idea.creator_id)
-      .await
-      .unwrap_or(get_short_address(&idea.creator_id));
+
+    let wallet = get_wallet_handle(&idea.creator_id, "xyz.farcaster").await;
+
     let description = format!(
       "{} created a new proposal on Prop Lot: “{}”",
       wallet, idea.title
@@ -113,9 +113,8 @@ impl Handler for FarcasterHandler {
       .unwrap()
       .clone();
 
-    let wallet = get_domain_name(&vote.voter_id)
-      .await
-      .unwrap_or(get_short_address(&vote.voter_id));
+    let wallet = get_wallet_handle(&vote.voter_id, "xyz.farcaster").await;
+
     let url = format!("{}/idea/{}", self.base_url, idea.id);
     let description = format!(
       "“{}” voted {} by {}.",
@@ -154,9 +153,9 @@ impl Handler for FarcasterHandler {
       .clone();
 
     let url = format!("{}/idea/{}", self.base_url, idea.id);
-    let wallet = get_domain_name(&comment.author_id)
-      .await
-      .unwrap_or(get_short_address(&comment.author_id));
+
+    let wallet = get_wallet_handle(&comment.author_id, "xyz.farcaster").await;
+
     let mut description = format!("“{}” commented by {}.", idea.title.to_uppercase(), wallet);
     let chars_limit = 320 - 10 - (description.len() + url.len());
     let mut comment_body = comment.clone().body;

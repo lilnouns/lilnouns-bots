@@ -3,6 +3,8 @@ use std::str::FromStr;
 use anyhow::{anyhow, Result};
 use ethers::{addressbook::Address, middleware::Middleware, prelude::Provider, providers::Http};
 
+use crate::utils::get_short_address;
+
 const ETHEREUM_MAINNET_RPC_URL: &'static str = "https://eth.llamarpc.com";
 
 async fn create_provider() -> Result<Provider<Http>> {
@@ -33,4 +35,16 @@ pub async fn get_domain_field(domain: &str, field: &str) -> Result<String> {
     .map_err(|error| anyhow!("Failed to resolve field: {}", error))?;
 
   Ok(value)
+}
+
+pub async fn get_wallet_handle(address: &str, field: &str) -> String {
+  return if let Ok(domain) = get_domain_name(address).await {
+    if let Ok(handle) = get_domain_field(domain.as_str(), field).await {
+      format!("@{}", handle)
+    } else {
+      domain
+    }
+  } else {
+    get_short_address(address)
+  };
 }
