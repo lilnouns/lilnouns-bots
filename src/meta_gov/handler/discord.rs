@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use chrono::Local;
 use log::{error, info};
+use regex::Regex;
 use reqwest::{header, Client};
 use serde_json::{json, Value};
 use worker::{Env, Error, Result};
@@ -58,26 +59,56 @@ impl DiscordHandler {
 
     Ok(())
   }
+
+  async fn extract_proposal_info(&self, proposal: Proposal) -> Result<(u32, String)> {
+    let captures = Regex::new(r"(\d+): (.+)")
+      .unwrap()
+      .captures(&*proposal.title)
+      .ok_or(Error::from("Capture Failed"))?;
+    let proposal_id = captures
+      .get(1)
+      .ok_or(Error::from("Failed to get proposal ID"))?;
+    let proposal_title = captures
+      .get(2)
+      .ok_or(Error::from("Failed to get proposal Title"))?;
+    let proposal_id = proposal_id
+      .as_str()
+      .parse::<u32>()
+      .map_err(|_| Error::from("Failed to parse proposal ID"))?;
+    let proposal_title = proposal_title.as_str().to_string();
+
+    Ok((proposal_id, proposal_title))
+  }
 }
 
 #[async_trait(? Send)]
 impl Handler for DiscordHandler {
   async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
-    info!("Handling new proposal: {}", proposal.title);
+    match self.extract_proposal_info(proposal.clone()).await {
+      Ok((proposal_id, proposal_title)) => {
+        info!("Handling new proposal: {}", proposal_title);
 
-    let url = format!("{}/{}", self.base_url, proposal.id);
-    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
-    let description = format!("A new Meta Gov proposal has been created: “{}”", "");
+        let url = format!("{}/{}", self.base_url, proposal_id);
+        let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+        let description = format!(
+          "A new Meta Gov proposal has been created: “{}”",
+          proposal_title
+        );
 
-    let embed = json!({
-        "title": "New Meta Gov Proposal",
-        "description": description,
-        "url": url,
-        "color": 0x8A2CE2,
-        "footer": {"text": date}
-    });
+        let embed = json!({
+            "title": "New Meta Gov Proposal",
+            "description": description,
+            "url": url,
+            "color": 0xE40536,
+            "footer": {"text": date}
+        });
 
-    self.execute_webhook(embed).await?;
+        self.execute_webhook(embed).await?;
+      }
+      Err(e) => {
+        error!("Failed to extract proposal info: {}", e);
+      }
+    }
 
     Ok(())
   }
@@ -97,42 +128,53 @@ impl Handler for DiscordHandler {
       .unwrap()
       .clone();
 
-    let url = format!(
-      "{}/{}/{}",
-      self.base_url,
-      proposal.title.replace(' ', "-").to_lowercase(),
-      proposal.id
-    );
-    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
-    let wallet = get_domain_name(&vote.voter)
-      .await
-      .unwrap_or(get_short_address(&vote.voter));
+    match self.extract_proposal_info(proposal.clone()).await {
+      Ok((proposal_id, proposal_title)) => {
+        info!("Handling new proposal: {}", proposal_title);
 
-    let description = format!(
-      "{} has voted “{}” proposal.",
-      wallet,
-      match vote.choice {
-        0 => "for",
-        1 => "against",
-        _ => "abstain on",
+        let url = format!("{}/{}", self.base_url, proposal_id);
+        let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+        let description = format!(
+          "A new Meta Gov proposal has been created: “{}”",
+          proposal_title
+        );
+
+        let url = format!("{}/{}", self.base_url, proposal_id);
+        let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+        let wallet = get_domain_name(&vote.voter)
+          .await
+          .unwrap_or(get_short_address(&vote.voter));
+
+        let description = format!(
+          "{} has voted {} “{}” proposal.",
+          wallet,
+          match vote.choice {
+            0 => "for",
+            1 => "against",
+            _ => "abstain on",
+          },
+          proposal_title
+        );
+        let explorer = get_explorer_address(&vote.voter);
+
+        let embed = json!({
+            "title": "New Meta Gov Proposal Vote",
+            "description": description,
+            "url": url,
+            "color": 0xE40536,
+            "footer": {"text": date},
+            "author": {
+                "name": wallet,
+                "url": explorer,
+            }
+        });
+
+        self.execute_webhook(embed).await?;
       }
-    );
-    let explorer = get_explorer_address(&vote.voter);
-
-    let embed = json!({
-        "title": "New Meta Gov Proposal Vote",
-        "description": description,
-        "url": url,
-        "color": 0x8A2CE2,
-        "footer": {"text": date},
-        "author": {
-            "name": wallet,
-            "url": explorer,
-        }
-    });
-
-    self.execute_webhook(embed).await?;
-
+      Err(e) => {
+        error!("Failed to extract proposal info: {}", e);
+      }
+    }
     Ok(())
   }
 }
