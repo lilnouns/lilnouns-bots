@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.34] - 2023-09-28
+
+### Refactor
+
+- Update vote choice categorization in discord and farcaster handlers of meta gov
+
 ## [1.0.0-alpha.33] - 2023-09-28
 
 ### Miscellaneous Tasks

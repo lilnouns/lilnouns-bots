@@ -150,9 +150,10 @@ impl Handler for FarcasterHandler {
           "{} has voted {} “{}” proposal.",
           wallet,
           match vote.choice {
-            0 => "for",
-            1 => "against",
-            _ => "abstain on",
+            1 => "for",
+            2 => "against",
+            3 => "abstain on",
+            _ => "unknown",
           },
           proposal_title
         );
