@@ -151,7 +151,7 @@ impl Handler for FarcasterHandler {
           match vote.choice {
             1 => "for",
             2 => "against",
-            3 => "abstain on",
+            3 => "abstain",
             _ => "unknown",
           },
           wallet,
