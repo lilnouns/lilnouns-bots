@@ -21,7 +21,7 @@ cfg_if! {
 }
 
 async fn start(env: &Env) -> Result<()> {
-  match MetaGov::from(env) {
+  match MetaGov::new_from_env(env) {
     Ok(result) => match result.start().await {
       Ok(_) => info!("MetaGov started successfully"),
       Err(error) => error!("Failed to start MetaGov: {:?}", error),

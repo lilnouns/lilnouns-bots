@@ -9,7 +9,6 @@ use crate::{
   },
 };
 
-pub(crate) mod config;
 pub(crate) mod fetcher;
 pub(crate) mod handler;
 

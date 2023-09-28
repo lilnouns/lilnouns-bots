@@ -1,6 +1,5 @@
 use chrono::{Duration, Utc};
-use graphql_client::reqwest::post_graphql;
-use graphql_client::GraphQLQuery;
+use graphql_client::{reqwest::post_graphql, GraphQLQuery};
 use log::{debug, error};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -56,7 +55,7 @@ impl GraphQLFetcher {
     }
   }
 
-  pub fn from(env: &Env) -> Result<GraphQLFetcher> {
+  pub fn new_from_env(env: &Env) -> Result<GraphQLFetcher> {
     let graphql_url = env.var("SNAPSHOT_GRAPHQL_URL")?.to_string();
     let space_id = env.var("SNAPSHOT_SPACE_ID")?.to_string();
 
