@@ -157,7 +157,7 @@ impl Handler for FarcasterHandler {
     let wallet = get_domain_name(&comment.author_id)
       .await
       .unwrap_or(get_short_address(&comment.author_id));
-    let mut description = format!("“{}” commented by {}.", idea.title, wallet);
+    let mut description = format!("“{}” commented by {}.", idea.title.to_uppercase(), wallet);
     let chars_limit = 320 - 10 - (description.len() + url.len());
     let mut comment_body = comment.clone().body;
     if comment_body.len() > chars_limit {
