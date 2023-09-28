@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.35] - 2023-09-28
+
+### Refactor
+
+- Update farcaster notification message for prop lot
+- Update comment description format for prop lot farcaster
+- Improve string truncation in farcaster of prop lot
+
 ## [1.0.0-alpha.34] - 2023-09-28
 
 ### Refactor
