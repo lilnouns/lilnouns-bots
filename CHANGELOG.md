@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.37] - 2023-09-28
+
+### Refactor
+
+- Truncate and append ellipsis to lengthy comments on prop lot farcaster
+- Update vote description format in prop lot farcaster
+- Move utils into mod directory for improved structure
+- Move `get_domain_name` function to new module
+- Update ENS Utils and add `get_domain_field` function
+- Update provider creation logic for ENS utility
+- Replace wallet address fetching method
+
 ## [1.0.0-alpha.36] - 2023-09-28
 
 ### Refactor
