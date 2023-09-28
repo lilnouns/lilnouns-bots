@@ -157,7 +157,14 @@ impl Handler for FarcasterHandler {
     let wallet = get_domain_name(&comment.author_id)
       .await
       .unwrap_or(get_short_address(&comment.author_id));
-    let description = format!("{} has commented on “{}” proposal.", wallet, idea.title);
+    let mut description = format!("“{}” commented by {}.", idea.title, wallet);
+    let chars_limit = 320 - 10 - (description.len() + url.len());
+    let comment_body = &comment.clone().body.as_mut_str();
+    description = format!(
+      "{}\n\n“{}”",
+      description,
+      comment_body.truncate(chars_limit)
+    );
 
     let request_data = json!({
         "text": description,
