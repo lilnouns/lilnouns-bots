@@ -14,7 +14,7 @@ use crate::{
     fetcher::{Proposal, Vote},
     handler::Handler,
   },
-  utils::{get_domain_name, get_short_address},
+  utils::{ens::get_domain_name, get_short_address},
 };
 
 pub struct FarcasterHandler {
