@@ -162,6 +162,7 @@ impl Handler for FarcasterHandler {
     let mut comment_body = comment.clone().body;
     if comment_body.len() > chars_limit {
       comment_body.truncate(chars_limit);
+      comment_body.push_str("...");
     }
     description = format!("{}\n\n“{}”", description, comment_body);
 
