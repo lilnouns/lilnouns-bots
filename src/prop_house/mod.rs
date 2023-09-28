@@ -1,8 +1,7 @@
-use log::{debug, error, info, warn};
-use worker::{Env, Result};
-
 use fetcher::{Auction, GraphQLFetcher, Proposal, Vote};
 use handler::{discord::DiscordHandler, farcaster::FarcasterHandler, Handler};
+use log::{debug, error, info, warn};
+use worker::{Env, Result};
 
 use crate::cache::Cache;
 
@@ -24,13 +23,13 @@ impl PropHouse {
     }
   }
 
-  pub fn from(env: &Env) -> Result<Self> {
-    let cache = Cache::from(env);
-    let fetcher = GraphQLFetcher::from(env)?;
+  pub fn new_from_env(env: &Env) -> Result<Self> {
+    let cache = Cache::new_from_env(env);
+    let fetcher = GraphQLFetcher::new_from_env(env)?;
     let mut handlers = vec![];
 
-    let discord_handler: Box<dyn Handler> = Box::new(DiscordHandler::from(env)?);
-    let farcaster_handler: Box<dyn Handler> = Box::new(FarcasterHandler::from(env)?);
+    let discord_handler: Box<dyn Handler> = Box::new(DiscordHandler::new_from_env(env)?);
+    let farcaster_handler: Box<dyn Handler> = Box::new(FarcasterHandler::new_from_env(env)?);
 
     handlers.push(discord_handler);
     handlers.push(farcaster_handler);

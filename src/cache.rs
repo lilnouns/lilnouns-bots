@@ -15,7 +15,7 @@ impl Cache {
     Self { store }
   }
 
-  pub fn from(env: &Env) -> Self {
+  pub fn new_from_env(env: &Env) -> Self {
     let store_name = env.var("KV_STORE_NAME").unwrap().to_string();
     let store = env.kv(&store_name).unwrap();
 

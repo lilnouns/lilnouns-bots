@@ -20,7 +20,7 @@ cfg_if! {
 }
 
 async fn start(env: &Env) -> Result<()> {
-  match PropLot::from(env) {
+  match PropLot::new_from_env(env) {
     Ok(result) => match result.start().await {
       Ok(_) => info!("PropLot started successfully"),
       Err(error) => error!("Failed to start PropLot: {:?}", error),
@@ -29,7 +29,7 @@ async fn start(env: &Env) -> Result<()> {
     Err(error) => error!("Failed to create PropLot: {:?}", error),
   }
 
-  match PropHouse::from(env) {
+  match PropHouse::new_from_env(env) {
     Ok(result) => match result.start().await {
       Ok(_) => info!("PropHouse started successfully"),
       Err(error) => error!("Failed to start PropHouse: {:?}", error),

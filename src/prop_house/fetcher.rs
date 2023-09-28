@@ -74,7 +74,7 @@ impl GraphQLFetcher {
     }
   }
 
-  pub fn from(env: &Env) -> Result<GraphQLFetcher> {
+  pub fn new_from_env(env: &Env) -> Result<GraphQLFetcher> {
     let graphql_url = env.var("PROP_HOUSE_GRAPHQL_URL")?.to_string();
     let community_id = env.var("PROP_HOUSE_COMMUNITY_ID")?.to_string();
 
