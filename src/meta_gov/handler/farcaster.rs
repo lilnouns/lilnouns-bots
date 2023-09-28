@@ -20,15 +20,23 @@ use crate::{
 pub struct FarcasterHandler {
   base_url: String,
   bearer_token: String,
+  channel_key: String,
   cache: Cache,
   client: Client,
 }
 
 impl FarcasterHandler {
-  pub fn new(base_url: String, bearer_token: String, cache: Cache, client: Client) -> Self {
+  pub fn new(
+    base_url: String,
+    bearer_token: String,
+    channel_key: String,
+    cache: Cache,
+    client: Client,
+  ) -> Self {
     Self {
       base_url,
       bearer_token,
+      channel_key,
       cache,
       client,
     }
@@ -37,11 +45,18 @@ impl FarcasterHandler {
   pub fn new_from_env(env: &Env) -> Result<FarcasterHandler> {
     let base_url = env.var("META_GOV_BASE_URL")?.to_string();
     let bearer_token = env.secret("META_GOV_WARP_CAST_TOKEN")?.to_string();
+    let channel_key = env.secret("META_GOV_WARP_CAST_CHANNEL")?.to_string();
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
 
-    Ok(Self::new(base_url, bearer_token, cache, client))
+    Ok(Self::new(
+      base_url,
+      bearer_token,
+      channel_key,
+      cache,
+      client,
+    ))
   }
 
   async fn make_http_request(&self, request_data: Value) -> Result<()> {
@@ -111,7 +126,7 @@ impl Handler for FarcasterHandler {
         let request_data = json!({
             "text": description,
             "embeds": [url],
-            "channelKey": "lil-nouns"
+            "channelKey": self.channel_key
         });
 
         self.make_http_request(request_data).await?;
@@ -151,7 +166,7 @@ impl Handler for FarcasterHandler {
           match vote.choice {
             1 => "for",
             2 => "against",
-            3 => "abstain on",
+            3 => "abstain",
             _ => "unknown",
           },
           wallet,
@@ -160,7 +175,7 @@ impl Handler for FarcasterHandler {
         let request_data = json!({
             "text": description,
             "embeds": [url],
-            "channelKey": "lil-nouns"
+            "channelKey": self.channel_key
         });
 
         self.make_http_request(request_data).await?;

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.39] - 2023-09-28
+
+### Refactor
+
+- Update abstain vote terminology in farcaster
+- Update FarcasterHandler to accept dynamic channel key
+
 ## [1.0.0-alpha.38] - 2023-09-28
 
 ### Refactor
