@@ -1,10 +1,10 @@
 use async_trait::async_trait;
-use log::{debug, error};
+use log::{debug, error, info};
 use reqwest::{
   header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
   Client,
 };
-use serde_json::Value;
+use serde_json::{json, Value};
 use worker::{Env, Error, Result};
 
 use crate::{
@@ -13,6 +13,7 @@ use crate::{
     fetcher::{Proposal, Vote},
     handler::Handler,
   },
+  utils::{get_domain_name, get_short_address},
 };
 
 pub struct FarcasterHandler {
@@ -76,10 +77,60 @@ impl FarcasterHandler {
 #[async_trait(? Send)]
 impl Handler for FarcasterHandler {
   async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
-    todo!()
+    info!("Handling new proposal: {}", proposal.title);
+
+    let url = format!("{}/{}", self.base_url, proposal.id);
+    let description = format!("A new Meta Gov proposal has been created: “{}”", "");
+
+    let request_data = json!({
+        "text": description,
+        "embeds": [url],
+        "channelKey": "lil-nouns"
+    });
+
+    self.make_http_request(request_data).await?;
+
+    Ok(())
   }
 
   async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
-    todo!()
+    info!("Handling new vote from address: {}", vote.voter);
+
+    let proposals = self
+      .cache
+      .get::<Vec<Proposal>>("meta_gov:proposals")
+      .await?
+      .unwrap();
+
+    let proposal = proposals
+      .iter()
+      .find(|&a| a.id == vote.proposal_id)
+      .unwrap()
+      .clone();
+
+    let url = format!("{}/{}", self.base_url, proposal.id);
+    let wallet = get_domain_name(&vote.voter)
+      .await
+      .unwrap_or(get_short_address(&vote.voter));
+
+    let description = format!(
+      "{} has voted “{}” proposal.",
+      wallet,
+      match vote.choice {
+        0 => "for",
+        1 => "against",
+        _ => "abstain on",
+      }
+    );
+
+    let request_data = json!({
+        "text": description,
+        "embeds": [url],
+        "channelKey": "lil-nouns"
+    });
+
+    self.make_http_request(request_data).await?;
+
+    Ok(())
   }
 }
