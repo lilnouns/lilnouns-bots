@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.36] - 2023-09-28
+
+### Refactor
+
+- Change prop lot idea title to uppercase in comment description of farcaster
+
 ## [1.0.0-alpha.35] - 2023-09-28
 
 ### Refactor
