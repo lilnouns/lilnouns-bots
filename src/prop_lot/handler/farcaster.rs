@@ -118,13 +118,13 @@ impl Handler for FarcasterHandler {
       .unwrap_or(get_short_address(&vote.voter_id));
     let url = format!("{}/idea/{}", self.base_url, idea.id);
     let description = format!(
-      "{} has voted {} “{}” proposal.",
-      wallet,
+      "“{}” voted {} by {}.",
+      idea.title.to_uppercase(),
       match vote.direction {
         1 => "for",
         _ => "against",
       },
-      idea.title
+      wallet
     );
 
     let request_data = json!({
