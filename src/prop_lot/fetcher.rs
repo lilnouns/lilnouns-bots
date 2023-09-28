@@ -69,7 +69,7 @@ impl GraphQLFetcher {
     Self { graphql_url }
   }
 
-  pub fn from(env: &Env) -> Result<GraphQLFetcher> {
+  pub fn new_from_env(env: &Env) -> Result<GraphQLFetcher> {
     let graphql_url = env.var("PROP_LOT_GRAPHQL_URL")?.to_string();
 
     Ok(Self::new(graphql_url))

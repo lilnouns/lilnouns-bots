@@ -31,11 +31,11 @@ impl DiscordHandler {
     }
   }
 
-  pub fn from(env: &Env) -> Result<DiscordHandler> {
+  pub fn new_from_env(env: &Env) -> Result<DiscordHandler> {
     let base_url = env.var("PROP_HOUSE_BASE_URL")?.to_string();
     let webhook_url = env.secret("PROP_HOUSE_DISCORD_WEBHOOK_URL")?.to_string();
 
-    let cache = Cache::from(env);
+    let cache = Cache::new_from_env(env);
     let client = Client::new();
 
     Ok(Self::new(base_url, webhook_url, cache, client))

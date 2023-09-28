@@ -27,16 +27,20 @@ impl PropLot {
     }
   }
 
-  pub fn from(env: &Env) -> Result<Self> {
-    let cache = Cache::from(env);
-    let fetcher = GraphQLFetcher::from(env)?;
+  pub fn new_from_env(env: &Env) -> Result<Self> {
+    let cache = Cache::new_from_env(env);
+    let fetcher = GraphQLFetcher::new_from_env(env)?;
     let mut handlers = vec![];
 
-    let discord_handler: Box<dyn Handler> = Box::new(DiscordHandler::from(env)?);
-    let farcaster_handler: Box<dyn Handler> = Box::new(FarcasterHandler::from(env)?);
+    if env.var("PROP_LOT_DISCORD_ENABLED").unwrap().to_string() == "true" {
+      let discord_handler: Box<dyn Handler> = Box::new(DiscordHandler::new_from_env(env)?);
+      handlers.push(discord_handler);
+    }
 
-    handlers.push(discord_handler);
-    handlers.push(farcaster_handler);
+    if env.var("PROP_LOT_FARCASTER_ENABLED").unwrap().to_string() == "true" {
+      let farcaster_handler: Box<dyn Handler> = Box::new(FarcasterHandler::new_from_env(env)?);
+      handlers.push(farcaster_handler);
+    }
 
     Ok(Self::new(cache, fetcher, handlers))
   }

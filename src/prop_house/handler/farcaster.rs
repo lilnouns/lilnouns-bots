@@ -33,11 +33,11 @@ impl FarcasterHandler {
     }
   }
 
-  pub fn from(env: &Env) -> Result<FarcasterHandler> {
+  pub fn new_from_env(env: &Env) -> Result<FarcasterHandler> {
     let base_url = env.var("PROP_HOUSE_BASE_URL")?.to_string();
     let bearer_token = env.secret("PROP_HOUSE_WARP_CAST_TOKEN")?.to_string();
 
-    let cache = Cache::from(env);
+    let cache = Cache::new_from_env(env);
     let client = Client::new();
 
     Ok(Self::new(base_url, bearer_token, cache, client))
