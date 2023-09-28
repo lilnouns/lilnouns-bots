@@ -38,13 +38,11 @@ pub async fn get_domain_field(domain: &str, field: &str) -> Result<String> {
 }
 
 pub async fn get_wallet_handle(address: &str, field: &str) -> String {
-  return if let Ok(domain) = get_domain_name(address).await {
-    if let Ok(handle) = get_domain_field(domain.as_str(), field).await {
-      format!("@{}", handle)
-    } else {
-      domain
-    }
-  } else {
-    get_short_address(address)
-  };
+  match get_domain_name(address).await {
+    Ok(domain) => match get_domain_field(&domain, field).await {
+      Ok(handle) if !handle.is_empty() => format!("@{}", handle),
+      _ => domain,
+    },
+    Err(_) => get_short_address(address),
+  }
 }
