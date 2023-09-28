@@ -14,7 +14,6 @@ fragment VoteFragment on Vote {
     voter
     created
     choice
-    metadata
     reason
     proposal {
         ...ProposalFragment

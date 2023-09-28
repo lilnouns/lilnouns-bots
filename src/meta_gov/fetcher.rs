@@ -5,7 +5,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
 
-type Any = String;
+type Any = i32;
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -125,7 +125,7 @@ impl GraphQLFetcher {
       .map(|vote| Vote {
         id: vote.id.to_string(),
         voter: vote.voter.to_string(),
-        choice: vote.choice.parse().unwrap(),
+        choice: vote.choice.try_into().unwrap(),
         proposal_id: vote.proposal.clone().unwrap().id,
       })
       .collect();
