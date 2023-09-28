@@ -14,7 +14,7 @@ use crate::{
     fetcher::{Proposal, Vote},
     handler::Handler,
   },
-  utils::{get_domain_name, get_short_address},
+  utils::ens::get_wallet_handle,
 };
 
 pub struct FarcasterHandler {
@@ -142,9 +142,8 @@ impl Handler for FarcasterHandler {
     match self.extract_proposal_info(proposal.clone()).await {
       Ok((proposal_id, proposal_title)) => {
         let url = format!("{}/{}", self.base_url, proposal_id);
-        let wallet = get_domain_name(&vote.voter)
-          .await
-          .unwrap_or(get_short_address(&vote.voter));
+
+        let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
 
         let description = format!(
           "{} has voted {} “{}” proposal.",
