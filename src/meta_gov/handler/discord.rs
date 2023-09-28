@@ -134,13 +134,6 @@ impl Handler for DiscordHandler {
 
         let url = format!("{}/{}", self.base_url, proposal_id);
         let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
-        let description = format!(
-          "A new Meta Gov proposal has been created: “{}”",
-          proposal_title
-        );
-
-        let url = format!("{}/{}", self.base_url, proposal_id);
-        let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
         let wallet = get_domain_name(&vote.voter)
           .await
           .unwrap_or(get_short_address(&vote.voter));
