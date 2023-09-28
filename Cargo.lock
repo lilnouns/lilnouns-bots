@@ -1564,6 +1564,7 @@ dependencies = [
  "getrandom",
  "graphql_client",
  "log",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",
