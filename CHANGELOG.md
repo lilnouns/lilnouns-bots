@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.40] - 2023-09-28
+
+### Refactor
+
+- Update `get_wallet_handle` function for clarity
+
 ## [1.0.0-alpha.39] - 2023-09-28
 
 ### Refactor
