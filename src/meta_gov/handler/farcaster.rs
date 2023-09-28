@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use log::{debug, error, info};
+use regex::Regex;
 use reqwest::{
   header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
   Client,
@@ -72,23 +73,53 @@ impl FarcasterHandler {
 
     Ok(())
   }
+
+  async fn extract_proposal_info(&self, proposal: Proposal) -> Result<(u32, String)> {
+    let captures = Regex::new(r"(\d+): (.+)")
+      .unwrap()
+      .captures(&*proposal.title)
+      .ok_or(Error::from("Capture Failed"))?;
+    let proposal_id = captures
+      .get(1)
+      .ok_or(Error::from("Failed to get proposal ID"))?;
+    let proposal_title = captures
+      .get(2)
+      .ok_or(Error::from("Failed to get proposal Title"))?;
+    let proposal_id = proposal_id
+      .as_str()
+      .parse::<u32>()
+      .map_err(|_| Error::from("Failed to parse proposal ID"))?;
+    let proposal_title = proposal_title.as_str().to_string();
+
+    Ok((proposal_id, proposal_title))
+  }
 }
 
 #[async_trait(? Send)]
 impl Handler for FarcasterHandler {
   async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
-    info!("Handling new proposal: {}", proposal.title);
+    match self.extract_proposal_info(proposal.clone()).await {
+      Ok((proposal_id, proposal_title)) => {
+        info!("Handling new proposal: {}", proposal_title);
 
-    let url = format!("{}/{}", self.base_url, proposal.id);
-    let description = format!("A new Meta Gov proposal has been created: “{}”", "");
+        let url = format!("{}/{}", self.base_url, proposal_id);
+        let description = format!(
+          "A new Meta Gov proposal has been created: “{}”",
+          proposal_title
+        );
 
-    let request_data = json!({
-        "text": description,
-        "embeds": [url],
-        "channelKey": "lil-nouns"
-    });
+        let request_data = json!({
+            "text": description,
+            "embeds": [url],
+            "channelKey": "lil-nouns"
+        });
 
-    self.make_http_request(request_data).await?;
+        self.make_http_request(request_data).await?;
+      }
+      Err(e) => {
+        error!("Failed to extract proposal info: {}", e);
+      }
+    }
 
     Ok(())
   }
@@ -108,28 +139,36 @@ impl Handler for FarcasterHandler {
       .unwrap()
       .clone();
 
-    let url = format!("{}/{}", self.base_url, proposal.id);
-    let wallet = get_domain_name(&vote.voter)
-      .await
-      .unwrap_or(get_short_address(&vote.voter));
+    match self.extract_proposal_info(proposal.clone()).await {
+      Ok((proposal_id, proposal_title)) => {
+        let url = format!("{}/{}", self.base_url, proposal_id);
+        let wallet = get_domain_name(&vote.voter)
+          .await
+          .unwrap_or(get_short_address(&vote.voter));
 
-    let description = format!(
-      "{} has voted “{}” proposal.",
-      wallet,
-      match vote.choice {
-        0 => "for",
-        1 => "against",
-        _ => "abstain on",
+        let description = format!(
+          "{} has voted {} “{}” proposal.",
+          wallet,
+          match vote.choice {
+            0 => "for",
+            1 => "against",
+            _ => "abstain on",
+          },
+          proposal_title
+        );
+
+        let request_data = json!({
+            "text": description,
+            "embeds": [url],
+            "channelKey": "lil-nouns"
+        });
+
+        self.make_http_request(request_data).await?;
       }
-    );
-
-    let request_data = json!({
-        "text": description,
-        "embeds": [url],
-        "channelKey": "lil-nouns"
-    });
-
-    self.make_http_request(request_data).await?;
+      Err(e) => {
+        error!("Failed to extract proposal info: {}", e);
+      }
+    }
 
     Ok(())
   }
