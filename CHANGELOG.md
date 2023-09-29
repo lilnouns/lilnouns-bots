@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.41] - 2023-09-29
+
+### Refactor
+
+- Update warp cast channel settings
+
 ## [1.0.0-alpha.40] - 2023-09-28
 
 ### Refactor
