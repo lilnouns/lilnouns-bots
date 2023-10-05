@@ -1,3 +1,5 @@
+use anyhow::{anyhow, Result};
+use log::error;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use worker::Env;
@@ -18,34 +20,37 @@ pub struct Link {
 }
 
 impl Link {
-  fn new(endpoint: String) -> Self {
+  pub fn new(endpoint: String) -> Self {
     Self { endpoint }
   }
 
   pub fn new_from_env(env: &Env) -> Self {
-    let endpoint = env.var("LINK_GENERATOR_ENDPOINT").unwrap().to_string();
-
-    Self::new(endpoint)
+    match env.var("LINK_GENERATOR_ENDPOINT") {
+      Ok(endpoint) => Self::new(endpoint.to_string()),
+      Err(e) => {
+        error!("Failed to get LINK_GENERATOR_ENDPOINT: {}", e);
+        panic!();
+      }
+    }
   }
 
-  pub async fn generate(&self, url: String) -> String {
+  pub async fn generate(&self, url: String) -> Result<String> {
     let client = Client::new();
     let body = RequestBody { url: url.clone() };
 
-    let res = client
-      .post(&self.endpoint)
-      .json(&body)
-      .send()
-      .await
-      .unwrap()
-      .json::<ResponseBody>()
-      .await
-      .unwrap();
+    let res = client.post(&self.endpoint).json(&body).send().await?;
 
-    if url == res.url {
-      return format!("{}/{}", &self.endpoint, res.sqid);
+    match res.json::<ResponseBody>().await {
+      Ok(v) => {
+        if url == v.url {
+          return Ok(format!("{}/{}", &self.endpoint, v.sqid));
+        }
+        Ok(url)
+      }
+      Err(e) => {
+        error!("Failed to deserialize response body: {}", e);
+        Err(anyhow!("Failed to deserialize response body: {}", e))
+      }
     }
-
-    url
   }
 }
