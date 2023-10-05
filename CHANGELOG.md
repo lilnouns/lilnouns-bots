@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.43] - 2023-10-05
+
+### Miscellaneous Tasks
+
+- Add pnpm package manager installation step to deploy workflow
+
 ## [1.0.0-alpha.42] - 2023-10-05
 
 ### Features
