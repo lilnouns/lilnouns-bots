@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use chrono::{DateTime, Utc};
 use log::error;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -43,7 +44,8 @@ impl Link {
     match res.json::<ResponseBody>().await {
       Ok(v) => {
         if url == v.url {
-          return Ok(format!("{}/{}", &self.endpoint, v.sqid));
+          let now: DateTime<Utc> = Utc::now();
+          return Ok(format!("{}/{}?{}", &self.endpoint, v.sqid, now));
         }
         Ok(url)
       }
