@@ -115,9 +115,9 @@ impl Handler for FarcasterHandler {
     );
 
     let request_data = json!({
-        "text": description,
-        "embeds": [url],
-        "channelKey": self.channel_key
+      "text": description,
+      "embeds": [url],
+      "channelKey": self.channel_key
     });
 
     self.make_http_request(request_data).await?;
@@ -149,19 +149,19 @@ impl Handler for FarcasterHandler {
       .unwrap_or_else(|_| format!("{}/idea/{}", self.base_url, idea.id));
 
     let description = format!(
-      "“{}” voted {} by {}.",
-      idea.title.to_uppercase(),
+      "{} has voted {} “{}” proposal.",
+      wallet,
       match vote.direction {
         1 => "for",
         _ => "against",
       },
-      wallet
+      idea.title
     );
 
     let request_data = json!({
-        "text": description,
-        "embeds": [url],
-        "channelKey": self.channel_key
+      "text": description,
+      "embeds": [url],
+      "channelKey": self.channel_key
     });
 
     self.make_http_request(request_data).await?;
@@ -192,7 +192,7 @@ impl Handler for FarcasterHandler {
 
     let wallet = get_wallet_handle(&comment.author_id, "xyz.farcaster").await;
 
-    let mut description = format!("“{}” commented by {}.", idea.title.to_uppercase(), wallet);
+    let mut description = format!("{} has commented on “{}” proposal.", wallet, idea.title);
     let chars_limit = 320 - 10 - (description.len() + url.len());
     let mut comment_body = comment.clone().body;
     if comment_body.len() > chars_limit {
@@ -202,9 +202,9 @@ impl Handler for FarcasterHandler {
     description = format!("{}\n\n“{}”", description, comment_body);
 
     let request_data = json!({
-        "text": description,
-        "embeds": [url],
-        "channelKey": self.channel_key
+      "text": description,
+      "embeds": [url],
+      "channelKey": self.channel_key
     });
 
     self.make_http_request(request_data).await?;
