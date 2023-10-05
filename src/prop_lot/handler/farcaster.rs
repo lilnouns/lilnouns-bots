@@ -5,6 +5,7 @@ use reqwest::{
   Client,
 };
 use serde_json::{json, Value};
+use utils::link::Link;
 use worker::{Env, Error, Result};
 
 use crate::{
@@ -13,6 +14,7 @@ use crate::{
     fetcher::{Comment, Idea, Vote},
     handler::Handler,
   },
+  utils,
   utils::ens::get_wallet_handle,
 };
 
@@ -22,6 +24,7 @@ pub struct FarcasterHandler {
   channel_key: String,
   cache: Cache,
   client: Client,
+  pub link: Link,
 }
 
 impl FarcasterHandler {
@@ -31,6 +34,7 @@ impl FarcasterHandler {
     channel_key: String,
     cache: Cache,
     client: Client,
+    link: Link,
   ) -> Self {
     Self {
       base_url,
@@ -38,6 +42,7 @@ impl FarcasterHandler {
       channel_key,
       cache,
       client,
+      link,
     }
   }
 
@@ -48,6 +53,7 @@ impl FarcasterHandler {
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
+    let link = Link::new_from_env(&env);
 
     Ok(Self::new(
       base_url,
@@ -55,6 +61,7 @@ impl FarcasterHandler {
       channel_key,
       cache,
       client,
+      link,
     ))
   }
 
@@ -93,7 +100,12 @@ impl FarcasterHandler {
 impl Handler for FarcasterHandler {
   async fn handle_new_idea(&self, idea: &Idea) -> Result<()> {
     info!("Handling new idea: {}", idea.title);
-    let url = format!("{}/idea/{}", self.base_url, idea.id);
+
+    let url = &self
+      .link
+      .generate(format!("{}/idea/{}", self.base_url, idea.id))
+      .await
+      .unwrap_or_else(|_| format!("{}/idea/{}", self.base_url, idea.id));
 
     let wallet = get_wallet_handle(&idea.creator_id, "xyz.farcaster").await;
 
@@ -130,7 +142,12 @@ impl Handler for FarcasterHandler {
 
     let wallet = get_wallet_handle(&vote.voter_id, "xyz.farcaster").await;
 
-    let url = format!("{}/idea/{}", self.base_url, idea.id);
+    let url = &self
+      .link
+      .generate(format!("{}/idea/{}", self.base_url, idea.id))
+      .await
+      .unwrap_or_else(|_| format!("{}/idea/{}", self.base_url, idea.id));
+
     let description = format!(
       "“{}” voted {} by {}.",
       idea.title.to_uppercase(),
@@ -167,7 +184,11 @@ impl Handler for FarcasterHandler {
       .unwrap()
       .clone();
 
-    let url = format!("{}/idea/{}", self.base_url, idea.id);
+    let url = &self
+      .link
+      .generate(format!("{}/idea/{}", self.base_url, idea.id))
+      .await
+      .unwrap_or_else(|_| format!("{}/idea/{}", self.base_url, idea.id));
 
     let wallet = get_wallet_handle(&comment.author_id, "xyz.farcaster").await;
 
