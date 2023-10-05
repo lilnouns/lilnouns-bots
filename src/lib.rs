@@ -1,4 +1,3 @@
-use cfg_if::cfg_if;
 use log::{error, info, Level};
 use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 
@@ -9,16 +8,6 @@ mod meta_gov;
 mod prop_house;
 mod prop_lot;
 mod utils;
-
-cfg_if! {
-    // https://github.com/rustwasm/console_error_panic_hook#readme
-    if #[cfg(feature = "console_error_panic_hook")] {
-        pub use console_error_panic_hook::set_once as set_panic_hook;
-    } else {
-        #[inline]
-        pub fn set_panic_hook() {}
-    }
-}
 
 async fn start(env: &Env) -> Result<()> {
   if env.var("META_GOV_ENABLED").unwrap().to_string() == "true" {
@@ -57,11 +46,14 @@ async fn start(env: &Env) -> Result<()> {
   Ok(())
 }
 
+#[event(start)]
+pub fn start() {
+  worker_logger::init_with_level(&Level::Debug);
+  utils::set_panic_hook();
+}
+
 #[event(scheduled)]
 async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
-  worker_logger::init_with_level(&Level::Debug);
-  set_panic_hook();
-
   match start(&env).await {
     Ok(_) => info!("Operation was a success."),
     Err(e) => error!("An error occurred: {:?}", e),
