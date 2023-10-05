@@ -20,6 +20,11 @@ jobs:
         with:
           ref: ${{ github.event.release.tag_name }}
 
+      - name: Install pnpm package manager
+        uses: pnpm/action-setup@v2.4.0
+        with:
+          version: latest
+
       # Cache dependencies to speed up builds
       - name: Cache cargo dependencies
         uses: actions/cache@v3.3.2
