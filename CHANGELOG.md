@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.42] - 2023-10-05
+
+### Features
+
+- Add link generation utility
+
+### Refactor
+
+- Move panic hook configuration to utils module
+- Improve error handling in link generator
+- Add `Link` utils to `FarcasterHandler` for Prop Lot URL generation.
+- Update discord and farcaster event descriptions for prop lot
+- Update vote and proposal message format and add Link utility support
+
+### Miscellaneous Tasks
+
+- Add `.editorconfig` for coding consistency
+
 ## [1.0.0-alpha.41] - 2023-09-29
 
 ### Refactor

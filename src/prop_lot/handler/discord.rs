@@ -71,18 +71,21 @@ impl Handler for DiscordHandler {
       .await
       .unwrap_or(get_short_address(&idea.creator_id));
     let explorer = get_explorer_address(&idea.creator_id);
-    let description = format!("A new Prop Lot proposal has been created: “{}”", idea.title);
+    let description = format!(
+      "{} created a new proposal on Prop Lot: “{}”",
+      wallet, idea.title
+    );
 
     let embed = json!({
-        "title": "New Prop Lot Proposal",
-        "description": description,
-        "url": url,
-        "color": 0xFFB911,
-        "footer": {"text": date},
-        "author": {
-            "name": wallet,
-            "url": explorer,
-        }
+      "title": "New Prop Lot Proposal",
+      "description": description,
+      "url": url,
+      "color": 0xFFB911,
+      "footer": {"text": date},
+      "author": {
+        "name": wallet,
+        "url": explorer,
+      }
     });
 
     self.execute_webhook(embed).await?;
@@ -111,6 +114,7 @@ impl Handler for DiscordHandler {
       .unwrap_or(get_short_address(&vote.voter_id));
     let explorer = get_explorer_address(&vote.voter_id);
     let url = format!("{}/idea/{}", self.base_url, idea.id);
+
     let description = format!(
       "{} has voted {} “{}” proposal.",
       wallet,
@@ -122,15 +126,15 @@ impl Handler for DiscordHandler {
     );
 
     let embed = json!({
-        "title": "New Prop Lot Proposal Vote",
-        "description": description,
-        "url": url,
-        "color": 0xFFB911,
-        "footer": {"text": date},
-        "author": {
-            "name": wallet,
-            "url": explorer,
-        }
+      "title": "New Prop Lot Proposal Vote",
+      "description": description,
+      "url": url,
+      "color": 0xFFB911,
+      "footer": {"text": date},
+      "author": {
+          "name": wallet,
+          "url": explorer,
+      }
     });
 
     self.execute_webhook(embed).await?;
@@ -158,18 +162,26 @@ impl Handler for DiscordHandler {
       .await
       .unwrap_or(get_short_address(&comment.author_id));
     let explorer = get_explorer_address(&comment.author_id);
-    let description = format!("{} has commented on “{}” proposal.", wallet, idea.title);
+
+    let mut description = format!("{} has commented on “{}” proposal.", wallet, idea.title);
+    let chars_limit = 320 - 10 - (description.len() + url.len());
+    let mut comment_body = comment.clone().body;
+    if comment_body.len() > chars_limit {
+      comment_body.truncate(chars_limit);
+      comment_body.push_str("...");
+    }
+    description = format!("{}\n\n“{}”", description, comment_body);
 
     let embed = json!({
-        "title": "New Prop Lot Proposal Comment",
-        "description": description,
-        "url": url,
-        "color": 0xFFB911,
-        "footer": {"text": date},
-        "author": {
-            "name": wallet,
-            "url": explorer,
-        }
+      "title": "New Prop Lot Proposal Comment",
+      "description": description,
+      "url": url,
+      "color": 0xFFB911,
+      "footer": {"text": date},
+      "author": {
+          "name": wallet,
+          "url": explorer,
+      }
     });
 
     self.execute_webhook(embed).await?;

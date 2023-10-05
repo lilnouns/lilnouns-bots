@@ -41,6 +41,7 @@ PROP_LOT_WARP_CAST_CHANNEL = ""
 PROP_LOT_BASE_URL = "https://lilnouns.proplot.wtf"
 PROP_LOT_GRAPHQL_URL = "https://lilnouns.proplot.wtf/api/graphql"
 ETHEREUM_MAINNET_RPC_URL = "https://eth.llamarpc.com"
+LINK_GENERATOR_ENDPOINT = "https://lilnouns.click"
 
 [[env.dev.analytics_engine_datasets]]
 binding = "METRICS"
