@@ -14,7 +14,7 @@ use crate::{
     fetcher::{Proposal, Vote},
     handler::Handler,
   },
-  utils::ens::get_wallet_handle,
+  utils::{ens::get_wallet_handle, link::Link},
 };
 
 pub struct FarcasterHandler {
@@ -23,6 +23,7 @@ pub struct FarcasterHandler {
   channel_key: String,
   cache: Cache,
   client: Client,
+  link: Link,
 }
 
 impl FarcasterHandler {
@@ -32,6 +33,7 @@ impl FarcasterHandler {
     channel_key: String,
     cache: Cache,
     client: Client,
+    link: Link,
   ) -> Self {
     Self {
       base_url,
@@ -39,6 +41,7 @@ impl FarcasterHandler {
       channel_key,
       cache,
       client,
+      link,
     }
   }
 
@@ -49,6 +52,7 @@ impl FarcasterHandler {
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
+    let link = Link::new_from_env(&env);
 
     Ok(Self::new(
       base_url,
@@ -56,6 +60,7 @@ impl FarcasterHandler {
       channel_key,
       cache,
       client,
+      link,
     ))
   }
 
@@ -117,7 +122,12 @@ impl Handler for FarcasterHandler {
       Ok((proposal_id, proposal_title)) => {
         info!("Handling new proposal: {}", proposal_title);
 
-        let url = format!("{}/{}", self.base_url, proposal_id);
+        let url = &self
+          .link
+          .generate(format!("{}/{}", self.base_url, proposal_id))
+          .await
+          .unwrap_or_else(|_| format!("{}/{}", self.base_url, proposal_id));
+
         let description = format!(
           "A new Meta Gov proposal has been created: “{}”",
           proposal_title
@@ -156,20 +166,24 @@ impl Handler for FarcasterHandler {
 
     match self.extract_proposal_info(proposal.clone()).await {
       Ok((proposal_id, proposal_title)) => {
-        let url = format!("{}/{}", self.base_url, proposal_id);
+        let url = &self
+          .link
+          .generate(format!("{}/{}", self.base_url, proposal_id))
+          .await
+          .unwrap_or_else(|_| format!("{}/{}", self.base_url, proposal_id));
 
         let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
 
         let description = format!(
-          "“{}” voted {} by {}.",
-          proposal_title.to_uppercase(),
+          "{} has voted {} “{}” proposal.",
+          wallet,
           match vote.choice {
             1 => "for",
             2 => "against",
-            3 => "abstain",
+            3 => "abstain on",
             _ => "unknown",
           },
-          wallet,
+          proposal_title
         );
 
         let request_data = json!({
