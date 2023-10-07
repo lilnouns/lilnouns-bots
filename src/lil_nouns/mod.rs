@@ -14,11 +14,16 @@ mod handler;
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Proposal {
   pub id: usize,
+  pub title: String,
+  pub proposer: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Vote {
   pub id: usize,
+  pub voter: String,
+  pub proposal_id: String,
+  pub direction: usize,
 }
 
 pub struct LilNouns {

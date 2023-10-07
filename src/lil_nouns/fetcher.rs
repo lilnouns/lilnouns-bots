@@ -75,6 +75,8 @@ impl GraphQLFetcher {
       .iter()
       .map(|proposal| Proposal {
         id: proposal.id.parse::<usize>().unwrap(),
+        title: proposal.title.clone(),
+        proposer: proposal.proposer.id.clone(),
       })
       .collect();
 
@@ -91,6 +93,9 @@ impl GraphQLFetcher {
       .iter()
       .map(|vote| Vote {
         id: vote.id.parse::<usize>().unwrap(),
+        voter: vote.voter.id.clone(),
+        proposal_id: vote.proposal.id.clone(),
+        direction: vote.support_detailed.try_into().unwrap(),
       })
       .collect();
 
