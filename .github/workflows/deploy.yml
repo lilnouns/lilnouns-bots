@@ -52,6 +52,8 @@ jobs:
           environment: dev
           command: deploy --env dev
           secrets: |
+            LIL_NOUNS_DISCORD_WEBHOOK_URL
+            LIL_NOUNS_WARP_CAST_TOKEN
             META_GOV_DISCORD_WEBHOOK_URL
             META_GOV_WARP_CAST_TOKEN
             PROP_HOUSE_DISCORD_WEBHOOK_URL
@@ -59,6 +61,8 @@ jobs:
             PROP_LOT_DISCORD_WEBHOOK_URL
             PROP_LOT_WARP_CAST_TOKEN
         env:
+          LIL_NOUNS_DISCORD_WEBHOOK_URL: ${{ secrets.LIL_NOUNS_DISCORD_WEBHOOK_URL }}
+          LIL_NOUNS_WARP_CAST_TOKEN: ${{ secrets.LIL_NOUNS_WARP_CAST_TOKEN }}
           META_GOV_DISCORD_WEBHOOK_URL: ${{ secrets.META_GOV_DISCORD_WEBHOOK_URL }}
           META_GOV_WARP_CAST_TOKEN: ${{ secrets.META_GOV_WARP_CAST_TOKEN }}
           PROP_HOUSE_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_HOUSE_DISCORD_WEBHOOK_URL }}
