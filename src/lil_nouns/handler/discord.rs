@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use chrono::Local;
+use header::CONTENT_TYPE;
 use log::{error, info};
 use reqwest::{header, Client};
 use serde_json::{json, Value};
@@ -7,11 +8,11 @@ use worker::{Env, Error, Result};
 
 use crate::{
   cache::Cache,
-  prop_house::{handler::Handler, Auction, Proposal, Vote},
+  lil_nouns::{handler::Handler, Proposal, Vote},
   utils::{ens::get_domain_name, get_explorer_address, get_short_address},
 };
 
-pub struct DiscordHandler {
+pub(crate) struct DiscordHandler {
   base_url: String,
   webhook_url: String,
   cache: Cache,
@@ -29,8 +30,8 @@ impl DiscordHandler {
   }
 
   pub fn new_from_env(env: &Env) -> Result<DiscordHandler> {
-    let base_url = env.var("PROP_HOUSE_BASE_URL")?.to_string();
-    let webhook_url = env.secret("PROP_HOUSE_DISCORD_WEBHOOK_URL")?.to_string();
+    let base_url = env.var("LIL_NOUNS_BASE_URL")?.to_string();
+    let webhook_url = env.secret("LIL_NOUNS_DISCORD_WEBHOOK_URL")?.to_string();
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
@@ -44,7 +45,7 @@ impl DiscordHandler {
     self
       .client
       .post(&self.webhook_url)
-      .header(header::CONTENT_TYPE, "application/json")
+      .header(CONTENT_TYPE, "application/json")
       .body(msg_json.to_string())
       .send()
       .await
@@ -59,69 +60,25 @@ impl DiscordHandler {
 
 #[async_trait(? Send)]
 impl Handler for DiscordHandler {
-  async fn handle_new_auction(&self, auction: &Auction) -> Result<()> {
-    info!("Handling new auction: {}", auction.title);
-
-    let url = format!(
-      "{}/{}",
-      self.base_url,
-      auction.title.replace(' ', "-").to_lowercase()
-    );
-    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
-    let description = format!(
-      "A new Prop House round has been created: “{}”",
-      auction.title
-    );
-
-    let embed = json!({
-        "title": "New Prop House Round",
-        "description": description,
-        "url": url,
-        "color": 0x8A2CE2,
-        "footer": {"text": date}
-    });
-
-    self.execute_webhook(embed).await?;
-
-    Ok(())
-  }
-
   async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
     info!("Handling new proposal: {}", proposal.title);
 
-    let auctions = self
-      .cache
-      .get::<Vec<Auction>>("prop_house:auctions")
-      .await?
-      .unwrap();
-
-    let auction = auctions
-      .iter()
-      .find(|&a| a.id == proposal.auction_id)
-      .unwrap()
-      .clone();
-
-    let url = format!(
-      "{}/{}/{}",
-      self.base_url,
-      auction.title.replace(' ', "-").to_lowercase(),
-      proposal.id
-    );
+    let url = format!("{}/{}", self.base_url, proposal.id);
     let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
-    let wallet = get_domain_name(&proposal.address)
+    let wallet = get_domain_name(&proposal.proposer)
       .await
-      .unwrap_or(get_short_address(&proposal.address));
+      .unwrap_or(get_short_address(&proposal.proposer));
     let description = format!(
-      "A new Prop House proposal has been created: “{}”",
+      "A new Lil Nouns proposal has been created: “{}”",
       proposal.title
     );
-    let explorer = get_explorer_address(&proposal.address);
+    let explorer = get_explorer_address(&proposal.proposer);
 
     let embed = json!({
-        "title": "New Prop House Proposal",
+        "title": "New Lil Nouns Proposal",
         "description": description,
         "url": url,
-        "color": 0x8A2CE2,
+        "color": 0x7BC4F2,
         "footer": {"text": date},
         "author": {
             "name": wallet,
@@ -135,11 +92,11 @@ impl Handler for DiscordHandler {
   }
 
   async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
-    info!("Handling new vote from address: {}", vote.address);
+    info!("Handling new vote from address: {}", vote.voter);
 
     let proposals = self
       .cache
-      .get::<Vec<Proposal>>("prop_house:proposals")
+      .get::<Vec<Proposal>>("lil_nouns:proposals")
       .await?
       .unwrap();
 
@@ -149,32 +106,29 @@ impl Handler for DiscordHandler {
       .unwrap()
       .clone();
 
-    let url = format!(
-      "{}/{}/{}",
-      self.base_url,
-      proposal.title.replace(' ', "-").to_lowercase(),
-      proposal.id
-    );
+    let url = format!("{}/{}", self.base_url, proposal.id);
     let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
-    let wallet = get_domain_name(&vote.address)
+    let wallet = get_domain_name(&vote.voter)
       .await
-      .unwrap_or(get_short_address(&vote.address));
+      .unwrap_or(get_short_address(&vote.voter));
 
     let description = format!(
       "{} has voted “{}” proposal.",
       wallet,
       match vote.direction {
+        0 => "against",
         1 => "for",
-        _ => "against",
+        2 => "abstain on",
+        _ => "unknown",
       }
     );
-    let explorer = get_explorer_address(&vote.address);
+    let explorer = get_explorer_address(&vote.voter);
 
     let embed = json!({
         "title": "New Prop House Proposal Vote",
         "description": description,
         "url": url,
-        "color": 0x8A2CE2,
+        "color": 0x7BC4F2,
         "footer": {"text": date},
         "author": {
             "name": wallet,

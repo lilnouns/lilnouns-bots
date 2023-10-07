@@ -1,8 +1,9 @@
 use graphql_client::{reqwest::post_graphql, GraphQLQuery};
 use log::{debug, error};
 use reqwest::Client;
-use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
+
+use crate::prop_house::{Auction, Proposal, Vote};
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -35,31 +36,6 @@ struct ProposalQuery;
 struct VoteQuery;
 
 type DateTime = String;
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Auction {
-  pub id: isize,
-  pub title: String,
-  pub description: String,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Proposal {
-  pub id: isize,
-  pub title: String,
-  pub tldr: String,
-  pub address: String,
-  pub auction_id: isize,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Vote {
-  pub id: isize,
-  pub address: String,
-  pub auction_id: isize,
-  pub proposal_id: isize,
-  pub direction: isize,
-}
 
 pub struct GraphQLFetcher {
   graphql_url: String,

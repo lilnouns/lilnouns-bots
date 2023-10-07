@@ -1,18 +1,18 @@
-use chrono::{Duration, Utc};
 use graphql_client::{reqwest::post_graphql, GraphQLQuery};
 use log::{debug, error};
 use reqwest::Client;
 use worker::{Env, Result};
 
-use crate::meta_gov::{Proposal, Vote};
+use crate::lil_nouns::{Proposal, Vote};
 
-type Any = i32;
+type Bytes = String;
+type BigInt = String;
 
 #[derive(GraphQLQuery)]
 #[graphql(
-  schema_path = "graphql/schemas/snapshot_schema.graphql",
-  query_path = "graphql/queries/snapshot_query.graphql",
-  response_derives = "Clone, Debug",
+  schema_path = "graphql/schemas/lil_nouns_schema.graphql",
+  query_path = "graphql/queries/lil_nouns_query.graphql",
+  response_derives = "Clone",
   skip_serializing_none,
   deprecated = "warn"
 )]
@@ -20,9 +20,9 @@ struct ProposalQuery;
 
 #[derive(GraphQLQuery)]
 #[graphql(
-  schema_path = "graphql/schemas/snapshot_schema.graphql",
-  query_path = "graphql/queries/snapshot_query.graphql",
-  response_derives = "Clone, Debug",
+  schema_path = "graphql/schemas/lil_nouns_schema.graphql",
+  query_path = "graphql/queries/lil_nouns_query.graphql",
+  response_derives = "Clone",
   skip_serializing_none,
   deprecated = "warn"
 )]
@@ -30,22 +30,17 @@ struct VoteQuery;
 
 pub struct GraphQLFetcher {
   graphql_url: String,
-  space_id: String,
 }
 
 impl GraphQLFetcher {
-  pub fn new(graphql_url: String, space_id: String) -> Self {
-    Self {
-      graphql_url,
-      space_id,
-    }
+  pub fn new(graphql_url: String) -> Self {
+    Self { graphql_url }
   }
 
   pub fn new_from_env(env: &Env) -> Result<GraphQLFetcher> {
-    let graphql_url = env.var("META_GOV_SNAPSHOT_GRAPHQL_URL")?.to_string();
-    let space_id = env.var("META_GOV_SNAPSHOT_SPACE_ID")?.to_string();
+    let graphql_url = env.var("LIL_NOUNS_GRAPHQL_URL")?.to_string();
 
-    Ok(Self::new(graphql_url, space_id))
+    Ok(Self::new(graphql_url))
   }
 
   async fn fetch<QueryType: GraphQLQuery>(
@@ -71,21 +66,17 @@ impl GraphQLFetcher {
   }
 
   pub async fn fetch_proposals(&self) -> Option<Vec<Proposal>> {
-    let variables = proposal_query::Variables {
-      space: Some(self.space_id.clone()),
-    };
+    let variables = proposal_query::Variables {};
 
     let response = self.fetch::<ProposalQuery>(variables).await?;
 
     let proposals = response
       .proposals
-      .as_ref()?
-      .into_iter()
-      .filter_map(|proposal| proposal.as_ref())
+      .iter()
       .map(|proposal| Proposal {
-        id: proposal.id.to_string(),
-        title: proposal.title.to_string(),
-        body: proposal.body.clone().unwrap(),
+        id: proposal.id.parse::<usize>().unwrap(),
+        title: proposal.title.clone(),
+        proposer: proposal.proposer.id.clone(),
       })
       .collect();
 
@@ -93,26 +84,18 @@ impl GraphQLFetcher {
   }
 
   pub async fn fetch_votes(&self) -> Option<Vec<Vote>> {
-    let now = Utc::now();
-    let thirty_days_ago = now - Duration::days(30);
-
-    let variables = vote_query::Variables {
-      space: Some(self.space_id.clone()),
-      created_gt: thirty_days_ago.timestamp().try_into().unwrap(),
-    };
+    let variables = vote_query::Variables {};
 
     let response = self.fetch::<VoteQuery>(variables).await?;
 
     let votes = response
       .votes
-      .as_ref()?
       .iter()
-      .filter_map(|vote_option| vote_option.as_ref())
       .map(|vote| Vote {
-        id: vote.id.to_string(),
-        voter: vote.voter.to_string(),
-        choice: vote.choice.try_into().unwrap(),
-        proposal_id: vote.proposal.clone().unwrap().id,
+        id: vote.id.parse::<usize>().unwrap(),
+        voter: vote.voter.id.clone(),
+        proposal_id: vote.proposal.id.parse::<usize>().unwrap(),
+        direction: vote.support_detailed.try_into().unwrap(),
       })
       .collect();
 

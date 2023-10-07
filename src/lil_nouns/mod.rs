@@ -1,46 +1,38 @@
-use fetcher::GraphQLFetcher;
-use handler::{discord::DiscordHandler, farcaster::FarcasterHandler, Handler};
-use log::{debug, error, info, warn};
+use handler::{discord::DiscordHandler, farcaster::FarcasterHandler};
+use log::{debug, info, warn};
 use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
 
-use crate::cache::Cache;
+use crate::{
+  cache::Cache,
+  lil_nouns::{fetcher::GraphQLFetcher, handler::Handler},
+};
 
-pub mod fetcher;
-pub mod handler;
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Auction {
-  pub id: isize,
-  pub title: String,
-  pub description: String,
-}
+mod fetcher;
+mod handler;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Proposal {
-  pub id: isize,
+  pub id: usize,
   pub title: String,
-  pub tldr: String,
-  pub address: String,
-  pub auction_id: isize,
+  pub proposer: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Vote {
-  pub id: isize,
-  pub address: String,
-  pub auction_id: isize,
-  pub proposal_id: isize,
-  pub direction: isize,
+  pub id: usize,
+  pub voter: String,
+  pub proposal_id: usize,
+  pub direction: usize,
 }
 
-pub struct PropHouse {
+pub struct LilNouns {
   cache: Cache,
   fetcher: GraphQLFetcher,
   handlers: Vec<Box<dyn Handler>>,
 }
 
-impl PropHouse {
+impl LilNouns {
   pub fn new(cache: Cache, fetcher: GraphQLFetcher, handlers: Vec<Box<dyn Handler>>) -> Self {
     Self {
       cache,
@@ -54,12 +46,12 @@ impl PropHouse {
     let fetcher = GraphQLFetcher::new_from_env(env)?;
     let mut handlers = vec![];
 
-    if env.var("PROP_HOUSE_DISCORD_ENABLED").unwrap().to_string() == "true" {
+    if env.var("LIL_NOUNS_DISCORD_ENABLED").unwrap().to_string() == "true" {
       let discord_handler: Box<dyn Handler> = Box::new(DiscordHandler::new_from_env(env)?);
       handlers.push(discord_handler);
     }
 
-    if env.var("PROP_HOUSE_FARCASTER_ENABLED").unwrap().to_string() == "true" {
+    if env.var("LIL_NOUNS_FARCASTER_ENABLED").unwrap().to_string() == "true" {
       let farcaster_handler: Box<dyn Handler> = Box::new(FarcasterHandler::new_from_env(env)?);
       handlers.push(farcaster_handler);
     }
@@ -70,31 +62,21 @@ impl PropHouse {
   pub async fn setup(&self) {
     debug!("Setup function started.");
 
-    if !self.cache.has("prop_house:auctions").await {
-      if let Some(auctions) = self.fetcher.fetch_auctions().await {
-        info!("Fetched {:?} auctions.", auctions.len());
-        debug!("Putting fetched auctions into cache.");
-        self.cache.put("prop_house:auctions", &auctions).await;
-      } else {
-        warn!("Failed to fetch auctions");
-      }
-    };
-
-    if !self.cache.has("prop_house:proposals").await {
+    if !self.cache.has("lil_nouns:proposals").await {
       if let Some(proposals) = self.fetcher.fetch_proposals().await {
         info!("Fetched {:?} proposals.", proposals.len());
         debug!("Putting fetched proposals into cache.");
-        self.cache.put("prop_house:proposals", &proposals).await;
+        self.cache.put("lil_nouns:proposals", &proposals).await;
       } else {
         warn!("Failed to fetch proposals");
       }
     };
 
-    if !self.cache.has("prop_house:votes").await {
+    if !self.cache.has("lil_nouns:votes").await {
       if let Some(votes) = self.fetcher.fetch_votes().await {
         info!("Fetched {:?} votes.", votes.len());
         debug!("Putting fetched votes into cache.");
-        self.cache.put("prop_house:votes", &votes).await;
+        self.cache.put("lil_nouns:votes", &votes).await;
       } else {
         warn!("Failed to fetch votes");
       }
@@ -108,45 +90,6 @@ impl PropHouse {
 
     debug!("Start function started.");
 
-    if let Some(auctions) = self.fetcher.fetch_auctions().await {
-      debug!("Fetched {:?} auctions.", auctions.len());
-
-      let mut new_auctions = Vec::new();
-
-      if let Some(old_auctions) = self
-        .cache
-        .get::<Vec<Auction>>("prop_house:auctions")
-        .await?
-      {
-        let old_ids: Vec<_> = old_auctions.iter().map(|auction| &auction.id).collect();
-        new_auctions = auctions
-          .iter()
-          .filter(|auction| !old_ids.contains(&&auction.id))
-          .cloned()
-          .collect();
-
-        debug!("Found {:?} new auctions.", new_auctions.len());
-
-        for auction in &new_auctions {
-          info!("Handling a new auction...");
-          for handler in &self.handlers {
-            if let Err(err) = handler.handle_new_auction(auction).await {
-              error!("Failed to handle new auction: {:?}", err);
-            } else {
-              debug!("Successfully handled new auction: {:?}", auction.id);
-            }
-          }
-        }
-      }
-
-      if !new_auctions.is_empty() {
-        self.cache.put("prop_house:auctions", &auctions).await;
-        info!("Updated auctions in cache");
-      }
-    } else {
-      warn!("Failed to fetch auctions");
-    }
-
     if let Some(proposals) = self.fetcher.fetch_proposals().await {
       debug!("Fetched {:?} proposals.", proposals.len());
 
@@ -154,7 +97,7 @@ impl PropHouse {
 
       if let Some(old_proposals) = self
         .cache
-        .get::<Vec<Proposal>>("prop_house:proposals")
+        .get::<Vec<Proposal>>("lil_nouns:proposals")
         .await?
       {
         let old_ids: Vec<_> = old_proposals.iter().map(|proposal| &proposal.id).collect();
@@ -170,7 +113,7 @@ impl PropHouse {
           info!("Handling a new proposal... ({:?})", proposal.id);
           for handler in &self.handlers {
             if let Err(err) = handler.handle_new_proposal(proposal).await {
-              error!("Failed to handle new proposal: {:?}", err);
+              log::error!("Failed to handle new proposal: {:?}", err);
             } else {
               debug!("Successfully handled new proposal: {:?}", proposal.id);
             }
@@ -179,7 +122,7 @@ impl PropHouse {
       }
 
       if !new_proposals.is_empty() {
-        self.cache.put("prop_house:proposals", &proposals).await;
+        self.cache.put("lil_nouns:proposals", &proposals).await;
         info!("Updated proposals in cache");
       }
     } else {
@@ -191,7 +134,7 @@ impl PropHouse {
 
       let mut new_votes = Vec::new();
 
-      if let Some(old_votes) = self.cache.get::<Vec<Vote>>("prop_house:votes").await? {
+      if let Some(old_votes) = self.cache.get::<Vec<Vote>>("lil_nouns:votes").await? {
         let old_ids: Vec<_> = old_votes.iter().map(|vote| &vote.id).collect();
         new_votes = votes
           .iter()
@@ -205,7 +148,7 @@ impl PropHouse {
           info!("Handling a new vote...");
           for handler in &self.handlers {
             if let Err(err) = handler.handle_new_vote(vote).await {
-              error!("Failed to handle new vote: {:?}", err);
+              log::error!("Failed to handle new vote: {:?}", err);
             } else {
               debug!("Successfully handled new vote: {:?}", vote.id);
             }
@@ -214,7 +157,7 @@ impl PropHouse {
       }
 
       if !new_votes.is_empty() {
-        self.cache.put("prop_house:votes", &votes).await;
+        self.cache.put("lil_nouns:votes", &votes).await;
         info!("Updated votes in cache");
       }
     } else {

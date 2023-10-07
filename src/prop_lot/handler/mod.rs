@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use worker::Result;
 
-use crate::prop_lot::fetcher::{Comment, Idea, Vote};
+use crate::prop_lot::{Comment, Idea, Vote};
 
 pub(crate) mod discord;
 pub(crate) mod farcaster;

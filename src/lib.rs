@@ -1,15 +1,27 @@
 use log::{error, info, Level};
 use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 
-use crate::{meta_gov::MetaGov, prop_house::PropHouse, prop_lot::PropLot};
+use crate::{lil_nouns::LilNouns, meta_gov::MetaGov, prop_house::PropHouse, prop_lot::PropLot};
 
 mod cache;
+mod lil_nouns;
 mod meta_gov;
 mod prop_house;
 mod prop_lot;
 mod utils;
 
 async fn start(env: &Env) -> Result<()> {
+  if env.var("LIL_NOUNS_ENABLED").unwrap().to_string() == "true" {
+    match LilNouns::new_from_env(env) {
+      Ok(result) => match result.start().await {
+        Ok(_) => info!("LilNouns started successfully"),
+        Err(error) => error!("Failed to start LilNouns: {:?}", error),
+      },
+
+      Err(error) => error!("Failed to create LilNouns: {:?}", error),
+    }
+  };
+
   if env.var("META_GOV_ENABLED").unwrap().to_string() == "true" {
     match MetaGov::new_from_env(env) {
       Ok(result) => match result.start().await {

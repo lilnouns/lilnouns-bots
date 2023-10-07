@@ -9,11 +9,11 @@ use worker::{Env, Error, Result};
 
 use crate::{
   cache::Cache,
-  prop_house::{handler::Handler, Auction, Proposal, Vote},
+  lil_nouns::{handler::Handler, Proposal, Vote},
   utils::ens::get_wallet_handle,
 };
 
-pub struct FarcasterHandler {
+pub(crate) struct FarcasterHandler {
   base_url: String,
   bearer_token: String,
   channel_key: String,
@@ -39,9 +39,9 @@ impl FarcasterHandler {
   }
 
   pub fn new_from_env(env: &Env) -> Result<FarcasterHandler> {
-    let base_url = env.var("PROP_HOUSE_BASE_URL")?.to_string();
-    let bearer_token = env.secret("PROP_HOUSE_WARP_CAST_TOKEN")?.to_string();
-    let channel_key = env.var("PROP_HOUSE_WARP_CAST_CHANNEL")?.to_string();
+    let base_url = env.var("LIL_NOUNS_BASE_URL")?.to_string();
+    let bearer_token = env.secret("LIL_NOUNS_WARP_CAST_TOKEN")?.to_string();
+    let channel_key = env.var("LIL_NOUNS_WARP_CAST_CHANNEL")?.to_string();
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
@@ -88,56 +88,15 @@ impl FarcasterHandler {
 
 #[async_trait(? Send)]
 impl Handler for FarcasterHandler {
-  async fn handle_new_auction(&self, auction: &Auction) -> Result<()> {
-    info!("Handling new auction: {}", auction.title);
-
-    let url = format!(
-      "{}/{}",
-      self.base_url,
-      auction.title.replace(' ', "-").to_lowercase()
-    );
-    let description = format!(
-      "A new Prop House round has been created: “{}”",
-      auction.title
-    );
-
-    let request_data = json!({
-        "text": description,
-        "embeds": [url],
-        "channelKey": self.channel_key
-    });
-
-    self.make_http_request(request_data).await?;
-
-    Ok(())
-  }
-
   async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
     info!("Handling new proposal: {}", proposal.title);
 
-    let auctions = self
-      .cache
-      .get::<Vec<Auction>>("prop_house:auctions")
-      .await?
-      .unwrap();
+    let url = format!("{}/{}", self.base_url, proposal.id);
 
-    let auction = auctions
-      .iter()
-      .find(|&a| a.id == proposal.auction_id)
-      .unwrap()
-      .clone();
-
-    let url = format!(
-      "{}/{}/{}",
-      self.base_url,
-      auction.title.replace(' ', "-").to_lowercase(),
-      proposal.id
-    );
-
-    let wallet = get_wallet_handle(&proposal.address, "xyz.farcaster").await;
+    let wallet = get_wallet_handle(&proposal.proposer, "xyz.farcaster").await;
 
     let description = format!(
-      "{} created a new proposal on Prop House: “{}”",
+      "{} created a new proposal on Lil Nouns: “{}”",
       wallet, proposal.title
     );
 
@@ -153,11 +112,11 @@ impl Handler for FarcasterHandler {
   }
 
   async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
-    info!("Handling new vote from address: {}", vote.address);
+    info!("Handling new vote from address: {}", vote.voter);
 
     let proposals = self
       .cache
-      .get::<Vec<Proposal>>("prop_house:proposals")
+      .get::<Vec<Proposal>>("lil_nouns:proposals")
       .await?
       .unwrap();
 
@@ -167,21 +126,18 @@ impl Handler for FarcasterHandler {
       .unwrap()
       .clone();
 
-    let url = format!(
-      "{}/{}/{}",
-      self.base_url,
-      proposal.title.replace(' ', "-").to_lowercase(),
-      proposal.id
-    );
+    let url = format!("{}/{}", self.base_url, proposal.id);
 
-    let wallet = get_wallet_handle(&vote.address, "xyz.farcaster").await;
+    let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
 
     let description = format!(
       "{} has voted {} “{}” proposal.",
       wallet,
       match vote.direction {
+        0 => "against",
         1 => "for",
-        _ => "against",
+        2 => "abstain on",
+        _ => "unknown",
       },
       proposal.title
     );

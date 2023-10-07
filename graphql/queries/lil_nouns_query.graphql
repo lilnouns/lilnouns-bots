@@ -1,0 +1,53 @@
+query ProposalQuery {
+  proposals(
+    orderBy: createdTimestamp
+    orderDirection: desc
+  ) {
+    id
+    proposer {
+      id
+      delegatedVotesRaw
+      delegatedVotes
+      tokenHoldersRepresentedAmount
+    }
+    createdTimestamp
+    createdBlock
+    createdTransactionHash
+    startBlock
+    endBlock
+    proposalThreshold
+    quorumVotes
+    forVotes
+    againstVotes
+    abstainVotes
+    title
+    description
+    status
+    executionETA
+    totalSupply
+    minQuorumVotesBPS
+    maxQuorumVotesBPS
+    quorumCoefficient
+  }
+}
+
+query VoteQuery {
+  votes(orderBy: blockNumber, orderDirection: desc) {
+    id
+    support
+    supportDetailed
+    votesRaw
+    votes
+    reason
+    voter {
+      id
+      delegatedVotesRaw
+      delegatedVotes
+      tokenHoldersRepresentedAmount
+    }
+    proposal {
+      id
+    }
+    blockNumber
+  }
+}

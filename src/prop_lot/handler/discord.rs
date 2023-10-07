@@ -7,10 +7,7 @@ use worker::{Env, Error, Result};
 
 use crate::{
   cache::Cache,
-  prop_lot::{
-    fetcher::{Comment, Idea, Vote},
-    handler::Handler,
-  },
+  prop_lot::{handler::Handler, Comment, Idea, Vote},
   utils::{ens::get_domain_name, get_explorer_address, get_short_address},
 };
 

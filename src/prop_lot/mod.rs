@@ -1,16 +1,42 @@
 use log::{debug, error, info, warn};
+use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
 
 use crate::{
   cache::Cache,
   prop_lot::{
-    fetcher::{Comment, GraphQLFetcher, Idea, Vote},
+    fetcher::GraphQLFetcher,
     handler::{discord::DiscordHandler, farcaster::FarcasterHandler, Handler},
   },
 };
 
 pub(crate) mod fetcher;
 pub(crate) mod handler;
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Idea {
+  pub id: isize,
+  pub title: String,
+  pub tldr: String,
+  pub creator_id: String,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Vote {
+  pub id: isize,
+  pub voter_id: String,
+  pub idea_id: isize,
+  pub direction: isize,
+  pub voter_weight: isize,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Comment {
+  pub id: isize,
+  pub idea_id: isize,
+  pub author_id: String,
+  pub body: String,
+}
 
 pub struct PropLot {
   cache: Cache,

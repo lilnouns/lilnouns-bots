@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use worker::Result;
 
-use crate::prop_house::fetcher::{Auction, Proposal, Vote};
+use crate::prop_house::{Auction, Proposal, Vote};
 
 pub(crate) mod discord;
 pub(crate) mod farcaster;

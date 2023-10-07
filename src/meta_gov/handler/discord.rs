@@ -8,10 +8,7 @@ use worker::{Env, Error, Result};
 
 use crate::{
   cache::Cache,
-  meta_gov::{
-    fetcher::{Proposal, Vote},
-    handler::Handler,
-  },
+  meta_gov::{handler::Handler, Proposal, Vote},
   utils::{ens::get_domain_name, get_explorer_address, get_short_address},
 };
 
