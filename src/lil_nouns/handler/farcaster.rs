@@ -1,8 +1,11 @@
 use async_trait::async_trait;
-use log::info;
-use reqwest::Client;
-use serde_json::json;
-use worker::{Env, Result};
+use log::{debug, error, info};
+use reqwest::{
+  header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
+  Client,
+};
+use serde_json::{json, Value};
+use worker::{Env, Error, Result};
 
 use crate::{
   cache::Cache,
@@ -50,6 +53,36 @@ impl FarcasterHandler {
       cache,
       client,
     ))
+  }
+
+  async fn make_http_request(&self, request_data: Value) -> Result<()> {
+    let url = "https://api.warpcast.com/v2/casts";
+    let token = format!("Bearer {}", self.bearer_token);
+    let mut headers = HeaderMap::new();
+
+    let parsed_token =
+      HeaderValue::from_str(&token).map_err(|_| Error::from("Error while parsing token"))?;
+
+    headers.insert(AUTHORIZATION, parsed_token);
+    headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
+    headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+
+    // Send the HTTP POST request
+    let response = self
+      .client
+      .post(url)
+      .headers(headers)
+      .json(&request_data)
+      .send()
+      .await
+      .map_err(|e| {
+        error!("Failed to execute request: {}", e);
+        Error::from(format!("Failed to execute request: {}", e))
+      })?;
+
+    debug!("Response status: {:?}", response.status());
+
+    Ok(())
   }
 }
 
@@ -105,7 +138,7 @@ impl Handler for FarcasterHandler {
         1 => "for",
         2 => "abstain on",
         _ => "unknown",
-      }
+      },
       proposal.title
     );
 

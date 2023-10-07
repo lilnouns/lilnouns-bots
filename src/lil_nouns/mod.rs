@@ -22,7 +22,7 @@ pub struct Proposal {
 pub struct Vote {
   pub id: usize,
   pub voter: String,
-  pub proposal_id: String,
+  pub proposal_id: usize,
   pub direction: usize,
 }
 

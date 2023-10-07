@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.45] - 2023-10-07
+
+### Features
+
+- Add LilNouns module with GraphQL fetcher and handlers
+
+### Refactor
+
+- Update code structure for clarity and consistency
+- Update Proposal and Vote structures to add detail on Lil Nouns
+- Add new functions to handle Discord messages for Lil Nouns
+- Implement handling for new Lil Nouns proposals and votes
+- Add HTTP request handling function in Lil Nouns farcaster
+- Change data type of Lil Nouns proposal id in Vote struct to usize
+
+### Miscellaneous Tasks
+
+- Add new Lil Nouns GraphQL schema
+- Add Lil Nouns GraphQL queries for proposals and votes
+- Add configuration for Lil Nouns in `wrangler.toml`
+
 ## [1.0.0-alpha.44] - 2023-10-05
 
 ### Refactor
