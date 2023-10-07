@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.46] - 2023-10-07
+
+### Miscellaneous Tasks
+
+- Add Lil Nouns deploy secrets to GitHub workflow
+
 ## [1.0.0-alpha.45] - 2023-10-07
 
 ### Features
