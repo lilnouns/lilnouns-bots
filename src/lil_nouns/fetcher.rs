@@ -94,7 +94,7 @@ impl GraphQLFetcher {
       .map(|vote| Vote {
         id: vote.id.parse::<usize>().unwrap(),
         voter: vote.voter.id.clone(),
-        proposal_id: vote.proposal.id.clone(),
+        proposal_id: vote.proposal.id.parse::<usize>().unwrap(),
         direction: vote.support_detailed.try_into().unwrap(),
       })
       .collect();
