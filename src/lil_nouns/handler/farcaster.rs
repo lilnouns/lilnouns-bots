@@ -1,10 +1,13 @@
 use async_trait::async_trait;
+use log::info;
 use reqwest::Client;
+use serde_json::json;
 use worker::{Env, Result};
 
 use crate::{
   cache::Cache,
   lil_nouns::{handler::Handler, Proposal, Vote},
+  utils::ens::get_wallet_handle,
 };
 
 pub(crate) struct FarcasterHandler {
@@ -53,10 +56,67 @@ impl FarcasterHandler {
 #[async_trait(? Send)]
 impl Handler for FarcasterHandler {
   async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
-    todo!()
+    info!("Handling new proposal: {}", proposal.title);
+
+    let url = format!("{}/{}", self.base_url, proposal.id);
+
+    let wallet = get_wallet_handle(&proposal.proposer, "xyz.farcaster").await;
+
+    let description = format!(
+      "{} created a new proposal on Lil Nouns: “{}”",
+      wallet, proposal.title
+    );
+
+    let request_data = json!({
+        "text": description,
+        "embeds": [url],
+        "channelKey": self.channel_key
+    });
+
+    self.make_http_request(request_data).await?;
+
+    Ok(())
   }
 
   async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
-    todo!()
+    info!("Handling new vote from address: {}", vote.voter);
+
+    let proposals = self
+      .cache
+      .get::<Vec<Proposal>>("lil_nouns:proposals")
+      .await?
+      .unwrap();
+
+    let proposal = proposals
+      .iter()
+      .find(|&a| a.id == vote.proposal_id)
+      .unwrap()
+      .clone();
+
+    let url = format!("{}/{}", self.base_url, proposal.id);
+
+    let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
+
+    let description = format!(
+      "{} has voted {} “{}” proposal.",
+      wallet,
+      match vote.direction {
+        0 => "against",
+        1 => "for",
+        2 => "abstain on",
+        _ => "unknown",
+      }
+      proposal.title
+    );
+
+    let request_data = json!({
+        "text": description,
+        "embeds": [url],
+        "channelKey": self.channel_key
+    });
+
+    self.make_http_request(request_data).await?;
+
+    Ok(())
   }
 }
