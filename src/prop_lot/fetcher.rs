@@ -3,8 +3,9 @@ use std::convert::TryInto;
 use graphql_client::{reqwest::post_graphql, GraphQLQuery};
 use log::{debug, error};
 use reqwest::Client;
-use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
+
+use crate::prop_lot::{Comment, Idea, Vote};
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -34,31 +35,6 @@ struct VoteQuery;
 struct CommentQuery;
 
 type Date = String;
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Idea {
-  pub id: isize,
-  pub title: String,
-  pub tldr: String,
-  pub creator_id: String,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Vote {
-  pub id: isize,
-  pub voter_id: String,
-  pub idea_id: isize,
-  pub direction: isize,
-  pub voter_weight: isize,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Comment {
-  pub id: isize,
-  pub idea_id: isize,
-  pub author_id: String,
-  pub body: String,
-}
 
 pub struct GraphQLFetcher {
   graphql_url: String,

@@ -9,10 +9,7 @@ use worker::{Env, Error, Result};
 
 use crate::{
   cache::Cache,
-  prop_house::{
-    fetcher::{Auction, Proposal, Vote},
-    handler::Handler,
-  },
+  prop_house::{handler::Handler, Auction, Proposal, Vote},
   utils::ens::get_wallet_handle,
 };
 

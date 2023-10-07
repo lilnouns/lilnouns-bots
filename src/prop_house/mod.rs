@@ -1,12 +1,38 @@
-use fetcher::{Auction, GraphQLFetcher, Proposal, Vote};
+use fetcher::GraphQLFetcher;
 use handler::{discord::DiscordHandler, farcaster::FarcasterHandler, Handler};
 use log::{debug, error, info, warn};
+use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
 
 use crate::cache::Cache;
 
 pub mod fetcher;
 pub mod handler;
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Auction {
+  pub id: isize,
+  pub title: String,
+  pub description: String,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Proposal {
+  pub id: isize,
+  pub title: String,
+  pub tldr: String,
+  pub address: String,
+  pub auction_id: isize,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Vote {
+  pub id: isize,
+  pub address: String,
+  pub auction_id: isize,
+  pub proposal_id: isize,
+  pub direction: isize,
+}
 
 pub struct PropHouse {
   cache: Cache,

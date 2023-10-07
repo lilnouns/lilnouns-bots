@@ -2,8 +2,9 @@ use chrono::{Duration, Utc};
 use graphql_client::{reqwest::post_graphql, GraphQLQuery};
 use log::{debug, error};
 use reqwest::Client;
-use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
+
+use crate::meta_gov::{Proposal, Vote};
 
 type Any = i32;
 
@@ -26,21 +27,6 @@ struct ProposalQuery;
   deprecated = "warn"
 )]
 struct VoteQuery;
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Proposal {
-  pub(crate) id: String,
-  pub(crate) title: String,
-  body: String,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Vote {
-  pub(crate) id: String,
-  pub(crate) voter: String,
-  pub(crate) choice: isize,
-  pub(crate) proposal_id: String,
-}
 
 pub struct GraphQLFetcher {
   graphql_url: String,

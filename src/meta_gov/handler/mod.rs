@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use worker::Result;
 
-use crate::meta_gov::fetcher::{Proposal, Vote};
+use crate::meta_gov::{Proposal, Vote};
 
 pub(crate) mod discord;
 pub(crate) mod farcaster;

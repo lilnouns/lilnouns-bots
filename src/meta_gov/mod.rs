@@ -1,17 +1,30 @@
 use handler::{discord::DiscordHandler, farcaster::FarcasterHandler};
 use log::{debug, error, info, warn};
+use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
 
 use crate::{
   cache::Cache,
-  meta_gov::{
-    fetcher::{GraphQLFetcher, Proposal, Vote},
-    handler::Handler,
-  },
+  meta_gov::{fetcher::GraphQLFetcher, handler::Handler},
 };
 
 mod fetcher;
 mod handler;
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Proposal {
+  pub(crate) id: String,
+  pub(crate) title: String,
+  body: String,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Vote {
+  pub(crate) id: String,
+  pub(crate) voter: String,
+  pub(crate) choice: isize,
+  pub(crate) proposal_id: String,
+}
 
 pub struct MetaGov {
   cache: Cache,
