@@ -161,12 +161,13 @@ impl Handler for DiscordHandler {
       .unwrap_or(get_short_address(&vote.address));
 
     let description = format!(
-      "{} has voted “{}” proposal.",
+      "{} has voted {} “{}” proposal.",
       wallet,
       match vote.direction {
         1 => "for",
         _ => "against",
-      }
+      },
+      proposal.title
     );
     let explorer = get_explorer_address(&vote.address);
 

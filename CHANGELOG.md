@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.47] - 2023-10-08
+
+### Bug Fixes
+
+- Update prop house vote message to include proposal title
+
 ## [1.0.0-alpha.46] - 2023-10-07
 
 ### Miscellaneous Tasks
