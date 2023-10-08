@@ -1,5 +1,5 @@
 use handler::{discord::DiscordHandler, farcaster::FarcasterHandler};
-use log::{debug, info, warn};
+use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
 
@@ -113,7 +113,7 @@ impl LilNouns {
           info!("Handling a new proposal... ({:?})", proposal.id);
           for handler in &self.handlers {
             if let Err(err) = handler.handle_new_proposal(proposal).await {
-              log::error!("Failed to handle new proposal: {:?}", err);
+              error!("Failed to handle new proposal: {:?}", err);
             } else {
               debug!("Successfully handled new proposal: {:?}", proposal.id);
             }
@@ -148,7 +148,7 @@ impl LilNouns {
           info!("Handling a new vote...");
           for handler in &self.handlers {
             if let Err(err) = handler.handle_new_vote(vote).await {
-              log::error!("Failed to handle new vote: {:?}", err);
+              error!("Failed to handle new vote: {:?}", err);
             } else {
               debug!("Successfully handled new vote: {:?}", vote.id);
             }
