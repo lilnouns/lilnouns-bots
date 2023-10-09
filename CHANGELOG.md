@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.50] - 2023-10-09
+
+### Refactor
+
+- Change Vote id type to String on lil nouns module
+
+### Revert
+
+- Disable lil nouns in development environment
+
 ## [1.0.0-alpha.49] - 2023-10-09
 
 ### Miscellaneous Tasks
