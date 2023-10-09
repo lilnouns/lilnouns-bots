@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.48] - 2023-10-09
+
+### Refactor
+
+- Update logging for error handling
+- Combine ProposalQuery and VoteQuery into single struct for lil nouns
+
+### Documentation
+
+- Update social media follow badge in README
+
+### Miscellaneous Tasks
+
+- Combine ProposalQuery and VoteQuery for lil nouns
+
 ## [1.0.0-alpha.47] - 2023-10-08
 
 ### Bug Fixes
