@@ -20,7 +20,7 @@ pub struct Proposal {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Vote {
-  pub id: usize,
+  pub id: String,
   pub voter: String,
   pub proposal_id: usize,
   pub direction: usize,
