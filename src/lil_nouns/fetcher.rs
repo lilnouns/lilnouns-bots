@@ -12,21 +12,10 @@ type BigInt = String;
 #[graphql(
   schema_path = "graphql/schemas/lil_nouns_schema.graphql",
   query_path = "graphql/queries/lil_nouns_query.graphql",
-  response_derives = "Clone",
   skip_serializing_none,
   deprecated = "warn"
 )]
-struct ProposalQuery;
-
-#[derive(GraphQLQuery)]
-#[graphql(
-  schema_path = "graphql/schemas/lil_nouns_schema.graphql",
-  query_path = "graphql/queries/lil_nouns_query.graphql",
-  response_derives = "Clone",
-  skip_serializing_none,
-  deprecated = "warn"
-)]
-struct VoteQuery;
+struct ProposalAndVoteQuery;
 
 pub struct GraphQLFetcher {
   graphql_url: String,
@@ -66,9 +55,9 @@ impl GraphQLFetcher {
   }
 
   pub async fn fetch_proposals(&self) -> Option<Vec<Proposal>> {
-    let variables = proposal_query::Variables {};
+    let variables = proposal_and_vote_query::Variables {};
 
-    let response = self.fetch::<ProposalQuery>(variables).await?;
+    let response = self.fetch::<ProposalAndVoteQuery>(variables).await?;
 
     let proposals = response
       .proposals
@@ -84,9 +73,9 @@ impl GraphQLFetcher {
   }
 
   pub async fn fetch_votes(&self) -> Option<Vec<Vote>> {
-    let variables = vote_query::Variables {};
+    let variables = proposal_and_vote_query::Variables {};
 
-    let response = self.fetch::<VoteQuery>(variables).await?;
+    let response = self.fetch::<ProposalAndVoteQuery>(variables).await?;
 
     let votes = response
       .votes
