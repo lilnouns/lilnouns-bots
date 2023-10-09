@@ -1,4 +1,4 @@
-query ProposalQuery {
+query ProposalAndVoteQuery {
   proposals(
     orderBy: createdTimestamp
     orderDirection: desc
@@ -29,9 +29,6 @@ query ProposalQuery {
     maxQuorumVotesBPS
     quorumCoefficient
   }
-}
-
-query VoteQuery {
   votes(orderBy: blockNumber, orderDirection: desc) {
     id
     support
