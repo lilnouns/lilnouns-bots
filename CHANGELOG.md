@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.49] - 2023-10-09
+
+### Miscellaneous Tasks
+
+- Disable lil nouns in development environment
+
 ## [1.0.0-alpha.48] - 2023-10-09
 
 ### Refactor
