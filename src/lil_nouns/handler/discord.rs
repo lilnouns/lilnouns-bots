@@ -113,19 +113,20 @@ impl Handler for DiscordHandler {
       .unwrap_or(get_short_address(&vote.voter));
 
     let description = format!(
-      "{} has voted “{}” proposal.",
+      "{} has voted {} “{}” proposal.",
       wallet,
       match vote.direction {
         0 => "against",
         1 => "for",
         2 => "abstain on",
         _ => "unknown",
-      }
+      },
+      proposal.title
     );
     let explorer = get_explorer_address(&vote.voter);
 
     let embed = json!({
-        "title": "New Prop House Proposal Vote",
+        "title": "New Lil Nouns Proposal Vote",
         "description": description,
         "url": url,
         "color": 0x7BC4F2,

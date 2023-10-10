@@ -10,7 +10,7 @@ use worker::{Env, Error, Result};
 use crate::{
   cache::Cache,
   lil_nouns::{handler::Handler, Proposal, Vote},
-  utils::ens::get_wallet_handle,
+  utils::{ens::get_wallet_handle, link::Link},
 };
 
 pub(crate) struct FarcasterHandler {
@@ -19,6 +19,7 @@ pub(crate) struct FarcasterHandler {
   channel_key: String,
   cache: Cache,
   client: Client,
+  link: Link,
 }
 
 impl FarcasterHandler {
@@ -28,6 +29,7 @@ impl FarcasterHandler {
     channel_key: String,
     cache: Cache,
     client: Client,
+    link: Link,
   ) -> Self {
     Self {
       base_url,
@@ -35,6 +37,7 @@ impl FarcasterHandler {
       channel_key,
       cache,
       client,
+      link,
     }
   }
 
@@ -45,6 +48,7 @@ impl FarcasterHandler {
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
+    let link = Link::new_from_env(&env);
 
     Ok(Self::new(
       base_url,
@@ -52,6 +56,7 @@ impl FarcasterHandler {
       channel_key,
       cache,
       client,
+      link,
     ))
   }
 
@@ -91,7 +96,11 @@ impl Handler for FarcasterHandler {
   async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
     info!("Handling new proposal: {}", proposal.title);
 
-    let url = format!("{}/{}", self.base_url, proposal.id);
+    let url = &self
+      .link
+      .generate(format!("{}/{}", self.base_url, proposal.id))
+      .await
+      .unwrap_or_else(|_| format!("{}/{}", self.base_url, proposal.id));
 
     let wallet = get_wallet_handle(&proposal.proposer, "xyz.farcaster").await;
 
@@ -126,7 +135,11 @@ impl Handler for FarcasterHandler {
       .unwrap()
       .clone();
 
-    let url = format!("{}/{}", self.base_url, proposal.id);
+    let url = &self
+      .link
+      .generate(format!("{}/{}", self.base_url, proposal.id))
+      .await
+      .unwrap_or_else(|_| format!("{}/{}", self.base_url, proposal.id));
 
     let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
 

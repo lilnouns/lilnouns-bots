@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.51] - 2023-10-10
+
+### Bug Fixes
+
+- Update lil nouns voting descriptions in discord handler
+
+### Refactor
+
+- Add Link utility to lil nouns FarcasterHandler
+
 ## [1.0.0-alpha.50] - 2023-10-09
 
 ### Refactor
