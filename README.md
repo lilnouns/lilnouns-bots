@@ -7,5 +7,28 @@
 [![Donate](https://img.shields.io/badge/donate-nekofar.crypto-a2b9bc?logo=ko-fi&logoColor=white)](https://ud.me/nekofar.crypto)
 
 
-Please note that the project is currently in an experimental phase and it is subject to significant changes as it
-progresses.
+> [!WARNING]
+> Please note that the project is currently in an experimental phase and it is subject to significant changes as it
+> progresses.
+
+## Development Guide
+
+This is a quick start instructions for the project development environment setup.
+
+### Software Requirements
+
+Before starting, ensure you have the following software installed:
+
+1. `Docker`
+2. `Docker Compose`
+3. `PNPM`
+
+These tools are necessary for running the project in a Docker container.
+
+### Running the Project
+
+To run the project within a Docker container, execute the below command in your terminal:
+
+```shell
+docker compose up
+```
