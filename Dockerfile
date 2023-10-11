@@ -16,6 +16,7 @@ RUN rustup target add wasm32-unknown-unknown
 RUN cargo install wasm-pack worker-build
 
 COPY ./ ./
+COPY ./.dev.vars.example ./.dev.vars
 
 RUN pnpm install
 
