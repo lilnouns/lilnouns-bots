@@ -7,6 +7,7 @@ description = "Our bots are designed to keep the Lil Nouns DAO community informe
 repository = "https://github.com/lilnouns/lilnouns-bots"
 license = "Apache-2.0"
 include = ["*.graphql"]
+rust-version = "1.72.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
