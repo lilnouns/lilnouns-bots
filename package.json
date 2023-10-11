@@ -2,7 +2,7 @@
 	"private": true,
 	"scripts": {
 		"deploy": "wrangler deploy --env dev",
-    "dev": "docker-compose up --build"
+		"dev": "wrangler dev --env dev --test-scheduled"
 	},
 	"devDependencies": {
 		"wrangler": "3.11.0"
