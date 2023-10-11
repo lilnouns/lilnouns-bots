@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.53] - 2023-10-11
+
+### Revert
+
+- Update `build` command in `wrangler.toml`
+
 ## [1.0.0-alpha.52] - 2023-10-11
 
 ### Documentation
