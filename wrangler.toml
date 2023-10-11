@@ -7,7 +7,7 @@ logpush = true
 usage_model = "unbound"
 
 [build]
-command = "cargo install -q -f worker-build && worker-build --release"
+command = "cargo install -q worker-build && worker-build --release"
 
 [triggers]
 crons = ["*/5 * * * *"]
