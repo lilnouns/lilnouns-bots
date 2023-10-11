@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.52] - 2023-10-11
+
+### Documentation
+
+- Add development guide to README
+
+### Miscellaneous Tasks
+
+- Specify Rust version in `Cargo.toml`
+- Update `package.json` with `engine` versions
+- Add Docker setup for Rust project
+- Update `build` command in `wrangler.toml`
+- Update `dev` script in `package.json`
+- Add `.dev.vars.example` file and update `Dockerfile`
+
+### Revert
+
+- Update `dev` script in `package.json`
+
 ## [1.0.0-alpha.51] - 2023-10-10
 
 ### Bug Fixes
