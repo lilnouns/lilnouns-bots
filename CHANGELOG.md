@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.54] - 2023-10-11
+
+### Miscellaneous Tasks
+
+- Add more directories to `.dockerignore`
+- Update Dockerfile to simplify copying commands
+
 ## [1.0.0-alpha.53] - 2023-10-11
 
 ### Revert
