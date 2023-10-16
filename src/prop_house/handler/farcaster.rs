@@ -220,15 +220,15 @@ impl Handler for FarcasterHandler {
       proposal.title
     );
 
-    let request_data = json!({
+    if !cast_hash.is_empty() {
+      let request_data = json!({
         "text": description,
         "channelKey": self.channel_key,
-        "parent": {
-          "hash": cast_hash,
-        },
-    });
+        "parent": {"hash": cast_hash},
+      });
 
-    self.make_http_request(request_data).await?;
+      self.make_http_request(request_data).await?;
+    }
 
     Ok(())
   }
