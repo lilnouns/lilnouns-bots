@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.57] - 2023-10-16
+
+### Bug Fixes
+
+- Corrected API endpoint url in prop lot farcaster
+- Update cache key in lil nouns farcaster
+- Add check for empty cast hash before making request
+
+### Refactor
+
+- Improve JSON construction in FarCaster handlers
+
 ## [1.0.0-alpha.56] - 2023-10-16
 
 ### Miscellaneous Tasks
