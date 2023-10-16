@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.56] - 2023-10-16
+
+### Miscellaneous Tasks
+
+- Update deploy environment setup
+
 ## [1.0.0-alpha.55] - 2023-10-16
 
 ### Features
