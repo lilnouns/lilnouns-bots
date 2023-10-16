@@ -144,7 +144,7 @@ impl Handler for FarcasterHandler {
 
     let mut proposals_casts = self
       .cache
-      .get::<HashMap<usize, String>>("prop_house:proposals:casts")
+      .get::<HashMap<usize, String>>("lil_nouns:proposals:casts")
       .await?
       .unwrap_or_default();
 
@@ -170,7 +170,7 @@ impl Handler for FarcasterHandler {
 
     let proposals_casts = self
       .cache
-      .get::<HashMap<usize, String>>("prop_house:proposals:casts")
+      .get::<HashMap<usize, String>>("lil_nouns:proposals:casts")
       .await?
       .unwrap_or_default();
 
