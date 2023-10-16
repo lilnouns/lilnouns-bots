@@ -51,7 +51,7 @@ jobs:
         with:
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          environment: dev ${{ github.event.release.prerelease == 'false' && '' || 'dev' }}
+          environment: ${{ github.event.release.prerelease == 'false' && '' || 'dev' }}
           command: deploy ${{ github.event.release.prerelease == 'false' && '' || '--env dev' }}
           secrets: |
             LIL_NOUNS_DISCORD_WEBHOOK_URL
