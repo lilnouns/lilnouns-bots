@@ -9,6 +9,8 @@ jobs:
   deploy:
     name: Deploy to Workers
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.release.prerelease == 'false' && 'production' || 'development' }}
     permissions:
       contents: write
       pull-requests: write
@@ -45,12 +47,12 @@ jobs:
           override: true
 
       - name: Deploy to Workers
-        uses: cloudflare/wrangler-action@v3.3.0
+        uses: cloudflare/wrangler-action@v3.3.1
         with:
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          environment: dev
-          command: deploy --env dev
+          environment: dev ${{ github.event.release.prerelease == 'false' && '' || 'dev' }}
+          command: deploy ${{ github.event.release.prerelease == 'false' && '' || '--env dev' }}
           secrets: |
             LIL_NOUNS_DISCORD_WEBHOOK_URL
             LIL_NOUNS_WARP_CAST_TOKEN

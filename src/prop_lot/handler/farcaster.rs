@@ -1,8 +1,11 @@
+use std::collections::HashMap;
+
 use async_trait::async_trait;
 use log::{debug, error, info};
 use reqwest::{
   header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
   Client,
+  Response,
 };
 use serde_json::{json, Value};
 use utils::link::Link;
@@ -62,8 +65,8 @@ impl FarcasterHandler {
     ))
   }
 
-  async fn make_http_request(&self, request_data: Value) -> Result<()> {
-    let url = "https://api.warpcast.com/v2/casts";
+  async fn make_http_request(&self, request_data: Value) -> Result<Response> {
+    let url = "https://api.warpcast.com/v2/castsxx";
     let token = format!("Bearer {}", self.bearer_token);
     let mut headers = HeaderMap::new();
 
@@ -89,7 +92,7 @@ impl FarcasterHandler {
 
     debug!("Response status: {:?}", response.status());
 
-    Ok(())
+    Ok(response)
   }
 }
 
@@ -117,7 +120,40 @@ impl Handler for FarcasterHandler {
       "channelKey": self.channel_key
     });
 
-    self.make_http_request(request_data).await?;
+    let response = self.make_http_request(request_data).await.map_err(|e| {
+      error!("Failed to make HTTP request: {}", e);
+      return e;
+    })?;
+
+    let response_body = response.text().await.map_err(|e| {
+      error!("Failed to get text from response: {}", e);
+      Error::from(format!("Failed to get text from response: {}", e))
+    })?;
+
+    let parsed_body: serde_json::Result<Value> = serde_json::from_str(&response_body);
+
+    let response_body: Value = match parsed_body {
+      Ok(body) => body,
+      Err(e) => {
+        error!("Failed to parse JSON: {}", e);
+        return Err(e.into());
+      }
+    };
+
+    let cast_hash = response_body["result"]["cast"]["hash"]
+      .as_str()
+      .unwrap_or_default();
+
+    let idea_id = idea.id;
+    let mut ideas_casts = self
+      .cache
+      .get::<HashMap<isize, String>>("prop_lot:ideas:casts")
+      .await?
+      .unwrap_or_default();
+
+    ideas_casts.insert(idea_id, cast_hash.to_string());
+
+    self.cache.put("prop_lot:ideas:casts", &ideas_casts).await;
 
     Ok(())
   }
@@ -129,7 +165,7 @@ impl Handler for FarcasterHandler {
       .cache
       .get::<Vec<Idea>>("prop_lot:ideas")
       .await?
-      .unwrap();
+      .unwrap_or_default();
 
     let idea = ideas
       .iter()
@@ -137,13 +173,16 @@ impl Handler for FarcasterHandler {
       .unwrap()
       .clone();
 
-    let wallet = get_wallet_handle(&vote.voter_id, "xyz.farcaster").await;
+    let ideas_casts = self
+      .cache
+      .get::<HashMap<isize, String>>("prop_lot:ideas:casts")
+      .await?
+      .unwrap_or_default();
 
-    let url = &self
-      .link
-      .generate(format!("{}/idea/{}", self.base_url, idea.id))
-      .await
-      .unwrap_or_else(|_| format!("{}/idea/{}", self.base_url, idea.id));
+    let empty_string = String::new();
+    let cast_hash = ideas_casts.get(&idea.id).unwrap_or(&empty_string);
+
+    let wallet = get_wallet_handle(&vote.voter_id, "xyz.farcaster").await;
 
     let description = format!(
       "{} has voted {} “{}” proposal.",
@@ -157,8 +196,10 @@ impl Handler for FarcasterHandler {
 
     let request_data = json!({
       "text": description,
-      "embeds": [url],
-      "channelKey": self.channel_key
+      "channelKey": self.channel_key,
+      "parent": {
+        "hash": cast_hash,
+      },
     });
 
     self.make_http_request(request_data).await?;
@@ -181,16 +222,18 @@ impl Handler for FarcasterHandler {
       .unwrap()
       .clone();
 
-    let url = &self
-      .link
-      .generate(format!("{}/idea/{}", self.base_url, idea.id))
-      .await
-      .unwrap_or_else(|_| format!("{}/idea/{}", self.base_url, idea.id));
+    let ideas_casts = self
+      .cache
+      .get::<HashMap<isize, String>>("prop_lot:ideas:casts")
+      .await?
+      .unwrap_or_default();
+
+    let cast_hash = ideas_casts.get(&idea.id).unwrap();
 
     let wallet = get_wallet_handle(&comment.author_id, "xyz.farcaster").await;
 
     let mut description = format!("{} has commented on “{}” proposal.", wallet, idea.title);
-    let chars_limit = 320 - 10 - (description.len() + url.len());
+    let chars_limit = 320 - 10 - description.len();
     let mut comment_body = comment.clone().body;
     if comment_body.len() > chars_limit {
       comment_body.truncate(chars_limit);
@@ -200,8 +243,10 @@ impl Handler for FarcasterHandler {
 
     let request_data = json!({
       "text": description,
-      "embeds": [url],
-      "channelKey": self.channel_key
+      "channelKey": self.channel_key,
+      "parent": {
+        "hash": cast_hash,
+      },
     });
 
     self.make_http_request(request_data).await?;
