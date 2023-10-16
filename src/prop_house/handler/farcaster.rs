@@ -1,8 +1,11 @@
+use std::collections::HashMap;
+
 use async_trait::async_trait;
 use log::{debug, error, info};
 use reqwest::{
   header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
   Client,
+  Response,
 };
 use serde_json::{json, Value};
 use worker::{Env, Error, Result};
@@ -55,7 +58,7 @@ impl FarcasterHandler {
     ))
   }
 
-  async fn make_http_request(&self, request_data: Value) -> Result<()> {
+  async fn make_http_request(&self, request_data: Value) -> Result<Response> {
     let url = "https://api.warpcast.com/v2/casts";
     let token = format!("Bearer {}", self.bearer_token);
     let mut headers = HeaderMap::new();
@@ -67,7 +70,6 @@ impl FarcasterHandler {
     headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
     headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
-    // Send the HTTP POST request
     let response = self
       .client
       .post(url)
@@ -82,7 +84,7 @@ impl FarcasterHandler {
 
     debug!("Response status: {:?}", response.status());
 
-    Ok(())
+    Ok(response)
   }
 }
 
@@ -147,7 +149,37 @@ impl Handler for FarcasterHandler {
         "channelKey": self.channel_key
     });
 
-    self.make_http_request(request_data).await?;
+    let response = self.make_http_request(request_data).await.map_err(|e| {
+      error!("Failed to make HTTP request: {}", e);
+      return e;
+    })?;
+
+    let response_body = response.text().await.map_err(|e| {
+      error!("Failed to get text from response: {}", e);
+      Error::from(format!("Failed to get text from response: {}", e))
+    })?;
+
+    let parsed_body: serde_json::Result<Value> = serde_json::from_str(&response_body);
+
+    let response_body: Value = match parsed_body {
+      Ok(body) => body,
+      Err(e) => {
+        error!("Failed to parse JSON: {}", e);
+        return Err(e.into());
+      }
+    };
+
+    let cast_hash = response_body["result"]["cast"]["hash"]
+      .as_str()
+      .unwrap_or_default();
+
+    let mut proposals_casts = self
+      .cache
+      .get::<HashMap<isize, String>>("prop_house:proposals:casts")
+      .await?
+      .unwrap_or_default();
+
+    proposals_casts.insert(proposal.id, cast_hash.to_string());
 
     Ok(())
   }
@@ -167,12 +199,14 @@ impl Handler for FarcasterHandler {
       .unwrap()
       .clone();
 
-    let url = format!(
-      "{}/{}/{}",
-      self.base_url,
-      proposal.title.replace(' ', "-").to_lowercase(),
-      proposal.id
-    );
+    let proposals_casts = self
+      .cache
+      .get::<HashMap<isize, String>>("prop_house:proposals:casts")
+      .await?
+      .unwrap_or_default();
+
+    let empty_string = String::new();
+    let cast_hash = proposals_casts.get(&proposal.id).unwrap_or(&empty_string);
 
     let wallet = get_wallet_handle(&vote.address, "xyz.farcaster").await;
 
@@ -188,8 +222,10 @@ impl Handler for FarcasterHandler {
 
     let request_data = json!({
         "text": description,
-        "embeds": [url],
-        "channelKey": self.channel_key
+        "channelKey": self.channel_key,
+        "parent": {
+          "hash": cast_hash,
+        },
     });
 
     self.make_http_request(request_data).await?;
