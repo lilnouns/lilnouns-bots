@@ -66,7 +66,7 @@ impl FarcasterHandler {
   }
 
   async fn make_http_request(&self, request_data: Value) -> Result<Response> {
-    let url = "https://api.warpcast.com/v2/castsxx";
+    let url = "https://api.warpcast.com/v2/casts";
     let token = format!("Bearer {}", self.bearer_token);
     let mut headers = HeaderMap::new();
 
