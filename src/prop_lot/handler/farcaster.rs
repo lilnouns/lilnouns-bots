@@ -194,13 +194,22 @@ impl Handler for FarcasterHandler {
       idea.title
     );
 
-    let request_data = json!({
-      "text": description,
-      "channelKey": self.channel_key,
-      "parent": {
-        "hash": cast_hash,
-      },
-    });
+    let request_data = {
+      if cast_hash.is_empty() {
+        json!({
+          "text": description,
+          "channelKey": self.channel_key
+        })
+      } else {
+        json!({
+          "text": description,
+          "channelKey": self.channel_key,
+          "parent": {
+              "hash": cast_hash,
+          }
+        })
+      }
+    };
 
     self.make_http_request(request_data).await?;
 
@@ -241,15 +250,17 @@ impl Handler for FarcasterHandler {
     }
     description = format!("{}\n\n“{}”", description, comment_body);
 
-    let request_data = json!({
-      "text": description,
-      "channelKey": self.channel_key,
-      "parent": {
-        "hash": cast_hash,
-      },
-    });
+    if !cast_hash.is_empty() {
+      let request_data = json!({
+        "text": description,
+        "channelKey": self.channel_key,
+        "parent": {
+          "hash": cast_hash,
+        },
+      });
 
-    self.make_http_request(request_data).await?;
+      self.make_http_request(request_data).await?;
+    }
 
     Ok(())
   }
