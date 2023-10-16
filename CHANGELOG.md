@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.55] - 2023-10-16
+
+### Features
+
+- Post farcaster votes and comments as thread replay casts
+
+### Miscellaneous Tasks
+
+- Update GitHub deploy workflow for environment handling
+
 ## [1.0.0-alpha.54] - 2023-10-11
 
 ### Miscellaneous Tasks
