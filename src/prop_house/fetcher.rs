@@ -1,6 +1,7 @@
 use graphql_client::{reqwest::post_graphql, GraphQLQuery};
+use log::{debug, error};
 use reqwest::Client;
-use worker::{console_debug as debug, console_error as error, Env, Result};
+use worker::{Env, Result};
 
 use crate::prop_house::{Auction, Proposal, Vote};
 

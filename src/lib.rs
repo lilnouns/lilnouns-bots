@@ -1,12 +1,5 @@
-use worker::{
-  console_error as error,
-  console_log as info,
-  event,
-  Env,
-  Result,
-  ScheduleContext,
-  ScheduledEvent,
-};
+use log::{error, info, Level};
+use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 
 use crate::{lil_nouns::LilNouns, meta_gov::MetaGov, prop_house::PropHouse, prop_lot::PropLot};
 
@@ -67,6 +60,7 @@ async fn start(env: &Env) -> Result<()> {
 
 #[event(start)]
 pub fn start() {
+  worker_logger::init_with_level(&Level::Debug);
   utils::set_panic_hook();
 }
 

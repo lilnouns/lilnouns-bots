@@ -1,9 +1,10 @@
 use async_trait::async_trait;
 use chrono::Local;
+use log::{error, info};
 use regex::Regex;
 use reqwest::{header, Client};
 use serde_json::{json, Value};
-use worker::{console_error as error, console_log as info, Env, Error, Result};
+use worker::{Env, Error, Result};
 
 use crate::{
   cache::Cache,

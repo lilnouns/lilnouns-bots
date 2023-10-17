@@ -1,6 +1,6 @@
+use log::error;
 use serde::{de::DeserializeOwned, ser::Serialize};
 use worker::{
-  console_error as error,
   kv::{KvError, KvStore},
   Env,
 };
