@@ -1,8 +1,7 @@
 use chrono::{Duration, Utc};
 use graphql_client::{reqwest::post_graphql, GraphQLQuery};
-use log::{debug, error};
 use reqwest::Client;
-use worker::{Env, Result};
+use worker::{console_debug as debug, console_error as error, Env, Result};
 
 use crate::meta_gov::{Proposal, Vote};
 

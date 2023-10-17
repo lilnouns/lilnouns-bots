@@ -1,7 +1,13 @@
 use handler::{discord::DiscordHandler, farcaster::FarcasterHandler};
-use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
-use worker::{Env, Result};
+use worker::{
+  console_debug as debug,
+  console_error as error,
+  console_log as info,
+  console_warn as warn,
+  Env,
+  Result,
+};
 
 use crate::{
   cache::Cache,

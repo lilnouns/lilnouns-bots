@@ -1,9 +1,8 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
-use log::error;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use worker::Env;
+use worker::{console_error as error, Env};
 
 #[derive(Serialize)]
 struct RequestBody {

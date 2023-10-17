@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use async_trait::async_trait;
-use log::{debug, error, info};
 use regex::Regex;
 use reqwest::{
   header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
@@ -9,7 +8,14 @@ use reqwest::{
   Response,
 };
 use serde_json::{json, Value};
-use worker::{Env, Error, Result};
+use worker::{
+  console_debug as debug,
+  console_error as error,
+  console_log as info,
+  Env,
+  Error,
+  Result,
+};
 
 use crate::{
   cache::Cache,
