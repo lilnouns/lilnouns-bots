@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2-alpha.0] - 2023-10-18
+
+### Bug Fixes
+
+- Add username to webhook JSON in discord handlers
+
 ## [1.0.1] - 2023-10-18
 
 ### Miscellaneous Tasks
