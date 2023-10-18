@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2-alpha.3] - 2023-10-18
+
+### Bug Fixes
+
+- Add avatar URL to webhook execution for discord
+
 ## [1.0.2-alpha.2] - 2023-10-18
 
 ### Refactor
