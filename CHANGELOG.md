@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2023-10-18
+
+### Documentation
+
+- Update README with better project information
+- Create `CONTRIBUTING.md` for project guidelines
+
+### Miscellaneous Tasks
+
+- Add configurations for multiple environments in `wrangler.toml`
+- Improve dev vars example for better readability
+- Add wrangler vars files to `.gitignore`
+
 ## [1.0.0-beta.0] - 2023-10-18
 
 ### Refactor
