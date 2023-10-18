@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [develop] - 2023-10-18
+
+### Bug Fixes
+
+- Solve some minor issues and update dependencies
+
+### Refactor
+
+- Update discord webhook bot names and avatars
+
 ## [1.0.2] - 2023-10-18
 
 ### Bug Fixes
