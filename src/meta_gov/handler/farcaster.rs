@@ -221,15 +221,13 @@ impl Handler for FarcasterHandler {
           proposal_title
         );
 
-        if !cast_hash.is_empty() {
-          let request_data = json!({
-            "text": description,
-            "channelKey": self.channel_key,
-            "parent": {"hash": cast_hash},
-          });
+        let request_data = json!({
+          "text": description,
+          "channelKey": self.channel_key,
+          "parent": {"hash": cast_hash},
+        });
 
-          self.make_http_request(request_data).await?;
-        }
+        self.make_http_request(request_data).await?;
       }
       Err(e) => {
         error!("Failed to extract proposal info: {}", e);

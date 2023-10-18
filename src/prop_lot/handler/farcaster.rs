@@ -250,15 +250,13 @@ impl Handler for FarcasterHandler {
     }
     description = format!("{}\n\n“{}”", description, comment_body);
 
-    if !cast_hash.is_empty() {
-      let request_data = json!({
-        "text": description,
-        "channelKey": self.channel_key,
-        "parent": {"hash": cast_hash},
-      });
+    let request_data = json!({
+      "text": description,
+      "channelKey": self.channel_key,
+      "parent": {"hash": cast_hash},
+    });
 
-      self.make_http_request(request_data).await?;
-    }
+    self.make_http_request(request_data).await?;
 
     Ok(())
   }
