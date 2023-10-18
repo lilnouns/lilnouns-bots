@@ -147,11 +147,11 @@ impl Handler for FarcasterHandler {
     let idea_id = idea.id;
     let mut ideas_casts = self
       .cache
-      .get::<HashMap<isize, String>>("prop_lot:ideas:casts")
+      .get::<HashMap<String, String>>("prop_lot:ideas:casts")
       .await?
       .unwrap_or_default();
 
-    ideas_casts.insert(idea_id, cast_hash.to_string());
+    ideas_casts.insert(idea_id.to_string(), cast_hash.to_string());
 
     self.cache.put("prop_lot:ideas:casts", &ideas_casts).await;
 
@@ -233,11 +233,11 @@ impl Handler for FarcasterHandler {
 
     let ideas_casts = self
       .cache
-      .get::<HashMap<isize, String>>("prop_lot:ideas:casts")
+      .get::<HashMap<String, String>>("prop_lot:ideas:casts")
       .await?
       .unwrap_or_default();
 
-    let cast_hash = ideas_casts.get(&idea.id).unwrap();
+    let cast_hash = ideas_casts.get(&idea.id.to_string()).unwrap();
 
     let wallet = get_wallet_handle(&comment.author_id, "xyz.farcaster").await;
 

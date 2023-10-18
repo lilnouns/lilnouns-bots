@@ -167,6 +167,11 @@ impl Handler for FarcasterHandler {
           .unwrap_or_default();
 
         proposals_casts.insert(proposal_id, cast_hash.to_string());
+
+        self
+          .cache
+          .put("meta_gov:proposals:casts", &proposals_casts)
+          .await;
       }
       Err(e) => {
         error!("Failed to extract proposal info: {}", e);

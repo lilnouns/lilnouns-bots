@@ -144,11 +144,16 @@ impl Handler for FarcasterHandler {
 
     let mut proposals_casts = self
       .cache
-      .get::<HashMap<usize, String>>("lil_nouns:proposals:casts")
+      .get::<HashMap<String, String>>("lil_nouns:proposals:casts")
       .await?
       .unwrap_or_default();
 
-    proposals_casts.insert(proposal.id, cast_hash.to_string());
+    proposals_casts.insert(proposal.id.to_string(), cast_hash.to_string());
+
+    self
+      .cache
+      .put("lil_nouns:proposals:casts", &proposals_casts)
+      .await;
 
     Ok(())
   }
@@ -170,12 +175,14 @@ impl Handler for FarcasterHandler {
 
     let proposals_casts = self
       .cache
-      .get::<HashMap<usize, String>>("lil_nouns:proposals:casts")
+      .get::<HashMap<String, String>>("lil_nouns:proposals:casts")
       .await?
       .unwrap_or_default();
 
     let empty_string = String::new();
-    let cast_hash = proposals_casts.get(&proposal.id).unwrap_or(&empty_string);
+    let cast_hash = proposals_casts
+      .get(&proposal.id.to_string())
+      .unwrap_or(&empty_string);
 
     let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
 

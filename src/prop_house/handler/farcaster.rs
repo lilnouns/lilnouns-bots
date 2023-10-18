@@ -181,6 +181,11 @@ impl Handler for FarcasterHandler {
 
     proposals_casts.insert(proposal.id, cast_hash.to_string());
 
+    self
+      .cache
+      .put("prop_house:proposals:casts", &proposals_casts)
+      .await;
+
     Ok(())
   }
 
