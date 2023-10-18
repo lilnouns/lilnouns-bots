@@ -40,7 +40,7 @@ impl DiscordHandler {
 
   async fn execute_webhook(&self, embed: Value) -> Result<()> {
     let msg_json = json!({
-      "username": "Prop House Bot",
+      "username": "Prop House",
       "embeds": [embed]
     });
 
