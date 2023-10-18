@@ -170,8 +170,8 @@ impl Handler for FarcasterHandler {
     let proposal = proposals
       .iter()
       .find(|&a| a.id == vote.proposal_id)
-      .unwrap()
-      .clone();
+      .cloned()
+      .ok_or("Proposal not found in the funding list.")?;
 
     let proposals_casts = self
       .cache

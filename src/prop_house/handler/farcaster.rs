@@ -126,8 +126,8 @@ impl Handler for FarcasterHandler {
     let auction = auctions
       .iter()
       .find(|&a| a.id == proposal.auction_id)
-      .unwrap()
-      .clone();
+      .clone()
+      .ok_or("Auction not found in the funding list.")?;
 
     let url = format!(
       "{}/{}/{}",
@@ -201,8 +201,8 @@ impl Handler for FarcasterHandler {
     let proposal = proposals
       .iter()
       .find(|&a| a.id == vote.proposal_id)
-      .unwrap()
-      .clone();
+      .clone()
+      .ok_or("Proposal not found in the funding list.")?;
 
     let proposals_casts = self
       .cache

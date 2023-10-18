@@ -228,8 +228,8 @@ impl Handler for FarcasterHandler {
     let idea = ideas
       .iter()
       .find(|&a| a.id == comment.idea_id)
-      .unwrap()
-      .clone();
+      .clone()
+      .ok_or("Idea not found in the funding list.")?;
 
     let ideas_casts = self
       .cache
