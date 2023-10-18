@@ -147,11 +147,11 @@ impl Handler for FarcasterHandler {
     let idea_id = idea.id;
     let mut ideas_casts = self
       .cache
-      .get::<HashMap<isize, String>>("prop_lot:ideas:casts")
+      .get::<HashMap<String, String>>("prop_lot:ideas:casts")
       .await?
       .unwrap_or_default();
 
-    ideas_casts.insert(idea_id, cast_hash.to_string());
+    ideas_casts.insert(idea_id.to_string(), cast_hash.to_string());
 
     self.cache.put("prop_lot:ideas:casts", &ideas_casts).await;
 
@@ -170,8 +170,8 @@ impl Handler for FarcasterHandler {
     let idea = ideas
       .iter()
       .find(|&a| a.id == vote.idea_id)
-      .unwrap()
-      .clone();
+      .clone()
+      .ok_or("Idea not found in the funding list.")?;
 
     let ideas_casts = self
       .cache
@@ -179,8 +179,7 @@ impl Handler for FarcasterHandler {
       .await?
       .unwrap_or_default();
 
-    let empty_string = String::new();
-    let cast_hash = ideas_casts.get(&idea.id).unwrap_or(&empty_string);
+    let cast_hash = ideas_casts.get(&idea.id).ok_or("Cast hash not found")?;
 
     let wallet = get_wallet_handle(&vote.voter_id, "xyz.farcaster").await;
 
@@ -228,16 +227,18 @@ impl Handler for FarcasterHandler {
     let idea = ideas
       .iter()
       .find(|&a| a.id == comment.idea_id)
-      .unwrap()
-      .clone();
+      .clone()
+      .ok_or("Idea not found in the funding list.")?;
 
     let ideas_casts = self
       .cache
-      .get::<HashMap<isize, String>>("prop_lot:ideas:casts")
+      .get::<HashMap<String, String>>("prop_lot:ideas:casts")
       .await?
       .unwrap_or_default();
 
-    let cast_hash = ideas_casts.get(&idea.id).unwrap();
+    let cast_hash = ideas_casts
+      .get(&idea.id.to_string())
+      .ok_or("Cast hash not found")?;
 
     let wallet = get_wallet_handle(&comment.author_id, "xyz.farcaster").await;
 
@@ -250,15 +251,13 @@ impl Handler for FarcasterHandler {
     }
     description = format!("{}\n\n“{}”", description, comment_body);
 
-    if !cast_hash.is_empty() {
-      let request_data = json!({
-        "text": description,
-        "channelKey": self.channel_key,
-        "parent": {"hash": cast_hash},
-      });
+    let request_data = json!({
+      "text": description,
+      "channelKey": self.channel_key,
+      "parent": {"hash": cast_hash},
+    });
 
-      self.make_http_request(request_data).await?;
-    }
+    self.make_http_request(request_data).await?;
 
     Ok(())
   }

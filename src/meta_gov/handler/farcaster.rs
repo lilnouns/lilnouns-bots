@@ -167,6 +167,11 @@ impl Handler for FarcasterHandler {
           .unwrap_or_default();
 
         proposals_casts.insert(proposal_id, cast_hash.to_string());
+
+        self
+          .cache
+          .put("meta_gov:proposals:casts", &proposals_casts)
+          .await;
       }
       Err(e) => {
         error!("Failed to extract proposal info: {}", e);
@@ -188,8 +193,8 @@ impl Handler for FarcasterHandler {
     let proposal = proposals
       .iter()
       .find(|&a| a.id == vote.proposal_id)
-      .unwrap()
-      .clone();
+      .clone()
+      .ok_or("Proposal not found in the funding list.")?;
 
     match self.extract_proposal_info(proposal.clone()).await {
       Ok((proposal_id, proposal_title)) => {
@@ -199,8 +204,9 @@ impl Handler for FarcasterHandler {
           .await?
           .unwrap_or_default();
 
-        let empty_string = String::new();
-        let cast_hash = proposals_casts.get(&proposal_id).unwrap_or(&empty_string);
+        let cast_hash = proposals_casts
+          .get(&proposal_id)
+          .ok_or("Cast hash not found")?;
 
         let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
 
@@ -216,15 +222,13 @@ impl Handler for FarcasterHandler {
           proposal_title
         );
 
-        if !cast_hash.is_empty() {
-          let request_data = json!({
-            "text": description,
-            "channelKey": self.channel_key,
-            "parent": {"hash": cast_hash},
-          });
+        let request_data = json!({
+          "text": description,
+          "channelKey": self.channel_key,
+          "parent": {"hash": cast_hash},
+        });
 
-          self.make_http_request(request_data).await?;
-        }
+        self.make_http_request(request_data).await?;
       }
       Err(e) => {
         error!("Failed to extract proposal info: {}", e);

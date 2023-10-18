@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4-alpha.0] - 2023-10-18
+
+### Refactor
+
+- Change proposal and idea ids to string in caches
+- Replace unwrap with error handling in farcaster handlers
+- Remove unnecessary condition check before HTTP request
+- Replace `unwrap_or` with `ok_or` in retrieving hash
+
+### Miscellaneous Tasks
+
+- Update crons schedule in `wrangler.toml`
+
 ## [1.0.3] - 2023-10-18
 
 ### Bug Fixes

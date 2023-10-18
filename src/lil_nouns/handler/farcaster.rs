@@ -144,11 +144,16 @@ impl Handler for FarcasterHandler {
 
     let mut proposals_casts = self
       .cache
-      .get::<HashMap<usize, String>>("lil_nouns:proposals:casts")
+      .get::<HashMap<String, String>>("lil_nouns:proposals:casts")
       .await?
       .unwrap_or_default();
 
-    proposals_casts.insert(proposal.id, cast_hash.to_string());
+    proposals_casts.insert(proposal.id.to_string(), cast_hash.to_string());
+
+    self
+      .cache
+      .put("lil_nouns:proposals:casts", &proposals_casts)
+      .await;
 
     Ok(())
   }
@@ -165,17 +170,18 @@ impl Handler for FarcasterHandler {
     let proposal = proposals
       .iter()
       .find(|&a| a.id == vote.proposal_id)
-      .unwrap()
-      .clone();
+      .cloned()
+      .ok_or("Proposal not found in the funding list.")?;
 
     let proposals_casts = self
       .cache
-      .get::<HashMap<usize, String>>("lil_nouns:proposals:casts")
+      .get::<HashMap<String, String>>("lil_nouns:proposals:casts")
       .await?
       .unwrap_or_default();
 
-    let empty_string = String::new();
-    let cast_hash = proposals_casts.get(&proposal.id).unwrap_or(&empty_string);
+    let cast_hash = proposals_casts
+      .get(&proposal.id.to_string())
+      .ok_or("Cast hash not found")?;
 
     let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
 
@@ -191,15 +197,13 @@ impl Handler for FarcasterHandler {
       proposal.title
     );
 
-    if !cast_hash.is_empty() {
-      let request_data = json!({
-        "text": description,
-        "channelKey": self.channel_key,
-        "parent": {"hash": cast_hash},
-      });
+    let request_data = json!({
+      "text": description,
+      "channelKey": self.channel_key,
+      "parent": {"hash": cast_hash},
+    });
 
-      self.make_http_request(request_data).await?;
-    }
+    self.make_http_request(request_data).await?;
 
     Ok(())
   }
