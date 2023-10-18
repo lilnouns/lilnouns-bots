@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2-alpha.2] - 2023-10-18
+
+### Refactor
+
+- Simplify bot usernames in webhook executions
+
 ## [1.0.2-alpha.1] - 2023-10-18
 
 ### Miscellaneous Tasks
