@@ -6,16 +6,21 @@
 [![X (formerly Twitter) Follow](https://img.shields.io/badge/follow-%40nekofar-ffffff?logo=x&style=flat)](https://x.com/nekofar)
 [![Donate](https://img.shields.io/badge/donate-nekofar.crypto-a2b9bc?logo=ko-fi&logoColor=white)](https://ud.me/nekofar.crypto)
 
+## Overview
 
-> [!WARNING]
-> Please note that the project is currently in an experimental phase and it is subject to significant changes as it
-> progresses.
+This repository contains the source code for various bots, primarily focused on the LilNouns DAO. The codebase is
+written in Rust and utilizes several libraries for web scraping, data fetching, and Discord and Farcaster bot
+functionalities.
 
-## Development Guide
+## Contributing
+
+If you wish to contribute to this project, please follow the [contribution guidelines](CONTRIBUTING.md).
+
+## Development
 
 This is a quick start instructions for the project development environment setup.
 
-### Software Requirements
+### Requirements
 
 Before starting, ensure you have the following software installed:
 

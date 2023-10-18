@@ -3,3 +3,4 @@
 /report.*
 /node_modules
 /.wrangler
+/.*.vars
