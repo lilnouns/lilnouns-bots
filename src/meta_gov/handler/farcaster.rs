@@ -204,8 +204,9 @@ impl Handler for FarcasterHandler {
           .await?
           .unwrap_or_default();
 
-        let empty_string = String::new();
-        let cast_hash = proposals_casts.get(&proposal_id).unwrap_or(&empty_string);
+        let cast_hash = proposals_casts
+          .get(&proposal_id)
+          .ok_or("Cast hash not found")?;
 
         let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
 

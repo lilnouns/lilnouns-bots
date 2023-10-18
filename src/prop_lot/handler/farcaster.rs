@@ -170,8 +170,8 @@ impl Handler for FarcasterHandler {
     let idea = ideas
       .iter()
       .find(|&a| a.id == vote.idea_id)
-      .unwrap()
-      .clone();
+      .clone()
+      .ok_or("Idea not found in the funding list.")?;
 
     let ideas_casts = self
       .cache
@@ -179,8 +179,7 @@ impl Handler for FarcasterHandler {
       .await?
       .unwrap_or_default();
 
-    let empty_string = String::new();
-    let cast_hash = ideas_casts.get(&idea.id).unwrap_or(&empty_string);
+    let cast_hash = ideas_casts.get(&idea.id).ok_or("Cast hash not found")?;
 
     let wallet = get_wallet_handle(&vote.voter_id, "xyz.farcaster").await;
 
@@ -237,7 +236,9 @@ impl Handler for FarcasterHandler {
       .await?
       .unwrap_or_default();
 
-    let cast_hash = ideas_casts.get(&idea.id.to_string()).unwrap();
+    let cast_hash = ideas_casts
+      .get(&idea.id.to_string())
+      .ok_or("Cast hash not found")?;
 
     let wallet = get_wallet_handle(&comment.author_id, "xyz.farcaster").await;
 
