@@ -60,7 +60,7 @@ async fn start(env: &Env) -> Result<()> {
 
 #[event(start)]
 pub fn start() {
-  worker_logger::init_with_level(&Level::Debug);
+  worker_logger::init_with_level(&Level::Trace);
   utils::set_panic_hook();
 }
 

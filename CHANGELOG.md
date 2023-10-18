@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-beta.0] - 2023-10-18
+
+### Refactor
+
+- Replace `log` crates with built-in `worker` console log
+- Update logging level from Debug to Trace
+
+### Revert
+
+- Replace `log` crates with built-in `worker` console log
+
 ## [1.0.0-alpha.57] - 2023-10-16
 
 ### Bug Fixes
