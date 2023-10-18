@@ -9,8 +9,7 @@ jobs:
   deploy:
     name: Deploy to Workers
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.event.release.prerelease == 'false' && 'production' || 'development' }}
+    environment: ${{ github.event.release.prerelease && 'development' || 'production' }}
     permissions:
       contents: write
       pull-requests: write
@@ -51,8 +50,8 @@ jobs:
         with:
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          environment: ${{ github.event.release.prerelease == 'false' && '' || 'dev' }}
-          command: deploy ${{ github.event.release.prerelease == 'false' && '' || '--env dev' }}
+          environment: ${{ github.event.release.prerelease && 'dev' || '' }}
+          command: deploy ${{ github.event.release.prerelease && '-env dev' || '' }}
           secrets: |
             LIL_NOUNS_DISCORD_WEBHOOK_URL
             LIL_NOUNS_WARP_CAST_TOKEN
