@@ -18,18 +18,20 @@ use crate::{
   utils::ens::get_wallet_handle,
 };
 
-pub struct FarcasterHandler {
+pub(crate) struct FarcasterHandler {
   base_url: String,
+  warpcast_url: String,
   bearer_token: String,
   channel_key: String,
   cache: Cache,
   client: Client,
-  pub link: Link,
+  link: Link,
 }
 
 impl FarcasterHandler {
   pub fn new(
     base_url: String,
+    warpcast_url: String,
     bearer_token: String,
     channel_key: String,
     cache: Cache,
@@ -38,6 +40,7 @@ impl FarcasterHandler {
   ) -> Self {
     Self {
       base_url,
+      warpcast_url,
       bearer_token,
       channel_key,
       cache,
@@ -48,6 +51,7 @@ impl FarcasterHandler {
 
   pub fn new_from_env(env: &Env) -> Result<FarcasterHandler> {
     let base_url = env.var("PROP_LOT_BASE_URL")?.to_string();
+    let warpcast_url = env.var("WARP_CAST_API_BASE_URL")?.to_string();
     let bearer_token = env.secret("PROP_LOT_WARP_CAST_TOKEN")?.to_string();
     let channel_key = env.var("PROP_LOT_WARP_CAST_CHANNEL")?.to_string();
 
@@ -57,6 +61,7 @@ impl FarcasterHandler {
 
     Ok(Self::new(
       base_url,
+      warpcast_url,
       bearer_token,
       channel_key,
       cache,
@@ -66,7 +71,7 @@ impl FarcasterHandler {
   }
 
   async fn make_http_request(&self, request_data: Value) -> Result<Response> {
-    let url = "https://api.warpcast.com/v2/casts";
+    let url = format!("{}/casts", self.warpcast_url);
     let token = format!("Bearer {}", self.bearer_token);
     let mut headers = HeaderMap::new();
 

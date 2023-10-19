@@ -17,8 +17,9 @@ use crate::{
   utils::{ens::get_wallet_handle, link::Link},
 };
 
-pub struct FarcasterHandler {
+pub(crate) struct FarcasterHandler {
   base_url: String,
+  warpcast_url: String,
   bearer_token: String,
   channel_key: String,
   cache: Cache,
@@ -29,6 +30,7 @@ pub struct FarcasterHandler {
 impl FarcasterHandler {
   pub fn new(
     base_url: String,
+    warpcast_url: String,
     bearer_token: String,
     channel_key: String,
     cache: Cache,
@@ -37,6 +39,7 @@ impl FarcasterHandler {
   ) -> Self {
     Self {
       base_url,
+      warpcast_url,
       bearer_token,
       channel_key,
       cache,
@@ -47,8 +50,9 @@ impl FarcasterHandler {
 
   pub fn new_from_env(env: &Env) -> Result<FarcasterHandler> {
     let base_url = env.var("META_GOV_BASE_URL")?.to_string();
+    let warpcast_url = env.var("WARP_CAST_API_BASE_URL")?.to_string();
     let bearer_token = env.secret("META_GOV_WARP_CAST_TOKEN")?.to_string();
-    let channel_key = env.secret("META_GOV_WARP_CAST_CHANNEL")?.to_string();
+    let channel_key = env.var("META_GOV_WARP_CAST_CHANNEL")?.to_string();
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
@@ -56,6 +60,7 @@ impl FarcasterHandler {
 
     Ok(Self::new(
       base_url,
+      warpcast_url,
       bearer_token,
       channel_key,
       cache,
@@ -65,7 +70,7 @@ impl FarcasterHandler {
   }
 
   async fn make_http_request(&self, request_data: Value) -> Result<Response> {
-    let url = "https://api.warpcast.com/v2/casts";
+    let url = format!("{}/casts", self.warpcast_url);
     let token = format!("Bearer {}", self.bearer_token);
     let mut headers = HeaderMap::new();
 
@@ -115,68 +120,63 @@ impl FarcasterHandler {
 #[async_trait(? Send)]
 impl Handler for FarcasterHandler {
   async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
-    match self.extract_proposal_info(proposal.clone()).await {
-      Ok((proposal_id, proposal_title)) => {
-        info!("Handling new proposal: {}", proposal_title);
+    let (proposal_id, proposal_title) = self.extract_proposal_info(proposal.clone()).await?;
 
-        let url = &self
-          .link
-          .generate(format!("{}/{}", self.base_url, proposal_id))
-          .await
-          .unwrap_or_else(|_| format!("{}/{}", self.base_url, proposal_id));
+    info!("Handling new proposal: {}", proposal_title);
 
-        let description = format!(
-          "A new Meta Gov proposal has been created: “{}”",
-          proposal_title
-        );
+    let url = &self
+      .link
+      .generate(format!("{}/{}", self.base_url, proposal_id))
+      .await
+      .unwrap_or_else(|_| format!("{}/{}", self.base_url, proposal_id));
 
-        let request_data = json!({
-            "text": description,
-            "embeds": [url],
-            "channelKey": self.channel_key
-        });
+    let description = format!(
+      "A new Meta Gov proposal has been created: “{}”",
+      proposal_title
+    );
 
-        let response = self.make_http_request(request_data).await.map_err(|e| {
-          error!("Failed to make HTTP request: {}", e);
-          return e;
-        })?;
+    let request_data = json!({
+        "text": description,
+        "embeds": [url],
+        "channelKey": self.channel_key
+    });
 
-        let response_body = response.text().await.map_err(|e| {
-          error!("Failed to get text from response: {}", e);
-          Error::from(format!("Failed to get text from response: {}", e))
-        })?;
+    let response = self.make_http_request(request_data).await.map_err(|e| {
+      error!("Failed to make HTTP request: {}", e);
+      return e;
+    })?;
 
-        let parsed_body: serde_json::Result<Value> = serde_json::from_str(&response_body);
+    let response_body = response.text().await.map_err(|e| {
+      error!("Failed to get text from response: {}", e);
+      Error::from(format!("Failed to get text from response: {}", e))
+    })?;
 
-        let response_body: Value = match parsed_body {
-          Ok(body) => body,
-          Err(e) => {
-            error!("Failed to parse JSON: {}", e);
-            return Err(e.into());
-          }
-        };
+    let parsed_body: serde_json::Result<Value> = serde_json::from_str(&response_body);
 
-        let cast_hash = response_body["result"]["cast"]["hash"]
-          .as_str()
-          .unwrap_or_default();
-
-        let mut proposals_casts = self
-          .cache
-          .get::<HashMap<String, String>>("meta_gov:proposals:casts")
-          .await?
-          .unwrap_or_default();
-
-        proposals_casts.insert(proposal_id, cast_hash.to_string());
-
-        self
-          .cache
-          .put("meta_gov:proposals:casts", &proposals_casts)
-          .await;
-      }
+    let response_body: Value = match parsed_body {
+      Ok(body) => body,
       Err(e) => {
-        error!("Failed to extract proposal info: {}", e);
+        error!("Failed to parse JSON: {}", e);
+        return Err(e.into());
       }
-    }
+    };
+
+    let cast_hash = response_body["result"]["cast"]["hash"]
+      .as_str()
+      .unwrap_or_default();
+
+    let mut proposals_casts = self
+      .cache
+      .get::<HashMap<String, String>>("meta_gov:proposals:casts")
+      .await?
+      .unwrap_or_default();
+
+    proposals_casts.insert(proposal_id, cast_hash.to_string());
+
+    self
+      .cache
+      .put("meta_gov:proposals:casts", &proposals_casts)
+      .await;
 
     Ok(())
   }
@@ -196,44 +196,39 @@ impl Handler for FarcasterHandler {
       .clone()
       .ok_or("Proposal not found in the funding list.")?;
 
-    match self.extract_proposal_info(proposal.clone()).await {
-      Ok((proposal_id, proposal_title)) => {
-        let proposals_casts = self
-          .cache
-          .get::<HashMap<String, String>>("meta_gov:proposals:casts")
-          .await?
-          .unwrap_or_default();
+    let (proposal_id, proposal_title) = self.extract_proposal_info(proposal.clone()).await?;
 
-        let cast_hash = proposals_casts
-          .get(&proposal_id)
-          .ok_or("Cast hash not found")?;
+    let proposals_casts = self
+      .cache
+      .get::<HashMap<String, String>>("meta_gov:proposals:casts")
+      .await?
+      .unwrap_or_default();
 
-        let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
+    let cast_hash = proposals_casts
+      .get(&proposal_id)
+      .ok_or("Cast hash not found")?;
 
-        let description = format!(
-          "{} has voted {} “{}” proposal.",
-          wallet,
-          match vote.choice {
-            1 => "for",
-            2 => "against",
-            3 => "abstain on",
-            _ => "unknown",
-          },
-          proposal_title
-        );
+    let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
 
-        let request_data = json!({
-          "text": description,
-          "channelKey": self.channel_key,
-          "parent": {"hash": cast_hash},
-        });
+    let description = format!(
+      "{} has voted {} “{}” proposal.",
+      wallet,
+      match vote.choice {
+        1 => "for",
+        2 => "against",
+        3 => "abstain on",
+        _ => "unknown",
+      },
+      proposal_title
+    );
 
-        self.make_http_request(request_data).await?;
-      }
-      Err(e) => {
-        error!("Failed to extract proposal info: {}", e);
-      }
-    }
+    let request_data = json!({
+      "text": description,
+      "channelKey": self.channel_key,
+      "parent": {"hash": cast_hash},
+    });
+
+    self.make_http_request(request_data).await?;
 
     Ok(())
   }
