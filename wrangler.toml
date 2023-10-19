@@ -94,7 +94,7 @@ LIL_NOUNS_DISCORD_ENABLED = "true"
 LIL_NOUNS_FARCASTER_ENABLED = "true"
 LIL_NOUNS_BASE_URL = "https://lilnouns.wtf/vote"
 LIL_NOUNS_GRAPHQL_URL = "https://api.goldsky.com/api/public/project_cldjvjgtylso13swq3dre13sf/subgraphs/lil-nouns-subgraph/1.0.4/gn"
-LIL_NOUNS_WARP_CAST_CHANNEL = ""
+LIL_NOUNS_WARP_CAST_CHANNEL = "lil-nouns"
 
 # Meta Gov Settings
 META_GOV_ENABLED = "true"
