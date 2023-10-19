@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.0] - 2023-10-19
+
+### Refactor
+
+- Add `warpcast_url` to `FarcasterHandler` in all modules
+- Extract proposal logic in meta gov farcaster
+
+### Miscellaneous Tasks
+
+- Update warpcast channel for meta gov to nouns
+
 ## [1.0.4-alpha.0] - 2023-10-18
 
 ### Refactor
