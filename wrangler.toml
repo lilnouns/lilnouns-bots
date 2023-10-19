@@ -29,6 +29,9 @@ ETHEREUM_MAINNET_RPC_URL = "https://eth.llamarpc.com"
 # Link Generator Settings
 LINK_GENERATOR_ENDPOINT = "https://lilnouns.click"
 
+# Warpccast API Settings
+WARP_CAST_API_BASE_URL = "https://api.warpcast.com/v2"
+
 # Lil Nouns Settings
 LIL_NOUNS_ENABLED = "false"
 LIL_NOUNS_DISCORD_ENABLED = "true"
@@ -81,6 +84,9 @@ ETHEREUM_MAINNET_RPC_URL = "https://eth.llamarpc.com"
 
 # Link Generator Settings
 LINK_GENERATOR_ENDPOINT = "https://lilnouns.click"
+
+# Warpccast API Settings
+WARP_CAST_API_BASE_URL = "https://api.warpcast.com/v2"
 
 # Lil Nouns Settings
 LIL_NOUNS_ENABLED = "true"
