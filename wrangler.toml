@@ -103,7 +103,7 @@ META_GOV_FARCASTER_ENABLED = "true"
 META_GOV_BASE_URL = "https://lilnouns.wtf/vote/nounsdao"
 META_GOV_SNAPSHOT_GRAPHQL_URL = "https://hub.snapshot.org/graphql"
 META_GOV_SNAPSHOT_SPACE_ID = "leagueoflils.eth"
-META_GOV_WARP_CAST_CHANNEL = ""
+META_GOV_WARP_CAST_CHANNEL = "nouns"
 
 # Prop House Settings
 PROP_HOUSE_ENABLED = "true"
