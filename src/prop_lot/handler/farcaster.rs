@@ -147,7 +147,7 @@ impl Handler for FarcasterHandler {
 
     let cast_hash = response_body["result"]["cast"]["hash"]
       .as_str()
-      .unwrap_or_default();
+      .ok_or("Failed to get cast hash")?;
 
     let mut ideas_casts = self
       .cache
