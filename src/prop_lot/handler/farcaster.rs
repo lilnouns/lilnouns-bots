@@ -149,14 +149,13 @@ impl Handler for FarcasterHandler {
       .as_str()
       .unwrap_or_default();
 
-    let idea_id = idea.id;
     let mut ideas_casts = self
       .cache
       .get::<HashMap<String, String>>("prop_lot:ideas:casts")
       .await?
-      .unwrap_or_default();
+      .ok_or("Failed to retrieve ideas casts")?;
 
-    ideas_casts.insert(idea_id.to_string(), cast_hash.to_string());
+    ideas_casts.insert(idea.id.to_string(), cast_hash.to_string());
 
     self.cache.put("prop_lot:ideas:casts", &ideas_casts).await;
 

@@ -131,7 +131,7 @@ impl Handler for FarcasterHandler {
       .cache
       .get::<Vec<Auction>>("prop_house:auctions")
       .await?
-      .unwrap();
+      .unwrap_or_default();
 
     let auction = auctions
       .iter()
@@ -181,13 +181,13 @@ impl Handler for FarcasterHandler {
 
     let cast_hash = response_body["result"]["cast"]["hash"]
       .as_str()
-      .unwrap_or_default();
+      .ok_or("Cast hash not found")?;
 
     let mut proposals_casts = self
       .cache
       .get::<HashMap<isize, String>>("prop_house:proposals:casts")
       .await?
-      .unwrap_or_default();
+      .ok_or("Failed to retrieve proposals casts")?;
 
     proposals_casts.insert(proposal.id, cast_hash.to_string());
 
@@ -206,7 +206,7 @@ impl Handler for FarcasterHandler {
       .cache
       .get::<Vec<Proposal>>("prop_house:proposals")
       .await?
-      .unwrap();
+      .unwrap_or_default();
 
     let proposal = proposals
       .iter()
@@ -218,7 +218,7 @@ impl Handler for FarcasterHandler {
       .cache
       .get::<HashMap<isize, String>>("prop_house:proposals:casts")
       .await?
-      .unwrap_or_default();
+      .ok_or("Failed to retrieve proposals casts")?;
 
     let cast_hash = proposals_casts
       .get(&proposal.id)
