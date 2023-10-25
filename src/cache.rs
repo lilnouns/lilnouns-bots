@@ -27,6 +27,8 @@ impl Cache {
       if let Err(pe) = put.execute().await {
         error!("Failed updating KV: {}", pe);
       }
+    } else {
+      error!("Failed to put key-value pair into the storage");
     }
   }
 
