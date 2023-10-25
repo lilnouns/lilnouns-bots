@@ -102,7 +102,7 @@ impl Handler for DiscordHandler {
       .cache
       .get::<Vec<Proposal>>("lil_nouns:proposals")
       .await?
-      .unwrap();
+      .unwrap_or_default();
 
     let proposal = proposals
       .iter()

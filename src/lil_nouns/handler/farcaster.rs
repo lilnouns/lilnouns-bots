@@ -145,20 +145,24 @@ impl Handler for FarcasterHandler {
 
     let cast_hash = response_body["result"]["cast"]["hash"]
       .as_str()
-      .unwrap_or_default();
+      .ok_or("Failed to get cast hash")?;
+    debug!("Cast hash: {}", cast_hash);
 
     let mut proposals_casts = self
       .cache
       .get::<HashMap<String, String>>("lil_nouns:proposals:casts")
       .await?
-      .unwrap_or_default();
+      .ok_or("Failed to retrieve proposals casts")?;
+    debug!("Proposals casts before insertion: {:?}", proposals_casts);
 
     proposals_casts.insert(proposal.id.to_string(), cast_hash.to_string());
+    debug!("Proposals casts after insertion: {:?}", proposals_casts);
 
     self
       .cache
       .put("lil_nouns:proposals:casts", &proposals_casts)
       .await;
+    debug!("Finished putting proposals casts in cache");
 
     Ok(())
   }
@@ -170,7 +174,7 @@ impl Handler for FarcasterHandler {
       .cache
       .get::<Vec<Proposal>>("lil_nouns:proposals")
       .await?
-      .unwrap();
+      .unwrap_or_default();
 
     let proposal = proposals
       .iter()
@@ -182,7 +186,7 @@ impl Handler for FarcasterHandler {
       .cache
       .get::<HashMap<String, String>>("lil_nouns:proposals:casts")
       .await?
-      .unwrap_or_default();
+      .ok_or("Failed to retrieve proposals casts")?;
 
     let cast_hash = proposals_casts
       .get(&proposal.id.to_string())

@@ -2,11 +2,12 @@ use chrono::{Duration, Utc};
 use graphql_client::{reqwest::post_graphql, GraphQLQuery};
 use log::{debug, error};
 use reqwest::Client;
+use serde_json::Value;
 use worker::{Env, Result};
 
 use crate::meta_gov::{Proposal, Vote};
 
-type Any = i32;
+type Any = Value;
 
 #[derive(GraphQLQuery)]
 #[graphql(
@@ -111,7 +112,7 @@ impl GraphQLFetcher {
       .map(|vote| Vote {
         id: vote.id.to_string(),
         voter: vote.voter.to_string(),
-        choice: vote.choice.try_into().unwrap(),
+        choice: vote.choice.as_i64().unwrap_or(0) as isize,
         proposal_id: vote.proposal.clone().unwrap().id,
       })
       .collect();

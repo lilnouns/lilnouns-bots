@@ -147,18 +147,21 @@ impl Handler for FarcasterHandler {
 
     let cast_hash = response_body["result"]["cast"]["hash"]
       .as_str()
-      .unwrap_or_default();
+      .ok_or("Failed to get cast hash")?;
+    debug!("Cast hash: {}", cast_hash);
 
-    let idea_id = idea.id;
     let mut ideas_casts = self
       .cache
       .get::<HashMap<String, String>>("prop_lot:ideas:casts")
       .await?
-      .unwrap_or_default();
+      .ok_or("Failed to retrieve ideas casts")?;
+    debug!("Ideas casts before insertion: {:?}", ideas_casts);
 
-    ideas_casts.insert(idea_id.to_string(), cast_hash.to_string());
+    ideas_casts.insert(idea.id.to_string(), cast_hash.to_string());
+    debug!("Ideas casts after insertion: {:?}", ideas_casts);
 
     self.cache.put("prop_lot:ideas:casts", &ideas_casts).await;
+    debug!("Finished putting ideas casts in cache");
 
     Ok(())
   }
