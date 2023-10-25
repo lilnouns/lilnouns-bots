@@ -160,7 +160,13 @@ impl Handler for FarcasterHandler {
     ideas_casts.insert(idea.id.to_string(), cast_hash.to_string());
     debug!("Ideas casts after insertion: {:?}", ideas_casts);
 
-    self.cache.put("prop_lot:ideas:casts", &ideas_casts).await;
+    let ideas_casts_as_string = serde_json::to_string(&ideas_casts).unwrap();
+    debug!("Ideas casts as string: {}", ideas_casts_as_string);
+
+    self
+      .cache
+      .put("prop_lot:ideas:casts", &ideas_casts_as_string)
+      .await;
     debug!("Finished putting ideas casts in cache");
 
     Ok(())
