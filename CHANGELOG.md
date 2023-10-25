@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.1] - 2023-10-25
+
+### Bug Fixes
+
+- Update Any type and vote choice conversion
+
+### Refactor
+
+- Update warpcast channel for lil nouns
+- Replace unwrap calls with detailed error messages
+- Improve error handling for `cast_hash` retrieval on prop lot farcaster
+- Add debug logs for proposal and idea cast handling
+- Handle null proposal scenario in discord handler
+- Update warp cast channel in Prop House and Prop Lot configs
+
 ## [1.1.0-alpha.0] - 2023-10-19
 
 ### Refactor
