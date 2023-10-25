@@ -189,11 +189,12 @@ impl Handler for FarcasterHandler {
 
     let ideas_casts = self
       .cache
-      .get::<HashMap<isize, String>>("prop_lot:ideas:casts")
+      .get::<HashMap<String, String>>("prop_lot:ideas:casts")
       .await?
       .unwrap_or_default();
 
-    let cast_hash = ideas_casts.get(&idea.id).ok_or("Cast hash not found")?;
+    let idea_id = idea.id.to_string();
+    let cast_hash = ideas_casts.get(&idea_id).ok_or("Cast hash not found")?;
 
     let wallet = get_wallet_handle(&vote.voter_id, "xyz.farcaster").await;
 
