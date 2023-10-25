@@ -121,13 +121,13 @@ impl Handler for DiscordHandler {
       .cache
       .get::<Vec<Proposal>>("meta_gov:proposals")
       .await?
-      .unwrap();
+      .unwrap_or_default();
 
     let proposal = proposals
       .iter()
       .find(|&a| a.id == vote.proposal_id)
-      .unwrap()
-      .clone();
+      .clone()
+      .ok_or("Proposal not found in the funding list.")?;
 
     match self.extract_proposal_info(proposal.clone()).await {
       Ok((proposal_id, proposal_title)) => {
