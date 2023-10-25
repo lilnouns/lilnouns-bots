@@ -182,19 +182,23 @@ impl Handler for FarcasterHandler {
     let cast_hash = response_body["result"]["cast"]["hash"]
       .as_str()
       .ok_or("Cast hash not found")?;
+    debug!("Cast hash: {}", cast_hash);
 
     let mut proposals_casts = self
       .cache
       .get::<HashMap<isize, String>>("prop_house:proposals:casts")
       .await?
       .ok_or("Failed to retrieve proposals casts")?;
+    debug!("Proposals casts before insertion: {:?}", proposals_casts);
 
     proposals_casts.insert(proposal.id, cast_hash.to_string());
+    debug!("Proposals casts after insertion: {:?}", proposals_casts);
 
     self
       .cache
       .put("prop_house:proposals:casts", &proposals_casts)
       .await;
+    debug!("Finished putting proposals casts in cache");
 
     Ok(())
   }
