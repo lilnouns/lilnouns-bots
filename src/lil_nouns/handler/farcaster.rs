@@ -7,7 +7,7 @@ use reqwest::{
   Client,
   Response,
 };
-use serde_json::{json, Value};
+use serde_json::{json, to_string, Value};
 use worker::{Env, Error, Result};
 
 use crate::{
@@ -158,9 +158,12 @@ impl Handler for FarcasterHandler {
     proposals_casts.insert(proposal.id.to_string(), cast_hash.to_string());
     debug!("Proposals casts after insertion: {:?}", proposals_casts);
 
+    let proposals_casts_as_string = to_string(&proposals_casts).unwrap();
+    debug!("Ideas casts as string: {}", proposals_casts_as_string);
+
     self
       .cache
-      .put("lil_nouns:proposals:casts", &proposals_casts)
+      .put("lil_nouns:proposals:casts", &proposals_casts_as_string)
       .await;
     debug!("Finished putting proposals casts in cache");
 

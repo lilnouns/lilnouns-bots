@@ -7,7 +7,7 @@ use reqwest::{
   Client,
   Response,
 };
-use serde_json::{json, Value};
+use serde_json::{json, to_string, Value};
 use utils::link::Link;
 use worker::{Env, Error, Result};
 
@@ -160,7 +160,7 @@ impl Handler for FarcasterHandler {
     ideas_casts.insert(idea.id.to_string(), cast_hash.to_string());
     debug!("Ideas casts after insertion: {:?}", ideas_casts);
 
-    let ideas_casts_as_string = serde_json::to_string(&ideas_casts).unwrap();
+    let ideas_casts_as_string = to_string(&ideas_casts).unwrap();
     debug!("Ideas casts as string: {}", ideas_casts_as_string);
 
     self
