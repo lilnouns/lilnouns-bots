@@ -14,7 +14,7 @@ command = "cargo install -q -f worker-build && worker-build --release"
 
 # Trigger Settings
 [triggers]
-crons = ["*/2 * * * *"]
+crons = ["*/5 * * * *"]
 
 # Default KV Namespace
 [[kv_namespaces]]
