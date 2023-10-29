@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.2] - 2023-10-29
+
+### Features
+
+- Add voting reasons to fetched and handled data for lil nouns
+
+### Refactor
+
+- Add error handling for failed cache storages
+- Serialize idea cast map before caching
+- Change key type for idea_casts in farcaster
+- Update cron schedule in `wrangler.toml`
+- Changed caching method for proposal casts to string
+- Update cron schedule in `wrangler.toml`
+
 ## [1.1.0-alpha.1] - 2023-10-25
 
 ### Bug Fixes

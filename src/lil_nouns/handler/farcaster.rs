@@ -7,7 +7,7 @@ use reqwest::{
   Client,
   Response,
 };
-use serde_json::{json, Value};
+use serde_json::{json, to_string, Value};
 use worker::{Env, Error, Result};
 
 use crate::{
@@ -158,9 +158,12 @@ impl Handler for FarcasterHandler {
     proposals_casts.insert(proposal.id.to_string(), cast_hash.to_string());
     debug!("Proposals casts after insertion: {:?}", proposals_casts);
 
+    let proposals_casts_as_string = to_string(&proposals_casts).unwrap();
+    debug!("Ideas casts as string: {}", proposals_casts_as_string);
+
     self
       .cache
-      .put("lil_nouns:proposals:casts", &proposals_casts)
+      .put("lil_nouns:proposals:casts", &proposals_casts_as_string)
       .await;
     debug!("Finished putting proposals casts in cache");
 
@@ -194,7 +197,7 @@ impl Handler for FarcasterHandler {
 
     let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
 
-    let description = format!(
+    let mut description = format!(
       "{} has voted {} “{}” proposal.",
       wallet,
       match vote.direction {
@@ -205,6 +208,16 @@ impl Handler for FarcasterHandler {
       },
       proposal.title
     );
+
+    if !vote.reason.is_empty() {
+      let chars_limit = 320 - 10 - description.len();
+      let mut vote_reason = vote.clone().reason;
+      if vote_reason.len() > chars_limit {
+        vote_reason.truncate(chars_limit);
+        vote_reason.push_str("...");
+      }
+      description = format!("{}\n\n“{}”", description, vote_reason);
+    }
 
     let request_data = json!({
       "text": description,

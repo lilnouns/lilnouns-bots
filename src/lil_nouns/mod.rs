@@ -24,6 +24,7 @@ pub struct Vote {
   pub voter: String,
   pub proposal_id: usize,
   pub direction: usize,
+  pub reason: String,
 }
 
 pub struct LilNouns {

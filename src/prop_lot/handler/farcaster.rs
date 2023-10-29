@@ -7,7 +7,7 @@ use reqwest::{
   Client,
   Response,
 };
-use serde_json::{json, Value};
+use serde_json::{json, to_string, Value};
 use utils::link::Link;
 use worker::{Env, Error, Result};
 
@@ -160,7 +160,13 @@ impl Handler for FarcasterHandler {
     ideas_casts.insert(idea.id.to_string(), cast_hash.to_string());
     debug!("Ideas casts after insertion: {:?}", ideas_casts);
 
-    self.cache.put("prop_lot:ideas:casts", &ideas_casts).await;
+    let ideas_casts_as_string = to_string(&ideas_casts).unwrap();
+    debug!("Ideas casts as string: {}", ideas_casts_as_string);
+
+    self
+      .cache
+      .put("prop_lot:ideas:casts", &ideas_casts_as_string)
+      .await;
     debug!("Finished putting ideas casts in cache");
 
     Ok(())
@@ -183,11 +189,12 @@ impl Handler for FarcasterHandler {
 
     let ideas_casts = self
       .cache
-      .get::<HashMap<isize, String>>("prop_lot:ideas:casts")
+      .get::<HashMap<String, String>>("prop_lot:ideas:casts")
       .await?
       .unwrap_or_default();
 
-    let cast_hash = ideas_casts.get(&idea.id).ok_or("Cast hash not found")?;
+    let idea_id = idea.id.to_string();
+    let cast_hash = ideas_casts.get(&idea_id).ok_or("Cast hash not found")?;
 
     let wallet = get_wallet_handle(&vote.voter_id, "xyz.farcaster").await;
 
