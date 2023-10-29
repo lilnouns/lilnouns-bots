@@ -116,7 +116,7 @@ impl Handler for DiscordHandler {
       .await
       .unwrap_or(get_short_address(&vote.voter));
 
-    let description = format!(
+    let mut description = format!(
       "{} has voted {} “{}” proposal.",
       wallet,
       match vote.direction {
@@ -127,6 +127,17 @@ impl Handler for DiscordHandler {
       },
       proposal.title
     );
+
+    if !vote.reason.is_empty() {
+      let chars_limit = 320 - 10 - description.len();
+      let mut vote_reason = vote.clone().reason;
+      if vote_reason.len() > chars_limit {
+        vote_reason.truncate(chars_limit);
+        vote_reason.push_str("...");
+      }
+      description = format!("{}\n\n“{}”", description, vote_reason);
+    }
+
     let explorer = get_explorer_address(&vote.voter);
 
     let embed = json!({
