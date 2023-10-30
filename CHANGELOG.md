@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.3] - 2023-10-30
+
+### Bug Fixes
+
+- Handle potential None case for Vote reason on lil nouns
+
+### Miscellaneous Tasks
+
+- Change warpcast channel in config settings
+
 ## [1.1.0-alpha.2] - 2023-10-29
 
 ### Features
