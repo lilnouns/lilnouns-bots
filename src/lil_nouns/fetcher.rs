@@ -85,7 +85,7 @@ impl GraphQLFetcher {
         voter: vote.voter.id.clone(),
         proposal_id: vote.proposal.id.parse::<usize>().unwrap(),
         direction: vote.support_detailed.try_into().unwrap(),
-        reason: vote.reason.clone().unwrap_or_default(),
+        reason: vote.reason.clone(),
       })
       .collect();
 
