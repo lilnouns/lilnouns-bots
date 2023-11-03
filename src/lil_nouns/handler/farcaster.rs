@@ -209,9 +209,9 @@ impl Handler for FarcasterHandler {
       proposal.title
     );
 
-    if !vote.reason.is_empty() {
+    if !vote.reason.is_none() {
       let chars_limit = 320 - 10 - description.len();
-      let mut vote_reason = vote.clone().reason;
+      let mut vote_reason = vote.clone().reason.unwrap_or_default();
       if vote_reason.len() > chars_limit {
         vote_reason.truncate(chars_limit);
         vote_reason.push_str("...");
