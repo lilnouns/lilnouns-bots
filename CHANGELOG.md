@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.4] - 2023-11-03
+
+### Refactor
+
+- Update reason handling in vote system
+
 ## [1.1.0-alpha.3] - 2023-10-30
 
 ### Bug Fixes
