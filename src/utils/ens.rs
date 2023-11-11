@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use anyhow::{anyhow, Result};
 use ethers::{addressbook::Address, middleware::Middleware, prelude::Provider, providers::Http};
+use log::error;
 
 use crate::utils::get_short_address;
 
@@ -29,12 +30,13 @@ pub async fn get_domain_name(address: &str) -> Result<String> {
 pub async fn get_domain_field(domain: &str, field: &str) -> Result<String> {
   let provider = create_provider().await?;
 
-  let value = provider
-    .resolve_field(domain, field)
-    .await
-    .map_err(|error| anyhow!("Failed to resolve field: {}", error))?;
-
-  Ok(value)
+  match provider.resolve_field(domain, field).await {
+    Ok(value) => Ok(value),
+    Err(error) => {
+      error!("Failed to resolve field: {}", error);
+      Err(anyhow!("Failed to resolve field"))
+    }
+  }
 }
 
 pub async fn get_wallet_handle(address: &str, field: &str) -> String {
