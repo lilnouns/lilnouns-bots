@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.5] - 2023-11-11
+
+### Refactor
+
+- Improve error logging for resolving domain fields
+
+### Miscellaneous Tasks
+
+- Updated the version in `Cargo.lock`
+
 ## [1.1.0-alpha.4] - 2023-11-03
 
 ### Refactor
