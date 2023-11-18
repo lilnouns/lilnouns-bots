@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.7] - 2023-11-18
+
+### Miscellaneous Tasks
+
+- Add Second Market Discord and Warp Cast tokens
+- Add second market settings to `wrangler.toml`
+
 ## [1.1.0-alpha.6] - 2023-11-18
 
 ### Features
