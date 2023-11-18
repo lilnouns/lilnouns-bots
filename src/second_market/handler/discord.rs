@@ -1,25 +1,96 @@
 use async_trait::async_trait;
-use log::debug;
-use worker::{Env, Result};
+use chrono::Local;
+use log::{error, info};
+use reqwest::{header, Client};
+use serde_json::{json, Value};
+use worker::{Env, Error, Result};
 
-use crate::second_market::{handler::Handler, Floor};
+use crate::{
+  cache::Cache,
+  second_market::{handler::Handler, Floor},
+};
 
-pub(crate) struct DiscordHandler {}
+pub(crate) struct DiscordHandler {
+  webhook_url: String,
+  cache: Cache,
+  client: Client,
+}
 
 impl DiscordHandler {
-  pub fn new() -> Self {
-    Self {}
+  pub fn new(webhook_url: String, cache: Cache, client: Client) -> Self {
+    Self {
+      webhook_url,
+      cache,
+      client,
+    }
   }
 
   pub fn new_from_env(env: &Env) -> Result<Self> {
-    Ok(Self::new())
+    let webhook_url = env.secret("SECOND_MARKET_DISCORD_WEBHOOK_URL")?.to_string();
+
+    let cache = Cache::new_from_env(env);
+    let client = Client::new();
+
+    Ok(Self::new(webhook_url, cache, client))
+  }
+
+  async fn execute_webhook(&self, embed: Value) -> Result<()> {
+    let msg_json = json!({
+      "username": "Raven",
+      "avatar_url": "https://i.imgur.com/qP2QpJq.png",
+      "embeds": [embed]
+    });
+
+    self
+      .client
+      .post(&self.webhook_url)
+      .header(header::CONTENT_TYPE, "application/json")
+      .body(msg_json.to_string())
+      .send()
+      .await
+      .map_err(|e| {
+        error!("Failed to execute webhook: {}", e);
+        Error::from(format!("Failed to execute webhook: {}", e))
+      })?;
+
+    Ok(())
   }
 }
 
 #[async_trait(? Send)]
 impl Handler for DiscordHandler {
   async fn handle_new_floor(&self, floor: &Floor) -> Result<()> {
-    debug!("{:#?}", floor);
+    info!("Handling new floor: {:?}", floor.new_price);
+
+    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+    let floor_source = if let Some(source) = floor.clone().source {
+      source
+    } else {
+      String::new() // or any other default value
+    };
+
+    let url;
+    if floor_source == "blur.io" {
+      url = "https://opensea.io/collection/lil-nouns";
+    } else {
+      url = "https://blur.io/collection/lil-nouns";
+    }
+
+    let description = format!(
+      "There has been a change in the floor price on the second market. The new floor price is \
+       now **{:?}**, while the previous floor price was **{:?}**.",
+      floor.new_price, floor.old_price
+    );
+
+    let embed = json!({
+      "title": "New Second Market Floor",
+      "description": description,
+      "url": url,
+      "color": 0x039BE5,
+      "footer": {"text": date}
+    });
+
+    self.execute_webhook(embed).await?;
 
     Ok(())
   }
