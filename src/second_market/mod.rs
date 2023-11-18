@@ -16,10 +16,10 @@ mod handler;
 #[derive(Serialize, Deserialize, Clone, Default, Debug)]
 pub struct Floor {
   pub id: String,
-  pub price: f64,
-  pub source: String,
+  pub source: Option<String>,
   pub created_at: String,
-  pub previous_price: f64,
+  pub new_price: Option<f64>,
+  pub old_price: Option<f64>,
 }
 
 pub struct SecondMarket {

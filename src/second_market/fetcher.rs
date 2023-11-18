@@ -4,7 +4,14 @@ use worker::{Env, Result};
 
 use crate::second_market::Floor;
 
-#[derive(Debug, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct FloorAskResponse {
+  events: Vec<Event>,
+  continuation: String,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Event {
   collection: Collection,
@@ -12,41 +19,41 @@ struct Event {
   event: EventDetail,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Collection {
   id: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct FloorAsk {
-  order_id: String,
-  contract: String,
-  token_id: String,
-  maker: String,
-  price: Price,
-  valid_until: i64,
-  source: String,
+  order_id: Option<String>,
+  contract: Option<String>,
+  token_id: Option<String>,
+  maker: Option<String>,
+  price: Option<Price>,
+  valid_until: Option<i64>,
+  source: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Price {
   currency: Currency,
   amount: Amount,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Currency {
   contract: String,
   name: String,
   symbol: String,
-  decimals: i32,
+  decimals: i64,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Amount {
   raw: String,
@@ -55,22 +62,15 @@ struct Amount {
   native: f64,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct EventDetail {
   id: String,
-  previous_price: f64,
+  previous_price: Option<f64>,
   kind: String,
   tx_hash: Option<String>,
   tx_timestamp: Option<i64>,
   created_at: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct ApiResponse {
-  events: Vec<Event>,
-  continuation: String,
 }
 
 pub struct RestFetcher {
@@ -98,7 +98,7 @@ impl RestFetcher {
 
   pub async fn fetch_floors(&self) -> Option<Vec<Floor>> {
     let endpoint = format!(
-      "{}/events/collections/floor-ask/v2?collection={}",
+      "{}/events/collections/floor-ask/v2?collection={}&limit=1000",
       self.base_url, self.collection
     );
 
@@ -112,18 +112,26 @@ impl RestFetcher {
       .unwrap();
 
     let floors = response
-      .json::<ApiResponse>()
+      .json::<FloorAskResponse>()
       .await
       .unwrap()
       .events
       .iter()
       .map(|event| Floor {
         id: event.event.id.clone(),
-        price: event.floor_ask.price.amount.decimal,
         source: event.floor_ask.source.clone(),
         created_at: event.event.created_at.clone(),
-        previous_price: event.event.previous_price,
+        new_price: Some(
+          event
+            .floor_ask
+            .price
+            .as_ref()
+            .map(|p| p.amount.decimal)
+            .unwrap_or(0.0),
+        ),
+        old_price: event.event.previous_price,
       })
+      .filter(|floor| floor.new_price.unwrap_or(0.0) != 0.0)
       .collect();
 
     Some(floors)
