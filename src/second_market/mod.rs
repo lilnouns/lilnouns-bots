@@ -112,7 +112,11 @@ impl SecondMarket {
                 debug!("Successfully handled new floor: {:?}", floor.id);
               }
             }
+          } else {
+            debug!("Floor kind is not a new order or new price equals old price");
           }
+        } else {
+          warn!("No floor data was found");
         }
       }
 
