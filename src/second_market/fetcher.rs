@@ -1,7 +1,8 @@
-use log::debug;
 use reqwest::Client;
 use serde::Deserialize;
 use worker::{Env, Result};
+
+use crate::second_market::Floor;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -95,7 +96,7 @@ impl RestFetcher {
     Ok(Self::new(api_key, base_url, collection))
   }
 
-  pub async fn fetch_floors(&self) -> Option<()> {
+  pub async fn fetch_floors(&self) -> Option<Vec<Floor>> {
     let endpoint = format!(
       "{}/events/collections/floor-ask/v2?collection={}",
       self.base_url, self.collection
@@ -110,9 +111,21 @@ impl RestFetcher {
       .await
       .unwrap();
 
-    // Now you can work with the deserialized data
-    debug!("{:#?}", response.json::<ApiResponse>().await);
+    let floors = response
+      .json::<ApiResponse>()
+      .await
+      .unwrap()
+      .events
+      .iter()
+      .map(|event| Floor {
+        id: event.event.id.clone(),
+        price: event.floor_ask.price.amount.decimal,
+        source: event.floor_ask.source.clone(),
+        created_at: event.event.created_at.clone(),
+        previous_price: event.event.previous_price,
+      })
+      .collect();
 
-    Some(())
+    Some(floors)
   }
 }
