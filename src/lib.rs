@@ -1,7 +1,13 @@
-use log::{debug, error, info, Level};
+use log::{error, info, Level};
 use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 
-use crate::{lil_nouns::LilNouns, meta_gov::MetaGov, prop_house::PropHouse, prop_lot::PropLot};
+use crate::{
+  lil_nouns::LilNouns,
+  meta_gov::MetaGov,
+  prop_house::PropHouse,
+  prop_lot::PropLot,
+  second_market::SecondMarket,
+};
 
 mod cache;
 mod lil_nouns;
@@ -56,6 +62,17 @@ async fn start(env: &Env) -> Result<()> {
     }
   }
 
+  if env.var("SECOND_MARKET_ENABLED").unwrap().to_string() == "true" {
+    match SecondMarket::new_from_env(env) {
+      Ok(result) => match result.start().await {
+        Ok(_) => info!("SecondMarket started successfully"),
+        Err(error) => error!("Failed to start SecondMarket: {:?}", error),
+      },
+
+      Err(error) => error!("Failed to create SecondMarket: {:?}", error),
+    }
+  }
+
   Ok(())
 }
 
@@ -71,7 +88,4 @@ async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
     Ok(_) => info!("Operation was a success."),
     Err(e) => error!("An error occurred: {:?}", e),
   }
-
-  let f = second_market::fetcher::RestFetcher::new_from_env(&env).unwrap();
-  debug!("{:#?}", f.fetch_floors().await);
 }

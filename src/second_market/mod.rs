@@ -1,3 +1,4 @@
+use log::debug;
 use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
 
@@ -67,6 +68,8 @@ impl SecondMarket {
   pub async fn setup(&self) {}
 
   pub async fn start(&self) -> Result<()> {
+    debug!("{:#?}", self.fetcher.fetch_floors().await);
+
     Ok(())
   }
 }
