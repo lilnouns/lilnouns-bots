@@ -1,13 +1,20 @@
 use log::{error, info, Level};
 use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 
-use crate::{lil_nouns::LilNouns, meta_gov::MetaGov, prop_house::PropHouse, prop_lot::PropLot};
+use crate::{
+  lil_nouns::LilNouns,
+  meta_gov::MetaGov,
+  prop_house::PropHouse,
+  prop_lot::PropLot,
+  second_market::SecondMarket,
+};
 
 mod cache;
 mod lil_nouns;
 mod meta_gov;
 mod prop_house;
 mod prop_lot;
+mod second_market;
 mod utils;
 
 async fn start(env: &Env) -> Result<()> {
@@ -52,6 +59,17 @@ async fn start(env: &Env) -> Result<()> {
       },
 
       Err(error) => error!("Failed to create PropLot: {:?}", error),
+    }
+  }
+
+  if env.var("SECOND_MARKET_ENABLED").unwrap().to_string() == "true" {
+    match SecondMarket::new_from_env(env) {
+      Ok(result) => match result.start().await {
+        Ok(_) => info!("SecondMarket started successfully"),
+        Err(error) => error!("Failed to start SecondMarket: {:?}", error),
+      },
+
+      Err(error) => error!("Failed to create SecondMarket: {:?}", error),
     }
   }
 
