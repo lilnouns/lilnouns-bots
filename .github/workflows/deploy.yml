@@ -62,6 +62,8 @@ jobs:
             PROP_LOT_DISCORD_WEBHOOK_URL
             PROP_LOT_WARP_CAST_TOKEN
             SECOND_MARKET_API_KEY
+            SECOND_MARKET_DISCORD_WEBHOOK_URL
+            SECOND_MARKET_WARP_CAST_TOKEN
         env:
           LIL_NOUNS_DISCORD_WEBHOOK_URL: ${{ secrets.LIL_NOUNS_DISCORD_WEBHOOK_URL }}
           LIL_NOUNS_WARP_CAST_TOKEN: ${{ secrets.LIL_NOUNS_WARP_CAST_TOKEN }}
@@ -72,6 +74,8 @@ jobs:
           PROP_LOT_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_LOT_DISCORD_WEBHOOK_URL }}
           PROP_LOT_WARP_CAST_TOKEN: ${{ secrets.PROP_LOT_WARP_CAST_TOKEN }}
           SECOND_MARKET_API_KEY: ${{ secrets.SECOND_MARKET_API_KEY }}
+          SECOND_MARKET_DISCORD_WEBHOOK_URL: ${{ secrets.SECOND_MARKET_DISCORD_WEBHOOK_URL }}
+          SECOND_MARKET_WARP_CAST_TOKEN: ${{ secrets.SECOND_MARKET_WARP_CAST_TOKEN }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
