@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.6] - 2023-11-18
+
+### Features
+
+- Add the second market module and debug function
+
+### Refactor
+
+- Add Floor structure to second market module
+- Update fetch floors function to return data
+- Add new second market structure and handlers
+- Add logging and setup for second market module
+- Add extended logging and floor management in second market
+- Update data structures and fetcher for second market
+- Implement handlers and update fetch floors function
+- Update Floor struct and handling to incorporate `kind` field
+- Add Discord integration to second market handler
+- Add debug and warning logs in second market module
+- Update URL order and enhance floor price display
+
+### Miscellaneous Tasks
+
+- Disable all feature settings in `wrangler.toml`
+- Updated `.dev.vars.example` with Second Market settings
+- Add `SECOND_MARKET_API_KEY` to deployment workflow
+- Add new second market settings in `wrangler.toml`
+
+### Revert
+
+- Disable all feature settings in `wrangler.toml`
+
 ## [1.1.0-alpha.5] - 2023-11-11
 
 ### Refactor
