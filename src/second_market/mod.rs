@@ -1,4 +1,4 @@
-use log::debug;
+use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
 
@@ -65,10 +65,63 @@ impl SecondMarket {
     Ok(Self::new(cache, fetcher, handlers))
   }
 
-  pub async fn setup(&self) {}
+  pub async fn setup(&self) {
+    debug!("Setup function started.");
+
+    if !self.cache.has("second_market:floors").await {
+      if let Some(floors) = self.fetcher.fetch_floors().await {
+        info!("Fetched {:?} floor.", floors.len());
+        debug!("Putting fetched floors into cache.");
+        self.cache.put("second_market:floors", &floors).await;
+      } else {
+        warn!("Failed to fetch floors");
+      }
+    }
+
+    debug!("Setup function finished.");
+  }
 
   pub async fn start(&self) -> Result<()> {
-    debug!("{:#?}", self.fetcher.fetch_floors().await);
+    self.setup().await;
+
+    debug!("Start function started.");
+
+    if let Some(floors) = self.fetcher.fetch_floors().await {
+      debug!("Fetched {:?} floors.", floors.len());
+
+      let mut new_floors = Vec::new();
+
+      if let Some(old_floors) = self.cache.get::<Vec<Floor>>("second_market:floors").await? {
+        let old_ids: Vec<_> = old_floors.iter().map(|floor| &floor.id).collect();
+        new_floors = floors
+          .iter()
+          .filter(|floor| !old_ids.contains(&&floor.id))
+          .cloned()
+          .collect();
+
+        debug!("Found {:?} new floors.", new_floors.len());
+
+        for floor in &new_floors {
+          info!("Handle a new floor...");
+          for handler in &self.handlers {
+            if let Err(err) = handler.handle_new_floor(floor).await {
+              error!("Failed to handle new floor: {:?}", err);
+            } else {
+              debug!("Successfully handled new floor: {:?}", floor.id);
+            }
+          }
+        }
+      }
+
+      if !new_floors.is_empty() {
+        self.cache.put("second_market:floors", &floors).await;
+        info!("Updated floors in cache");
+      }
+    } else {
+      warn!("Failed to fetch floors");
+    }
+
+    debug!("Start function finished.");
 
     Ok(())
   }
