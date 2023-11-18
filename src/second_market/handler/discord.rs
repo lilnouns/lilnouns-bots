@@ -71,15 +71,16 @@ impl Handler for DiscordHandler {
 
     let url;
     if floor_source == "blur.io" {
-      url = "https://opensea.io/collection/lil-nouns";
-    } else {
       url = "https://blur.io/collection/lil-nouns";
+    } else {
+      url = "https://opensea.io/collection/lil-nouns";
     }
 
     let description = format!(
       "There has been a change in the floor price on the second market. The new floor price is \
-       now **{:?}**, while the previous floor price was **{:?}**.",
-      floor.new_price, floor.old_price
+       now **{}**, while the previous floor price was **{}**.",
+      floor.new_price.unwrap().to_string(),
+      floor.old_price.unwrap().to_string()
     );
 
     let embed = json!({
