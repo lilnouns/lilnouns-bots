@@ -98,7 +98,7 @@ impl RestFetcher {
 
   pub async fn fetch_floors(&self) -> Option<Vec<Floor>> {
     let endpoint = format!(
-      "{}/events/collections/floor-ask/v2?collection={}&limit=1000",
+      "{}/events/collections/floor-ask/v2?collection={}",
       self.base_url, self.collection
     );
 

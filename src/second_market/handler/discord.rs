@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use log::debug;
 use worker::{Env, Result};
 
 use crate::second_market::{handler::Handler, Floor};
@@ -18,6 +19,8 @@ impl DiscordHandler {
 #[async_trait(? Send)]
 impl Handler for DiscordHandler {
   async fn handle_new_floor(&self, floor: &Floor) -> Result<()> {
-    todo!()
+    debug!("{:#?}", floor);
+
+    Ok(())
   }
 }
