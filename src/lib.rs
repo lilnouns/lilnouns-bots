@@ -1,4 +1,4 @@
-use log::{error, info, Level};
+use log::{debug, error, info, Level};
 use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 
 use crate::{lil_nouns::LilNouns, meta_gov::MetaGov, prop_house::PropHouse, prop_lot::PropLot};
@@ -8,6 +8,7 @@ mod lil_nouns;
 mod meta_gov;
 mod prop_house;
 mod prop_lot;
+mod second_market;
 mod utils;
 
 async fn start(env: &Env) -> Result<()> {
@@ -70,4 +71,7 @@ async fn cron(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
     Ok(_) => info!("Operation was a success."),
     Err(e) => error!("An error occurred: {:?}", e),
   }
+
+  let f = second_market::fetcher::RestFetcher::new_from_env(&env).unwrap();
+  debug!("{:#?}", f.fetch_floors().await);
 }
