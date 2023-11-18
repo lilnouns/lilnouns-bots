@@ -123,6 +123,9 @@ PROP_LOT_GRAPHQL_URL = "https://lilnouns.proplot.wtf/api/graphql"
 PROP_LOT_WARP_CAST_CHANNEL = "lil-nouns"
 
 # Second Market Settings
+SECOND_MARKET_ENABLED = "true"
+SECOND_MARKET_DISCORD_ENABLED = "true"
+SECOND_MARKET_FARCASTER_ENABLED = "true"
 SECOND_MARKET_API_BASE_URL = "https://api.reservoir.tools"
 SECOND_MARKET_COLLECTION_ADDRESS = "0x4b10701bfd7bfedc47d50562b76b436fbb5bdb3b"
 
