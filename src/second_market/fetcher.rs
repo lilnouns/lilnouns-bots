@@ -119,6 +119,7 @@ impl RestFetcher {
       .iter()
       .map(|event| Floor {
         id: event.event.id.clone(),
+        kind: event.event.kind.clone(),
         source: event.floor_ask.source.clone(),
         created_at: event.event.created_at.clone(),
         new_price: Some(

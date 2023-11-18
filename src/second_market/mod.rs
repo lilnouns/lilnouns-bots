@@ -16,6 +16,7 @@ mod handler;
 #[derive(Serialize, Deserialize, Clone, Default, Debug)]
 pub struct Floor {
   pub id: String,
+  pub kind: String,
   pub source: Option<String>,
   pub created_at: String,
   pub new_price: Option<f64>,
@@ -101,13 +102,15 @@ impl SecondMarket {
 
         debug!("Found {:?} new floors.", new_floors.len());
 
-        for floor in &new_floors {
-          info!("Handle a new floor...");
-          for handler in &self.handlers {
-            if let Err(err) = handler.handle_new_floor(floor).await {
-              error!("Failed to handle new floor: {:?}", err);
-            } else {
-              debug!("Successfully handled new floor: {:?}", floor.id);
+        if let Some(floor) = new_floors.get(0) {
+          if floor.kind == "new-order" && floor.new_price != floor.old_price {
+            info!("Handle a new floor...");
+            for handler in &self.handlers {
+              if let Err(err) = handler.handle_new_floor(floor).await {
+                error!("Failed to handle new floor: {:?}", err);
+              } else {
+                debug!("Successfully handled new floor: {:?}", floor.id);
+              }
             }
           }
         }
