@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.10] - 2023-11-19
+
+### Refactor
+
+- Update date format to use Utc timestamp across discord handlers
+
 ## [1.1.0-alpha.9] - 2023-11-19
 
 ### Refactor
