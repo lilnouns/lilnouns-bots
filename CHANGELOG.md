@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.8] - 2023-11-19
+
+### Refactor
+
+- Update floor price change message format in discord handler
+- Simplify URL assignment in second market discord handler
+- Implement farcaster handler to handle new second market floor
+
 ## [1.1.0-alpha.7] - 2023-11-18
 
 ### Miscellaneous Tasks
