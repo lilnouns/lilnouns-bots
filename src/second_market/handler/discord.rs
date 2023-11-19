@@ -70,7 +70,7 @@ impl Handler for DiscordHandler {
 
     let description = format!(
       "There has been a change in the floor price on the second market. The new floor price is \
-       new floor price is now {} Ξ, while the previous was {} Ξ.",
+       new floor price is now **{}** Ξ, while the previous was **{}** Ξ.",
       floor.new_price.unwrap().to_string(),
       floor.old_price.unwrap().to_string()
     );
