@@ -12,14 +12,16 @@ use crate::{
 
 pub(crate) struct DiscordHandler {
   webhook_url: String,
+  collection: String,
   cache: Cache,
   client: Client,
 }
 
 impl DiscordHandler {
-  pub fn new(webhook_url: String, cache: Cache, client: Client) -> Self {
+  pub fn new(webhook_url: String, collection: String, cache: Cache, client: Client) -> Self {
     Self {
       webhook_url,
+      collection,
       cache,
       client,
     }
@@ -27,11 +29,12 @@ impl DiscordHandler {
 
   pub fn new_from_env(env: &Env) -> Result<Self> {
     let webhook_url = env.secret("SECOND_MARKET_DISCORD_WEBHOOK_URL")?.to_string();
+    let collection = env.var("SECOND_MARKET_COLLECTION_ADDRESS")?.to_string();
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
 
-    Ok(Self::new(webhook_url, cache, client))
+    Ok(Self::new(webhook_url, collection, cache, client))
   }
 
   async fn execute_webhook(&self, embed: Value) -> Result<()> {
@@ -64,8 +67,8 @@ impl Handler for DiscordHandler {
 
     let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
     let url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
-      "blur.io" => "https://blur.io/collection/lil-nouns",
-      _ => "https://opensea.io/collection/lil-nouns",
+      "blur.io" => format!("https://blur.io/collection/{}", self.collection),
+      _ => format!("https://opensea.io/collection/{}", self.collection),
     };
 
     let description = format!(

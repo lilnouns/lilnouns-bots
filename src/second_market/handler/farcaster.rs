@@ -17,6 +17,7 @@ pub(crate) struct FarcasterHandler {
   warpcast_url: String,
   bearer_token: String,
   channel_key: String,
+  collection: String,
   cache: Cache,
   client: Client,
 }
@@ -26,6 +27,7 @@ impl FarcasterHandler {
     warpcast_url: String,
     bearer_token: String,
     channel_key: String,
+    collection: String,
     cache: Cache,
     client: Client,
   ) -> Self {
@@ -33,6 +35,7 @@ impl FarcasterHandler {
       warpcast_url,
       bearer_token,
       channel_key,
+      collection,
       cache,
       client,
     }
@@ -42,6 +45,7 @@ impl FarcasterHandler {
     let warpcast_url = env.var("WARP_CAST_API_BASE_URL")?.to_string();
     let bearer_token = env.secret("SECOND_MARKET_WARP_CAST_TOKEN")?.to_string();
     let channel_key = env.var("SECOND_MARKET_WARP_CAST_CHANNEL")?.to_string();
+    let collection = env.var("SECOND_MARKET_COLLECTION_ADDRESS")?.to_string();
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
@@ -50,6 +54,7 @@ impl FarcasterHandler {
       warpcast_url,
       bearer_token,
       channel_key,
+      collection,
       cache,
       client,
     ))
@@ -92,8 +97,8 @@ impl Handler for FarcasterHandler {
     info!("Handling new floor: {}", floor.id);
 
     let url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
-      "blur.io" => "https://blur.io/collection/lil-nouns",
-      _ => "https://opensea.io/collection/lil-nouns",
+      "blur.io" => format!("https://blur.io/collection/{}", self.collection),
+      _ => format!("https://opensea.io/collection/{}", self.collection),
     };
 
     let description = format!(
