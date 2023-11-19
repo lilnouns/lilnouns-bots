@@ -98,7 +98,7 @@ impl Handler for FarcasterHandler {
 
     let url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
       "blur.io" => format!("https://blur.io/collection/{}", self.collection),
-      _ => format!("https://opensea.io/collection/{}", self.collection),
+      _ => format!("https://opensea.io/assets/ethereum/{}", self.collection),
     };
 
     let description = format!(
