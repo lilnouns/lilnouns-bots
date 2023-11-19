@@ -63,18 +63,10 @@ impl Handler for DiscordHandler {
     info!("Handling new floor: {:?}", floor.new_price);
 
     let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
-    let floor_source = if let Some(source) = floor.clone().source {
-      source
-    } else {
-      String::new() // or any other default value
+    let url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
+      "blur.io" => "https://blur.io/collection/lil-nouns",
+      _ => "https://opensea.io/collection/lil-nouns",
     };
-
-    let url;
-    if floor_source == "blur.io" {
-      url = "https://blur.io/collection/lil-nouns";
-    } else {
-      url = "https://opensea.io/collection/lil-nouns";
-    }
 
     let description = format!(
       "There has been a change in the floor price on the second market. The new floor price is \
