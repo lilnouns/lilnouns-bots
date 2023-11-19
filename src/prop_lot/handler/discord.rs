@@ -41,7 +41,7 @@ impl DiscordHandler {
   async fn execute_webhook(&self, embed: Value) -> Result<()> {
     let msg_json = json!({
       "username": "Raven",
-      "avatar_url": "https://i.imgur.com/qP2QpJq.png",
+      "avatar_url": "https://res.cloudinary.com/nekofar/image/upload/b_rgb:FFB911/ln_raven.jpg",
       "embeds": [embed]
     });
 
