@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.9] - 2023-11-19
+
+### Refactor
+
+- Update avatar URLs in Discord webhook handlers
+- Format floor price changes in Discord notifications
+- Add collection support to handlers of second market
+- Update OpenSea url format in handlers of second market
+
 ## [1.1.0-alpha.8] - 2023-11-19
 
 ### Refactor
