@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use chrono::Local;
+use chrono::Utc;
 use log::{error, info};
 use reqwest::{header, Client};
 use serde_json::{json, Value};
@@ -65,7 +65,7 @@ impl Handler for DiscordHandler {
   async fn handle_new_floor(&self, floor: &Floor) -> Result<()> {
     info!("Handling new floor: {:?}", floor.new_price);
 
-    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+    let date = format!("<t:{}:R>", Utc::now().timestamp());
     let url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
       "blur.io" => format!("https://blur.io/collection/{}", self.collection),
       _ => format!("https://opensea.io/assets/ethereum/{}", self.collection),

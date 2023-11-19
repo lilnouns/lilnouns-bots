@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use chrono::Local;
+use chrono::Utc;
 use header::CONTENT_TYPE;
 use log::{error, info};
 use reqwest::{header, Client};
@@ -68,7 +68,7 @@ impl Handler for DiscordHandler {
     info!("Handling new proposal: {}", proposal.title);
 
     let url = format!("{}/{}", self.base_url, proposal.id);
-    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+    let date = format!("<t:{}:R>", Utc::now().timestamp());
     let wallet = get_domain_name(&proposal.proposer)
       .await
       .unwrap_or(get_short_address(&proposal.proposer));
@@ -111,7 +111,7 @@ impl Handler for DiscordHandler {
       .clone();
 
     let url = format!("{}/{}", self.base_url, proposal.id);
-    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+    let date = format!("<t:{}:R>", Utc::now().timestamp());
     let wallet = get_domain_name(&vote.voter)
       .await
       .unwrap_or(get_short_address(&vote.voter));

@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use chrono::Local;
+use chrono::Utc;
 use log::{error, info};
 use reqwest::{header, Client};
 use serde_json::{json, Value};
@@ -71,7 +71,7 @@ impl Handler for DiscordHandler {
       self.base_url,
       auction.title.replace(' ', "-").to_lowercase()
     );
-    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+    let date = format!("<t:{}:R>", Utc::now().timestamp());
     let description = format!(
       "A new Prop House round has been created: “{}”",
       auction.title
@@ -111,7 +111,7 @@ impl Handler for DiscordHandler {
       auction.title.replace(' ', "-").to_lowercase(),
       proposal.id
     );
-    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+    let date = format!("<t:{}:R>", Utc::now().timestamp());
     let wallet = get_domain_name(&proposal.address)
       .await
       .unwrap_or(get_short_address(&proposal.address));
@@ -159,7 +159,7 @@ impl Handler for DiscordHandler {
       proposal.title.replace(' ', "-").to_lowercase(),
       proposal.id
     );
-    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+    let date = format!("<t:{}:R>", Utc::now().timestamp());
     let wallet = get_domain_name(&vote.address)
       .await
       .unwrap_or(get_short_address(&vote.address));
