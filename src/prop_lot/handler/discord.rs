@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use chrono::Utc;
+use chrono::Local;
 use log::{error, info};
 use reqwest::{header, Client};
 use serde_json::{json, Value};
@@ -66,7 +66,7 @@ impl Handler for DiscordHandler {
   async fn handle_new_idea(&self, idea: &Idea) -> Result<()> {
     info!("Handling new idea: {}", idea.title);
 
-    let date = format!("<t:{}:R>", Utc::now().timestamp());
+    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
     let url = format!("{}/idea/{}", self.base_url, idea.id);
     let wallet = get_domain_name(&idea.creator_id)
       .await
@@ -109,7 +109,7 @@ impl Handler for DiscordHandler {
       .unwrap()
       .clone();
 
-    let date = format!("<t:{}:R>", Utc::now().timestamp());
+    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
     let wallet = get_domain_name(&vote.voter_id)
       .await
       .unwrap_or(get_short_address(&vote.voter_id));
@@ -158,7 +158,7 @@ impl Handler for DiscordHandler {
       .clone();
 
     let url = format!("{}/idea/{}", self.base_url, idea.id);
-    let date = format!("<t:{}:R>", Utc::now().timestamp());
+    let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
     let wallet = get_domain_name(&comment.author_id)
       .await
       .unwrap_or(get_short_address(&comment.author_id));
