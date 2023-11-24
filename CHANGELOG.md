@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.12] - 2023-11-24
+
+### Bug Fixes
+
+- Update floor price change notification text
+
 ## [1.1.0-alpha.11] - 2023-11-20
 
 ### Revert
