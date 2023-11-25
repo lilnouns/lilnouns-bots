@@ -219,7 +219,7 @@ impl Handler for FarcasterHandler {
           "text": description,
           "channelKey": self.channel_key,
           "parent": {
-              "hash": cast_hash,
+            "hash": cast_hash,
           }
         })
       }
