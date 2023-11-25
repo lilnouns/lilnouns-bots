@@ -17,10 +17,9 @@ mod handler;
 pub struct Floor {
   pub id: String,
   pub kind: String,
+  pub price: Option<f64>,
   pub source: Option<String>,
   pub created_at: String,
-  pub new_price: Option<f64>,
-  pub old_price: Option<f64>,
 }
 
 pub struct SecondMarket {
@@ -114,7 +113,7 @@ impl SecondMarket {
           let old_price = self.cache.get::<f64>("second_market:old_price").await?;
 
           // check if new price and old price are not equal
-          if floor.new_price != old_price {
+          if floor.price != old_price {
             info!("Handle a new floor...");
 
             // iterate through all handlers to handle new floor
@@ -125,10 +124,7 @@ impl SecondMarket {
               } else {
                 self
                   .cache
-                  .put::<String>(
-                    "second_market:old_price",
-                    &floor.new_price.unwrap().to_string(),
-                  )
+                  .put::<String>("second_market:old_price", &floor.price.unwrap().to_string())
                   .await;
                 debug!("Successfully handled new floor: {:?}", floor.id);
               }
