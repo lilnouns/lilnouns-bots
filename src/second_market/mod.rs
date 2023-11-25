@@ -87,25 +87,37 @@ impl SecondMarket {
 
     debug!("Start function started.");
 
+    // check if fetched floors are not None
     if let Some(floors) = self.fetcher.fetch_floors().await {
+      // log the number of floors fetched
       debug!("Fetched {:?} floors.", floors.len());
 
       let mut new_floors = Vec::new();
 
+      // check if old floors in cache are not None
       if let Some(old_floors) = self.cache.get::<Vec<Floor>>("second_market:floors").await? {
+        // get the ids of old floors
         let old_ids: Vec<_> = old_floors.iter().map(|floor| &floor.id).collect();
+
+        // get the new floors that doesn't exist in old floors
         new_floors = floors
           .iter()
           .filter(|floor| !old_ids.contains(&&floor.id))
           .cloned()
           .collect();
 
+        // log the number of new floors found
         debug!("Found {:?} new floors.", new_floors.len());
 
+        // check if there is at least one new floor
         if let Some(floor) = new_floors.get(0) {
+          // check the type of new floor and if new price and old price are not equal
           if floor.kind == "new-order" && floor.new_price != floor.old_price {
             info!("Handle a new floor...");
+
+            // iterate through all handlers to handle new floor
             for handler in &self.handlers {
+              // call the handler method and handle any possible error
               if let Err(err) = handler.handle_new_floor(floor).await {
                 error!("Failed to handle new floor: {:?}", err);
               } else {
@@ -120,6 +132,7 @@ impl SecondMarket {
         }
       }
 
+      // if there's new floors, update the cache
       if !new_floors.is_empty() {
         self.cache.put("second_market:floors", &floors).await;
         info!("Updated floors in cache");
