@@ -122,7 +122,7 @@ impl RestFetcher {
         kind: event.event.kind.clone(),
         source: event.floor_ask.source.clone(),
         created_at: event.event.created_at.clone(),
-        new_price: Some(
+        price: Some(
           event
             .floor_ask
             .price
@@ -130,9 +130,8 @@ impl RestFetcher {
             .map(|p| p.amount.decimal)
             .unwrap_or(0.0),
         ),
-        old_price: event.event.previous_price,
       })
-      .filter(|floor| floor.new_price.unwrap_or(0.0) != 0.0)
+      .filter(|floor| floor.price.unwrap_or(0.0) != 0.0)
       .collect();
 
     Some(floors)
