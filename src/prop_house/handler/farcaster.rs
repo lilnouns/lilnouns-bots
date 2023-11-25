@@ -13,7 +13,7 @@ use worker::{Env, Error, Result};
 use crate::{
   cache::Cache,
   prop_house::{handler::Handler, Auction, Proposal, Vote},
-  utils::{ens::get_wallet_handle, link::Link},
+  utils::ens::get_wallet_handle,
 };
 
 pub(crate) struct FarcasterHandler {
@@ -23,7 +23,6 @@ pub(crate) struct FarcasterHandler {
   channel_key: String,
   cache: Cache,
   client: Client,
-  link: Link,
 }
 
 impl FarcasterHandler {
@@ -34,7 +33,6 @@ impl FarcasterHandler {
     channel_key: String,
     cache: Cache,
     client: Client,
-    link: Link,
   ) -> Self {
     Self {
       base_url,
@@ -43,7 +41,6 @@ impl FarcasterHandler {
       channel_key,
       cache,
       client,
-      link,
     }
   }
 
@@ -55,7 +52,6 @@ impl FarcasterHandler {
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
-    let link = Link::new_from_env(&env);
 
     Ok(Self::new(
       base_url,
@@ -64,7 +60,6 @@ impl FarcasterHandler {
       channel_key,
       cache,
       client,
-      link,
     ))
   }
 
