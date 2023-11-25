@@ -217,7 +217,7 @@ impl Handler for FarcasterHandler {
 
     let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
 
-    let description = format!(
+    let mut description = format!(
       "{} has voted {} “{}” proposal.",
       wallet,
       match vote.choice {
@@ -228,6 +228,16 @@ impl Handler for FarcasterHandler {
       },
       proposal_title
     );
+
+    let chars_limit = 320 - 10 - description.len();
+    let mut vote_reason = vote.clone().reason.unwrap_or(String::new());
+    if !vote_reason.is_empty() {
+      if vote_reason.len() > chars_limit {
+        vote_reason.truncate(chars_limit);
+        vote_reason.push_str("...");
+      }
+      description = format!("{}\n\n“{}”", description, vote_reason);
+    }
 
     let request_data = json!({
       "text": description,

@@ -24,6 +24,7 @@ pub struct Vote {
   pub(crate) voter: String,
   pub(crate) choice: isize,
   pub(crate) proposal_id: String,
+  pub reason: Option<String>,
 }
 
 pub struct MetaGov {
