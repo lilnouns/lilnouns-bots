@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.13] - 2023-11-26
+
+### Refactor
+
+- Add some comments to the second market module
+- Improve code for handling floor prices in Second Market
+- Update Floor struct and adapt price handling code
+- Remove `Link` dependency from `FarcasterHandler` on Prop House
+- Include vote reason in vote struct and description of Meta Gov
+- Update indentation in farcaster handler for Prop Lot
+- Handle default values for new and old prices in second market
+- Handle null prices in second market handlers
+
 ## [1.1.0-alpha.12] - 2023-11-24
 
 ### Bug Fixes
