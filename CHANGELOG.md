@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.14] - 2023-11-26
+
+### Refactor
+
+- Add timestamp to floor price update URL
+- Change DateTime format to Unix timestamp for links
+
 ## [1.1.0-alpha.13] - 2023-11-26
 
 ### Refactor
