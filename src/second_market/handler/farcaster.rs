@@ -96,6 +96,13 @@ impl Handler for FarcasterHandler {
   async fn handle_new_floor(&self, floor: &Floor) -> Result<()> {
     info!("Handling new floor: {}", floor.id);
 
+    let old_price = self
+      .cache
+      .get::<f64>("second_market:old_price")
+      .await?
+      .unwrap_or_default();
+    let new_price = floor.price.unwrap_or_default();
+
     let url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
       "blur.io" => format!("https://blur.io/collection/{}", self.collection),
       _ => format!("https://opensea.io/assets/ethereum/{}", self.collection),
@@ -104,8 +111,7 @@ impl Handler for FarcasterHandler {
     let description = format!(
       "There has been a change in the floor price on the second market. The new floor price is \
        now {} Ξ, while the previous was {} Ξ.",
-      floor.new_price.unwrap().to_string(),
-      floor.old_price.unwrap().to_string()
+      new_price, old_price
     );
 
     let request_data = json!({

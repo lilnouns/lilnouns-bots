@@ -112,6 +112,7 @@ impl GraphQLFetcher {
       .map(|vote| Vote {
         id: vote.id.to_string(),
         voter: vote.voter.to_string(),
+        reason: vote.clone().reason,
         choice: vote.choice.as_i64().unwrap_or(0) as isize,
         proposal_id: vote.proposal.clone().unwrap().id,
       })
