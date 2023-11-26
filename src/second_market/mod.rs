@@ -110,10 +110,15 @@ impl SecondMarket {
 
         // check if there is at least one new floor
         if let Some(floor) = new_floors.get(0) {
-          let old_price = self.cache.get::<f64>("second_market:old_price").await?;
+          let old_price = self
+            .cache
+            .get::<f64>("second_market:old_price")
+            .await?
+            .unwrap_or_default();
+          let new_price = floor.price.unwrap_or_default();
 
-          // check if new price and old price are not equal
-          if floor.price != old_price {
+          // check the type of new floor and if new price and old price are not equal
+          if floor.kind == "new-order" && new_price != old_price {
             info!("Handle a new floor...");
 
             // iterate through all handlers to handle new floor
