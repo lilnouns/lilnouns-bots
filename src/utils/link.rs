@@ -45,7 +45,7 @@ impl Link {
       Ok(v) => {
         if url == v.url {
           let now: DateTime<Utc> = Utc::now();
-          return Ok(format!("{}/{}?{}", &self.endpoint, v.sqid, now));
+          return Ok(format!("{}/{}?{}", &self.endpoint, v.sqid, now.timestamp()));
         }
         Ok(url)
       }
