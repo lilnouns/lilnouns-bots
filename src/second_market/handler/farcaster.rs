@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use log::{debug, error, info};
 use reqwest::{
   header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
@@ -95,6 +96,7 @@ impl FarcasterHandler {
 impl Handler for FarcasterHandler {
   async fn handle_new_floor(&self, floor: &Floor) -> Result<()> {
     info!("Handling new floor: {}", floor.id);
+    let now: DateTime<Utc> = Utc::now();
 
     let old_price = self
       .cache
@@ -103,10 +105,11 @@ impl Handler for FarcasterHandler {
       .unwrap_or_default();
     let new_price = floor.price.unwrap_or_default();
 
-    let url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
+    let mut url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
       "blur.io" => format!("https://blur.io/collection/{}", self.collection),
       _ => format!("https://opensea.io/assets/ethereum/{}", self.collection),
     };
+    url = format!("{}?{}", url, now.timestamp());
 
     let description = format!(
       "There has been a change in the floor price on the second market. The new floor price is \
