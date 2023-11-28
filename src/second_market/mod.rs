@@ -127,13 +127,14 @@ impl SecondMarket {
               if let Err(err) = handler.handle_new_floor(floor).await {
                 error!("Failed to handle new floor: {:?}", err);
               } else {
-                self
-                  .cache
-                  .put::<String>("second_market:old_price", &floor.price.unwrap().to_string())
-                  .await;
                 debug!("Successfully handled new floor: {:?}", floor.id);
               }
             }
+
+            self
+              .cache
+              .put::<String>("second_market:old_price", &floor.price.unwrap().to_string())
+              .await;
           } else {
             debug!("Floor kind is not a new order or new price equals old price");
           }
