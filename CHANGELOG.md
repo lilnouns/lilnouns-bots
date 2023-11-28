@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.15] - 2023-11-28
+
+### Bug Fixes
+
+- Update cache handling in second market module
+
 ## [1.1.0-alpha.14] - 2023-11-26
 
 ### Refactor
