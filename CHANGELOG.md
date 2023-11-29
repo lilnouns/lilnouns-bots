@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.16] - 2023-11-29
+
+### Refactor
+
+- Add URL generation with final URL utility function
+
 ## [1.1.0-alpha.15] - 2023-11-28
 
 ### Bug Fixes
