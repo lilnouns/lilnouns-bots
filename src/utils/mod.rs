@@ -1,3 +1,4 @@
+use anyhow::Result;
 use cfg_if::cfg_if;
 
 pub(crate) mod ens;
@@ -33,4 +34,9 @@ pub fn get_short_address(address: &str) -> String {
 
 pub fn get_explorer_address(address: &str) -> String {
   format!("https://etherscan.io/address/{}", address)
+}
+
+pub async fn get_final_url(url: &str) -> Result<String> {
+  let resp = reqwest::get(url).await?;
+  Ok(resp.url().as_str().to_string())
 }

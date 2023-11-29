@@ -8,6 +8,7 @@ use worker::{Env, Error, Result};
 use crate::{
   cache::Cache,
   second_market::{handler::Handler, Floor},
+  utils::get_final_url,
 };
 
 pub(crate) struct DiscordHandler {
@@ -73,10 +74,11 @@ impl Handler for DiscordHandler {
     let new_price = floor.price.unwrap_or_default();
 
     let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
-    let url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
+    let mut url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
       "blur.io" => format!("https://blur.io/collection/{}", self.collection),
       _ => format!("https://opensea.io/assets/ethereum/{}", self.collection),
     };
+    url = get_final_url(&url).await.unwrap_or(url);
 
     let description = format!(
       "There has been a change in the floor price on the second market. The new floor price is \
