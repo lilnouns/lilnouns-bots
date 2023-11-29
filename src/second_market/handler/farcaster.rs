@@ -12,6 +12,7 @@ use worker::{Env, Error, Result};
 use crate::{
   cache::Cache,
   second_market::{handler::Handler, Floor},
+  utils::get_final_url,
 };
 
 pub(crate) struct FarcasterHandler {
@@ -109,6 +110,7 @@ impl Handler for FarcasterHandler {
       "blur.io" => format!("https://blur.io/collection/{}", self.collection),
       _ => format!("https://opensea.io/assets/ethereum/{}", self.collection),
     };
+    url = get_final_url(&url).await.unwrap_or(url);
     url = format!("{}?{}", url, now.timestamp());
 
     let description = format!(
