@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.18] - 2023-12-05
+
+### Refactor
+
+- Update URL formats for OpenSea in discord and farcaster second market handlers
+
 ## [1.1.0-alpha.17] - 2023-12-05
 
 ### Refactor
