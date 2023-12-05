@@ -107,8 +107,8 @@ impl Handler for FarcasterHandler {
     let new_price = floor.price.unwrap_or_default();
 
     let mut url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
-      "blur.io" => format!("https://blur.io/collection/{}", self.collection),
-      _ => format!("https://opensea.io/assets/ethereum/{}", self.collection),
+      "OpenSea" => format!("https://opensea.io/assets/ethereum/{}", self.collection),
+      _ => format!("https://pro.opensea.io/collection/{}", self.collection),
     };
     url = get_final_url(&url).await.unwrap_or(url);
     url = format!("{}?{}", url, now.timestamp());

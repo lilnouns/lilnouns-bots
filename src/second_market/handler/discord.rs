@@ -75,8 +75,8 @@ impl Handler for DiscordHandler {
 
     let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
     let mut url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
-      "blur.io" => format!("https://blur.io/collection/{}", self.collection),
-      _ => format!("https://opensea.io/assets/ethereum/{}", self.collection),
+      "OpenSea" => format!("https://opensea.io/assets/ethereum/{}", self.collection),
+      _ => format!("https://pro.opensea.io/collection/{}", self.collection),
     };
     url = get_final_url(&url).await.unwrap_or(url);
 
