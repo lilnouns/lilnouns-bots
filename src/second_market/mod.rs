@@ -118,7 +118,7 @@ impl SecondMarket {
           let new_price = floor.price.unwrap_or_default();
 
           // check the type of new floor and if new price and old price are not equal
-          if floor.kind == "new-order" && new_price != old_price {
+          if new_price != old_price {
             info!("Handle a new floor...");
 
             // iterate through all handlers to handle new floor

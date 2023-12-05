@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.17] - 2023-12-05
+
+### Refactor
+
+- Simplify condition for handling new floor price
+
 ## [1.1.0-alpha.16] - 2023-11-29
 
 ### Refactor
