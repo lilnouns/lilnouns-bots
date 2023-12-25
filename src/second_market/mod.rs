@@ -5,7 +5,7 @@ use worker::{Env, Result};
 use crate::{
   cache::Cache,
   second_market::{
-    fetcher::RestFetcher,
+    fetcher::{Collection, RestFetcher},
     handler::{discord::DiscordHandler, farcaster::FarcasterHandler, Handler},
   },
 };
@@ -68,13 +68,16 @@ impl SecondMarket {
   pub async fn setup(&self) {
     debug!("Setup function started.");
 
-    if !self.cache.has("second_market:floors").await {
-      if let Some(floors) = self.fetcher.fetch_floors().await {
-        info!("Fetched {:?} floor.", floors.len());
-        debug!("Putting fetched floors into cache.");
-        self.cache.put("second_market:floors", &floors).await;
+    if !self.cache.has("second_market:collections").await {
+      if let Some(collections) = self.fetcher.fetch_collections().await {
+        info!("Fetched {:?} collections.", collections.len());
+        debug!("Putting fetched collections into cache.");
+        self
+          .cache
+          .put("second_market:collections", &collections)
+          .await;
       } else {
-        warn!("Failed to fetch floors");
+        warn!("Failed to fetch collections");
       }
     }
 
@@ -86,70 +89,53 @@ impl SecondMarket {
 
     debug!("Start function started.");
 
-    // check if fetched floors are not None
-    if let Some(floors) = self.fetcher.fetch_floors().await {
-      // log the number of floors fetched
-      debug!("Fetched {:?} floors.", floors.len());
-
-      let mut new_floors = Vec::new();
-
-      // check if old floors in cache are not None
-      if let Some(old_floors) = self.cache.get::<Vec<Floor>>("second_market:floors").await? {
-        // get the ids of old floors
-        let old_ids: Vec<_> = old_floors.iter().map(|floor| &floor.id).collect();
-
-        // get the new floors that doesn't exist in old floors
-        new_floors = floors
-          .iter()
-          .filter(|floor| !old_ids.contains(&&floor.id))
-          .cloned()
-          .collect();
-
-        // log the number of new floors found
-        debug!("Found {:?} new floors.", new_floors.len());
-
-        // check if there is at least one new floor
-        if let Some(floor) = new_floors.get(0) {
-          let old_price = self
-            .cache
-            .get::<f64>("second_market:old_price")
-            .await?
-            .unwrap_or_default();
-          let new_price = floor.price.unwrap_or_default();
-
-          // check the type of new floor and if new price and old price are not equal
-          if new_price != old_price {
-            info!("Handle a new floor...");
-
-            // iterate through all handlers to handle new floor
-            for handler in &self.handlers {
-              // call the handler method and handle any possible error
-              if let Err(err) = handler.handle_new_floor(floor).await {
-                error!("Failed to handle new floor: {:?}", err);
-              } else {
-                debug!("Successfully handled new floor: {:?}", floor.id);
-              }
-            }
-
-            self
-              .cache
-              .put::<String>("second_market:old_price", &floor.price.unwrap().to_string())
-              .await;
-          } else {
-            debug!("Floor kind is not a new order or new price equals old price");
-          }
-        } else {
-          warn!("No floor data was found");
-        }
+    let new_collections = match self.fetcher.fetch_collections().await {
+      Some(collections) => collections,
+      None => {
+        debug!("Failed to fetch new collections.");
+        return Ok(());
       }
+    };
+    debug!("Fetched {:?} collections.", new_collections.len());
 
-      // if there's new floors, update the cache
-      if !new_floors.is_empty() {
-        self.cache.put("second_market:floors", &floors).await;
-        info!("Updated floors in cache");
+    let old_collections = match self
+      .cache
+      .get::<Vec<Collection>>("second_market:collections")
+      .await?
+    {
+      Some(collections) => collections,
+      None => {
+        debug!("No old collections found in the cache.");
+        return Ok(());
+      }
+    };
+
+    if let (Some(old_collection), Some(new_collection)) =
+      (old_collections.get(0), new_collections.get(0))
+    {
+      if old_collection.floor_ask.price.amount.decimal
+        != new_collection.floor_ask.price.amount.decimal
+      {
+        info!("Handle a new floor...");
+
+        for handler in &self.handlers {
+          if let Err(err) = handler.handle_new_floor(new_collection).await {
+            error!("Failed to handle new floor: {:?}", err);
+          } else {
+            debug!("Successfully handled new floor.");
+          }
+        }
+
+        self
+          .cache
+          .put("second_market:collections", &new_collections)
+          .await;
+        info!("Updated collections in cache");
+      } else {
+        debug!("Floor has not changed.");
       }
     } else {
-      warn!("Failed to fetch floors");
+      debug!("Unable to compare floors: One of the collections is empty.");
     }
 
     debug!("Start function finished.");

@@ -11,15 +11,13 @@ use worker::{Env, Error, Result};
 
 use crate::{
   cache::Cache,
-  second_market::{handler::Handler, Floor},
-  utils::get_final_url,
+  second_market::{fetcher::Collection, handler::Handler},
 };
 
 pub(crate) struct FarcasterHandler {
   warpcast_url: String,
   bearer_token: String,
   channel_key: String,
-  collection: String,
   cache: Cache,
   client: Client,
 }
@@ -29,7 +27,6 @@ impl FarcasterHandler {
     warpcast_url: String,
     bearer_token: String,
     channel_key: String,
-    collection: String,
     cache: Cache,
     client: Client,
   ) -> Self {
@@ -37,7 +34,6 @@ impl FarcasterHandler {
       warpcast_url,
       bearer_token,
       channel_key,
-      collection,
       cache,
       client,
     }
@@ -47,7 +43,6 @@ impl FarcasterHandler {
     let warpcast_url = env.var("WARP_CAST_API_BASE_URL")?.to_string();
     let bearer_token = env.secret("SECOND_MARKET_WARP_CAST_TOKEN")?.to_string();
     let channel_key = env.var("SECOND_MARKET_WARP_CAST_CHANNEL")?.to_string();
-    let collection = env.var("SECOND_MARKET_COLLECTION_ADDRESS")?.to_string();
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
@@ -56,7 +51,6 @@ impl FarcasterHandler {
       warpcast_url,
       bearer_token,
       channel_key,
-      collection,
       cache,
       client,
     ))
@@ -95,8 +89,11 @@ impl FarcasterHandler {
 
 #[async_trait(? Send)]
 impl Handler for FarcasterHandler {
-  async fn handle_new_floor(&self, floor: &Floor) -> Result<()> {
-    info!("Handling new floor: {}", floor.id);
+  async fn handle_new_floor(&self, collection: &Collection) -> Result<()> {
+    info!(
+      "Handling new floor: {}",
+      collection.floor_ask.price.amount.decimal
+    );
     let now: DateTime<Utc> = Utc::now();
 
     let old_price = self
@@ -104,13 +101,9 @@ impl Handler for FarcasterHandler {
       .get::<f64>("second_market:old_price")
       .await?
       .unwrap_or_default();
-    let new_price = floor.price.unwrap_or_default();
+    let new_price = collection.floor_ask.price.amount.decimal;
 
-    let mut url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
-      "OpenSea" => format!("https://opensea.io/assets/ethereum/{}", self.collection),
-      _ => format!("https://pro.opensea.io/collection/{}", self.collection),
-    };
-    url = get_final_url(&url).await.unwrap_or(url);
+    let mut url = format!("https://pro.opensea.io/collection/{}", collection.slug);
     url = format!("{}?{}", url, now.timestamp());
 
     let description = format!(
