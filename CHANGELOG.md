@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.20] - 2023-12-25
+
+### Refactor
+
+- Remove `get_final_url` from utilities
+- Replace floors by collections for handling floors
+
+### Miscellaneous Tasks
+
+- Disable all bots except second market ones
+
+### Revert
+
+- Disable all bots except second market ones
+
 ## [1.1.0-alpha.19] - 2023-12-15
 
 ### Bug Fixes
