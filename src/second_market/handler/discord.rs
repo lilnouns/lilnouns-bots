@@ -7,22 +7,19 @@ use worker::{Env, Error, Result};
 
 use crate::{
   cache::Cache,
-  second_market::{handler::Handler, Floor},
-  utils::get_final_url,
+  second_market::{fetcher::Collection, handler::Handler},
 };
 
 pub(crate) struct DiscordHandler {
   webhook_url: String,
-  collection: String,
   cache: Cache,
   client: Client,
 }
 
 impl DiscordHandler {
-  pub fn new(webhook_url: String, collection: String, cache: Cache, client: Client) -> Self {
+  pub fn new(webhook_url: String, cache: Cache, client: Client) -> Self {
     Self {
       webhook_url,
-      collection,
       cache,
       client,
     }
@@ -30,12 +27,11 @@ impl DiscordHandler {
 
   pub fn new_from_env(env: &Env) -> Result<Self> {
     let webhook_url = env.secret("SECOND_MARKET_DISCORD_WEBHOOK_URL")?.to_string();
-    let collection = env.var("SECOND_MARKET_COLLECTION_ADDRESS")?.to_string();
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
 
-    Ok(Self::new(webhook_url, collection, cache, client))
+    Ok(Self::new(webhook_url, cache, client))
   }
 
   async fn execute_webhook(&self, embed: Value) -> Result<()> {
@@ -63,22 +59,21 @@ impl DiscordHandler {
 
 #[async_trait(? Send)]
 impl Handler for DiscordHandler {
-  async fn handle_new_floor(&self, floor: &Floor) -> Result<()> {
-    info!("Handling new floor: {:?}", floor.price);
+  async fn handle_new_floor(&self, collection: &Collection) -> Result<()> {
+    info!(
+      "Handling new floor: {:?}",
+      collection.floor_ask.price.amount.decimal
+    );
 
     let old_price = self
       .cache
       .get::<f64>("second_market:old_price")
       .await?
       .unwrap_or_default();
-    let new_price = floor.price.unwrap_or_default();
+    let new_price = collection.floor_ask.price.amount.decimal;
 
     let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
-    let mut url = match floor.clone().source.unwrap_or_else(String::new).as_str() {
-      "OpenSea" => format!("https://opensea.io/assets/ethereum/{}", self.collection),
-      _ => format!("https://pro.opensea.io/collection/{}", self.collection),
-    };
-    url = get_final_url(&url).await.unwrap_or(url);
+    let url = format!("https://pro.opensea.io/collection/{}", collection.slug);
 
     let description = format!(
       "There has been a change in the floor price on the second market. The new floor price is \
