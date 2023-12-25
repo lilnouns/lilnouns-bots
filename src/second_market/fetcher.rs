@@ -1,76 +1,127 @@
+use std::collections::HashMap;
+
 use reqwest::Client;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use worker::{Env, Result};
 
-use crate::second_market::Floor;
-
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct FloorAskResponse {
-  events: Vec<Event>,
-  continuation: String,
+pub struct Root {
+  pub collections: Vec<Collection>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct Event {
-  collection: Collection,
-  floor_ask: FloorAsk,
-  event: EventDetail,
+pub struct Collection {
+  pub chain_id: u64,
+  pub id: String,
+  pub slug: String,
+  pub created_at: String,
+  pub updated_at: String,
+  pub name: String,
+  pub symbol: String,
+  pub contract_deployed_at: Option<String>,
+  pub image: String,
+  pub banner: Option<String>,
+  pub twitter_url: Option<String>,
+  pub discord_url: Option<String>,
+  pub external_url: String,
+  pub twitter_username: Option<String>,
+  pub opensea_verification_status: String,
+  pub description: String,
+  pub metadata_disabled: bool,
+  pub is_spam: bool,
+  pub sample_images: Vec<String>,
+  pub token_count: String,
+  pub on_sale_count: String,
+  pub primary_contract: String,
+  pub token_set_id: String,
+  pub creator: String,
+  pub royalties: Royalties,
+  pub all_royalties: AllRoyalties,
+  pub floor_ask: FloorAsk,
+  pub top_bid: TopBid,
+  pub rank: HashMap<String, Option<u64>>,
+  pub volume: HashMap<String, f64>,
+  pub volume_change: HashMap<String, f64>,
+  pub floor_sale: HashMap<String, f64>,
+  pub floor_sale_change: HashMap<String, f64>,
+  pub collection_bid_supported: bool,
+  pub owner_count: u64,
+  pub contract_kind: String,
+  pub minted_timestamp: u64,
+  pub mint_stages: Vec<String>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct Collection {
-  id: String,
+pub struct Royalties {
+  pub recipient: Option<String>,
+  pub breakdown: Vec<String>,
+  pub bps: u64,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct FloorAsk {
-  order_id: Option<String>,
-  contract: Option<String>,
-  token_id: Option<String>,
-  maker: Option<String>,
-  price: Option<Price>,
-  valid_until: Option<i64>,
-  source: Option<String>,
+pub struct AllRoyalties {
+  pub opensea: Vec<String>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct Price {
-  currency: Currency,
-  amount: Amount,
+pub struct FloorAsk {
+  pub id: String,
+  pub source_domain: String,
+  pub price: Price,
+  pub maker: String,
+  pub valid_from: u64,
+  pub valid_until: u64,
+  pub token: Token,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct Currency {
-  contract: String,
-  name: String,
-  symbol: String,
-  decimals: i64,
+pub struct TopBid {
+  pub id: String,
+  pub source_domain: String,
+  pub price: Price,
+  pub maker: String,
+  pub valid_from: u64,
+  pub valid_until: u64,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct Amount {
-  raw: String,
-  decimal: f64,
-  usd: f64,
-  native: f64,
+pub struct Price {
+  pub currency: Currency,
+  pub amount: Amount,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct EventDetail {
-  id: String,
-  previous_price: Option<f64>,
-  kind: String,
-  tx_hash: Option<String>,
-  tx_timestamp: Option<i64>,
-  created_at: String,
+pub struct Currency {
+  pub contract: String,
+  pub name: String,
+  pub symbol: String,
+  pub decimals: u8,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Amount {
+  pub raw: String,
+  pub decimal: f64,
+  pub usd: f64,
+  pub native: f64,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Token {
+  pub contract: String,
+  pub token_id: String,
+  pub name: String,
+  pub image: String,
 }
 
 pub struct RestFetcher {
@@ -96,11 +147,8 @@ impl RestFetcher {
     Ok(Self::new(api_key, base_url, collection))
   }
 
-  pub async fn fetch_floors(&self) -> Option<Vec<Floor>> {
-    let endpoint = format!(
-      "{}/events/collections/floor-ask/v2?collection={}",
-      self.base_url, self.collection
-    );
+  pub async fn fetch_collections(&self) -> Option<Vec<Collection>> {
+    let endpoint = format!("{}/collections/v7?id={}", self.base_url, self.collection);
 
     let client = Client::new();
 
@@ -111,29 +159,12 @@ impl RestFetcher {
       .await
       .unwrap();
 
-    let floors = response
-      .json::<FloorAskResponse>()
+    let collections = response
+      .json::<Root>()
       .await
-      .unwrap()
-      .events
-      .iter()
-      .map(|event| Floor {
-        id: event.event.id.clone(),
-        kind: event.event.kind.clone(),
-        source: event.floor_ask.source.clone(),
-        created_at: event.event.created_at.clone(),
-        price: Some(
-          event
-            .floor_ask
-            .price
-            .as_ref()
-            .map(|p| p.amount.decimal)
-            .unwrap_or(0.0),
-        ),
-      })
-      .filter(|floor| floor.price.unwrap_or(0.0) != 0.0)
-      .collect();
+      .unwrap_or_default()
+      .collections;
 
-    Some(floors)
+    Some(collections)
   }
 }
