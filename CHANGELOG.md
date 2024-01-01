@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.22] - 2024-01-01
+
+### Miscellaneous Tasks
+
+- Update GitHuB Actions versions on build workflow
+
 ## [1.1.0-alpha.21] - 2024-01-01
 
 ### Bug Fixes
