@@ -128,6 +128,14 @@ impl SecondMarket {
 
         self
           .cache
+          .put::<String>(
+            "second_market:old_price",
+            &new_collection.floor_ask.price.amount.decimal.to_string(),
+          )
+          .await;
+
+        self
+          .cache
           .put("second_market:collections", &new_collections)
           .await;
         info!("Updated collections in cache");
