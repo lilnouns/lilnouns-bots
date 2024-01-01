@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.21] - 2024-01-01
+
+### Bug Fixes
+
+- Update second market floor after handle new floor
+
+### Miscellaneous Tasks
+
+- Add a new job to the build workflow for analyse codes
+
 ## [1.1.0-alpha.20] - 2023-12-25
 
 ### Refactor
