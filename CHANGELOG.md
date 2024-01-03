@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.23] - 2024-01-03
+
+### Documentation
+
+- Add new badge for Farcaster on project readme file
+
+### Miscellaneous Tasks
+
+- Remove Licensebot configuration file
+
+### Revert
+
+- Update GitHuB Actions versions on build workflow
+- Add a new job to the build workflow for analyse codes
+
 ## [1.1.0-alpha.22] - 2024-01-01
 
 ### Miscellaneous Tasks
