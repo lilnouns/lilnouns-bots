@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.25] - 2024-01-11
+
+### Bug Fixes
+
+- Make second market bot to only run at midnight
+
+### Documentation
+
+- Add a new badge for wakatime to the `README.md`
+
 ## [1.1.0-alpha.24] - 2024-01-07
 
 ### Bug Fixes
