@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.27] - 2024-01-30
+
+### Refactor
+
+- Replace second market OpenSea urls by token EIP155 link
+
+### Miscellaneous Tasks
+
+- Add new git flow workflow for handling pull requests
+
 ## [1.1.0-alpha.26] - 2024-01-20
 
 ### Bug Fixes

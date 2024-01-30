@@ -103,7 +103,10 @@ impl Handler for FarcasterHandler {
       .unwrap_or_default();
     let new_price = collection.floor_ask.price.amount.decimal;
 
-    let mut url = format!("https://pro.opensea.io/collection/{}", collection.slug);
+    let mut url = format!(
+      "chain://eip155:1/erc721:{}/{}",
+      collection.id, collection.floor_ask.token.token_id
+    );
     url = format!("{}?{}", url, now.timestamp());
 
     let description = format!(
