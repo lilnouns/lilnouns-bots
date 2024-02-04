@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.28] - 2024-02-04
+
+### Bug Fixes
+
+- Solve embed url issue in second market farcaster handler
+
 ## [1.1.0-alpha.27] - 2024-01-30
 
 ### Refactor
