@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
 use log::{debug, error, info};
 use reqwest::{
   header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
@@ -94,7 +93,6 @@ impl Handler for FarcasterHandler {
       "Handling new floor: {}",
       collection.floor_ask.price.amount.decimal
     );
-    let now: DateTime<Utc> = Utc::now();
 
     let old_price = self
       .cache
