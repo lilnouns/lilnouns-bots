@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.29] - 2024-02-08
+
+### Refactor
+
+- Update second market farcaster handler to remove unused codes
+
+### Miscellaneous Tasks
+
+- Disable most of farcaster bots on development
+
 ## [1.1.0-alpha.28] - 2024-02-04
 
 ### Bug Fixes
