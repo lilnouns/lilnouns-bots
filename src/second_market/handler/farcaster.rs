@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use log::{debug, error, info};
 use reqwest::{
   header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
@@ -93,6 +94,7 @@ impl Handler for FarcasterHandler {
       "Handling new floor: {}",
       collection.floor_ask.price.amount.decimal
     );
+    let now: DateTime<Utc> = Utc::now();
 
     let old_price = self
       .cache
@@ -101,10 +103,8 @@ impl Handler for FarcasterHandler {
       .unwrap_or_default();
     let new_price = collection.floor_ask.price.amount.decimal;
 
-    let url = format!(
-      "chain://eip155:1/erc721:{}/{}",
-      collection.id, collection.floor_ask.token.token_id
-    );
+    let mut url = format!("https://pro.opensea.io/collection/{}", collection.slug);
+    url = format!("{}?{}", url, now.timestamp());
 
     let description = format!(
       "There has been a change in the floor price on the second market. The new floor price is \
