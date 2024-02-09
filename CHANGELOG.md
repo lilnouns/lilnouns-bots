@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.30] - 2024-02-09
+
+### Revert
+
+- Disable most of farcaster bots on development
+- Solve embed url issue in second market farcaster handler
+- Replace second market OpenSea urls by token EIP155 link
+- Make second market bot to only run at midnight
+- Update second market farcaster handler to remove unused codes
+
 ## [1.1.0-alpha.29] - 2024-02-08
 
 ### Refactor
