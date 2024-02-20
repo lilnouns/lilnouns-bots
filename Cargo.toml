@@ -22,7 +22,7 @@ crate-type = ["cdylib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-anyhow = "1.0.79"
+anyhow = "1.0.80"
 async-trait = "0.1.77"
 cfg-if = "1.0.0"
 chrono = "0.4.34"
