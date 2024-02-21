@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.0-alpha.32]] - 2024-02-21
+## [1.1.0-alpha.33]] - 2024-02-21
+
+### Miscellaneous Tasks
+
+- Update farcaster bot channels back to the default
+
+## [1.1.0-alpha.32] - 2024-02-21
 
 ### Miscellaneous Tasks
 
