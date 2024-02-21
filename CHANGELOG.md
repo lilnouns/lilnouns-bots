@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.32]] - 2024-02-21
+
+### Miscellaneous Tasks
+
+- Move back secondery market bot to the old channel
+
 ## [1.1.0-alpha.31] - 2024-02-21
 
 ### Miscellaneous Tasks
