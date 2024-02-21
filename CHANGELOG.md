@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.31] - 2024-02-21
+
+### Miscellaneous Tasks
+
+- Rename the farcaser channel for bots
+
 ## [1.1.0-alpha.30] - 2024-02-09
 
 ### Revert
