@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.0-alpha.33]] - 2024-02-21
+## [1.1.0-alpha.34]] - 2024-02-23
+
+### Miscellaneous Tasks
+
+- Change proplot bot farcaster channel to default
+
+## [1.1.0-alpha.33] - 2024-02-21
 
 ### Miscellaneous Tasks
 
