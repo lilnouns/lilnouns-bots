@@ -1,6 +1,6 @@
 [package]
 name = "lilnouns-bots"
-version = "1.1.0-alpha.34"
+version = "1.1.0-alpha.35"
 authors = ["Milad Nekofar <milad@nekofar.com>"]
 edition = "2021"
 description = "Our bots are designed to keep the Lil Nouns DAO community informed and engaged."
@@ -30,7 +30,7 @@ console_error_panic_hook = { version = "0.1.7", optional = true }
 ethers = { version = "2.0.13", default-features = false }
 getrandom = { version = "0.2.12", features = ["js"] }
 graphql_client = { version = "0.13.0", features = ["reqwest"] }
-log = "0.4.20"
+log = "0.4.21"
 regex = "1.10.3"
 reqwest = "0.11.24"
 serde = { version = "1.0.197", features = ["derive"] }
