@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.0-alpha.34]] - 2024-02-23
+## [1.1.0-alpha.35]] - 2024-03-04
+
+### Miscellaneous Tasks
+
+- Change bot channels to the new channel
+
+## [1.1.0-alpha.34] - 2024-02-23
 
 ### Miscellaneous Tasks
 
