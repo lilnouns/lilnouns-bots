@@ -1,5 +1,5 @@
 use chrono::{Duration, Utc};
-use graphql_client::{reqwest::post_graphql, GraphQLQuery};
+use graphql_client::{GraphQLQuery, reqwest::post_graphql};
 use log::{debug, error};
 use reqwest::Client;
 use serde_json::Value;
@@ -95,7 +95,7 @@ impl GraphQLFetcher {
 
   pub async fn fetch_votes(&self) -> Option<Vec<Vote>> {
     let now = Utc::now();
-    let thirty_days_ago = now - Duration::days(30);
+    let thirty_days_ago = now - Duration::try_days(30).unwrap();
 
     let variables = vote_query::Variables {
       space: Some(self.space_id.clone()),
