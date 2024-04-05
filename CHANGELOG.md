@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.38] - 2024-04-05
+
+### Refactor
+
+- Move second market bot to daily schedule
+
 ## [1.1.0-alpha.37] - 2024-03-26
 
 ### Refactor
