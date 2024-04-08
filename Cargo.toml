@@ -28,7 +28,7 @@ cfg-if = "1.0.0"
 chrono = "0.4.37"
 console_error_panic_hook = { version = "0.1.7", optional = true }
 ethers = { version = "2.0.14", default-features = false }
-getrandom = { version = "0.2.12", features = ["js"] }
+getrandom = { version = "0.2.14", features = ["js"] }
 graphql_client = { version = "0.14.0", features = ["reqwest"] }
 log = "0.4.21"
 regex = "1.10.4"
