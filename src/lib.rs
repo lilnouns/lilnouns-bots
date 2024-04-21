@@ -64,8 +64,7 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
         }
       }
     }
-    "0 0 * * *" => {}
-    _ => {
+    "0 0 * * *" => {
       if env.var("SECOND_MARKET_ENABLED").unwrap().to_string() == "true" {
         match SecondMarket::new_from_env(env) {
           Ok(result) => match result.start().await {
@@ -77,6 +76,7 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
         }
       }
     }
+    _ => {}
   }
 
   Ok(())
