@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.41] - 2024-04-21
+
+### Bug Fixes
+
+- Solve issue related to second market schedule
+
 ## [1.1.0-alpha.40] - 2024-04-19
 
 ### Bug Fixes
