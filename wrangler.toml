@@ -33,7 +33,7 @@ ETHEREUM_MAINNET_RPC_URL = "https://eth.llamarpc.com"
 LINK_GENERATOR_ENDPOINT = "https://lilnouns.click"
 
 # Warpccast API Settings
-WARP_CAST_API_BASE_URL = "https://api.warpcast.com/v2"
+WARPCAST_API_BASE_URL = "https://api.warpcast.com/v2"
 
 # Lil Nouns Settings
 LIL_NOUNS_ENABLED = "false"
@@ -41,7 +41,7 @@ LIL_NOUNS_DISCORD_ENABLED = "true"
 LIL_NOUNS_FARCASTER_ENABLED = "false"
 LIL_NOUNS_BASE_URL = "https://lilnouns.wtf/vote"
 LIL_NOUNS_GRAPHQL_URL = "https://api.goldsky.com/api/public/project_cldjvjgtylso13swq3dre13sf/subgraphs/lil-nouns-subgraph/1.0.4/gn"
-LIL_NOUNS_WARP_CAST_CHANNEL = ""
+LIL_NOUNS_WARPCAST_CHANNEL = ""
 
 # Meta Gov Settings
 META_GOV_ENABLED = "false"
@@ -50,7 +50,7 @@ META_GOV_FARCASTER_ENABLED = "false"
 META_GOV_BASE_URL = "https://lilnouns.wtf/vote/nounsdao"
 META_GOV_SNAPSHOT_GRAPHQL_URL = "https://hub.snapshot.org/graphql"
 META_GOV_SNAPSHOT_SPACE_ID = "leagueoflils.eth"
-META_GOV_WARP_CAST_CHANNEL = ""
+META_GOV_WARPCAST_CHANNEL = ""
 
 # Prop House Settings
 PROP_HOUSE_ENABLED = "true"
@@ -59,7 +59,7 @@ PROP_HOUSE_FARCASTER_ENABLED = "false"
 PROP_HOUSE_BASE_URL = "https://prop.house/lil-nouns"
 PROP_HOUSE_COMMUNITY_ID = "2"
 PROP_HOUSE_GRAPHQL_URL = "https://prod.backend.prop.house/graphql"
-PROP_HOUSE_WARP_CAST_CHANNEL = ""
+PROP_HOUSE_WARPCAST_CHANNEL = ""
 
 # Prop Lot Settings
 PROP_LOT_ENABLED = "true"
@@ -67,7 +67,7 @@ PROP_LOT_DISCORD_ENABLED = "true"
 PROP_LOT_FARCASTER_ENABLED = "false"
 PROP_LOT_BASE_URL = "https://lilnouns.proplot.wtf"
 PROP_LOT_GRAPHQL_URL = "https://lilnouns.proplot.wtf/api/graphql"
-PROP_LOT_WARP_CAST_CHANNEL = ""
+PROP_LOT_WARPCAST_CHANNEL = ""
 
 # Second Market Settings
 SECOND_MARKET_ENABLED = "false"
@@ -96,7 +96,7 @@ ETHEREUM_MAINNET_RPC_URL = "https://eth.llamarpc.com"
 LINK_GENERATOR_ENDPOINT = "https://lilnouns.click"
 
 # Warpccast API Settings
-WARP_CAST_API_BASE_URL = "https://api.warpcast.com/v2"
+WARPCAST_API_BASE_URL = "https://api.warpcast.com/v2"
 
 # Lil Nouns Settings
 LIL_NOUNS_ENABLED = "true"
@@ -104,7 +104,7 @@ LIL_NOUNS_DISCORD_ENABLED = "true"
 LIL_NOUNS_FARCASTER_ENABLED = "true"
 LIL_NOUNS_BASE_URL = "https://lilnouns.wtf/vote"
 LIL_NOUNS_GRAPHQL_URL = "https://api.goldsky.com/api/public/project_cldjvjgtylso13swq3dre13sf/subgraphs/lil-nouns-subgraph/1.0.4/gn"
-LIL_NOUNS_WARP_CAST_CHANNEL = "lilnouns"
+LIL_NOUNS_WARPCAST_CHANNEL = "lilnouns"
 
 # Meta Gov Settings
 META_GOV_ENABLED = "true"
@@ -113,7 +113,7 @@ META_GOV_FARCASTER_ENABLED = "true"
 META_GOV_BASE_URL = "https://lilnouns.wtf/vote/nounsdao"
 META_GOV_SNAPSHOT_GRAPHQL_URL = "https://hub.snapshot.org/graphql"
 META_GOV_SNAPSHOT_SPACE_ID = "leagueoflils.eth"
-META_GOV_WARP_CAST_CHANNEL = "lilnouns"
+META_GOV_WARPCAST_CHANNEL = "lilnouns"
 
 # Prop House Settings
 PROP_HOUSE_ENABLED = "true"
@@ -122,7 +122,7 @@ PROP_HOUSE_FARCASTER_ENABLED = "true"
 PROP_HOUSE_BASE_URL = "https://prop.house/lil-nouns"
 PROP_HOUSE_COMMUNITY_ID = "2"
 PROP_HOUSE_GRAPHQL_URL = "https://prod.backend.prop.house/graphql"
-PROP_HOUSE_WARP_CAST_CHANNEL = "lilnouns"
+PROP_HOUSE_WARPCAST_CHANNEL = "lilnouns"
 
 # Prop Lot Settings
 PROP_LOT_ENABLED = "true"
@@ -130,7 +130,7 @@ PROP_LOT_DISCORD_ENABLED = "true"
 PROP_LOT_FARCASTER_ENABLED = "true"
 PROP_LOT_BASE_URL = "https://lilnouns.proplot.wtf"
 PROP_LOT_GRAPHQL_URL = "https://lilnouns.proplot.wtf/api/graphql"
-PROP_LOT_WARP_CAST_CHANNEL = "lilnouns"
+PROP_LOT_WARPCAST_CHANNEL = "lilnouns"
 
 # Second Market Settings
 SECOND_MARKET_ENABLED = "true"
@@ -138,7 +138,7 @@ SECOND_MARKET_DISCORD_ENABLED = "true"
 SECOND_MARKET_FARCASTER_ENABLED = "true"
 SECOND_MARKET_API_BASE_URL = "https://api.reservoir.tools"
 SECOND_MARKET_COLLECTION_ADDRESS = "0x4b10701bfd7bfedc47d50562b76b436fbb5bdb3b"
-SECOND_MARKET_WARP_CAST_CHANNEL = "lilnouns"
+SECOND_MARKET_WARPCAST_CHANNEL = "lilnouns"
 
 # KV Store Settings
 KV_STORE_NAME = "CACHE"
