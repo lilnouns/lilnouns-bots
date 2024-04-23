@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.42] - 2024-04-23
+
+### Features
+
+- Add a new function to get farcaster names
+
+### Refactor
+
+- Update all related variables related to  Warpcast
+- Replace `get_wallet_handle` by `get_username_by_address`
+
+### Miscellaneous Tasks
+
+- Enable smart placment on `wrangler.toml`
+
 ## [1.1.0-alpha.41] - 2024-04-21
 
 ### Bug Fixes
