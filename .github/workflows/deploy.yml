@@ -17,7 +17,7 @@ jobs:
 
       # Check out current repository
       - name: Fetch Sources
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.3
         with:
           ref: ${{ github.event.release.tag_name }}
 
@@ -54,28 +54,30 @@ jobs:
           command: deploy
           secrets: |
             LIL_NOUNS_DISCORD_WEBHOOK_URL
-            LIL_NOUNS_WARP_CAST_TOKEN
+            LIL_NOUNS_WARPCAST_TOKEN
             META_GOV_DISCORD_WEBHOOK_URL
-            META_GOV_WARP_CAST_TOKEN
+            META_GOV_WARPCAST_TOKEN
             PROP_HOUSE_DISCORD_WEBHOOK_URL
-            PROP_HOUSE_WARP_CAST_TOKEN
+            PROP_HOUSE_WARPCAST_TOKEN
             PROP_LOT_DISCORD_WEBHOOK_URL
-            PROP_LOT_WARP_CAST_TOKEN
+            PROP_LOT_WARPCAST_TOKEN
             SECOND_MARKET_API_KEY
             SECOND_MARKET_DISCORD_WEBHOOK_URL
-            SECOND_MARKET_WARP_CAST_TOKEN
+            SECOND_MARKET_WARPCAST_TOKEN
+            FARQUEST_API_KEY
         env:
           LIL_NOUNS_DISCORD_WEBHOOK_URL: ${{ secrets.LIL_NOUNS_DISCORD_WEBHOOK_URL }}
-          LIL_NOUNS_WARP_CAST_TOKEN: ${{ secrets.LIL_NOUNS_WARP_CAST_TOKEN }}
+          LIL_NOUNS_WARPCAST_TOKEN: ${{ secrets.LIL_NOUNS_WARPCAST_TOKEN }}
           META_GOV_DISCORD_WEBHOOK_URL: ${{ secrets.META_GOV_DISCORD_WEBHOOK_URL }}
-          META_GOV_WARP_CAST_TOKEN: ${{ secrets.META_GOV_WARP_CAST_TOKEN }}
+          META_GOV_WARPCAST_TOKEN: ${{ secrets.META_GOV_WARPCAST_TOKEN }}
           PROP_HOUSE_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_HOUSE_DISCORD_WEBHOOK_URL }}
-          PROP_HOUSE_WARP_CAST_TOKEN: ${{ secrets.PROP_HOUSE_WARP_CAST_TOKEN }}
+          PROP_HOUSE_WARPCAST_TOKEN: ${{ secrets.PROP_HOUSE_WARPCAST_TOKEN }}
           PROP_LOT_DISCORD_WEBHOOK_URL: ${{ secrets.PROP_LOT_DISCORD_WEBHOOK_URL }}
-          PROP_LOT_WARP_CAST_TOKEN: ${{ secrets.PROP_LOT_WARP_CAST_TOKEN }}
+          PROP_LOT_WARPCAST_TOKEN: ${{ secrets.PROP_LOT_WARPCAST_TOKEN }}
           SECOND_MARKET_API_KEY: ${{ secrets.SECOND_MARKET_API_KEY }}
           SECOND_MARKET_DISCORD_WEBHOOK_URL: ${{ secrets.SECOND_MARKET_DISCORD_WEBHOOK_URL }}
-          SECOND_MARKET_WARP_CAST_TOKEN: ${{ secrets.SECOND_MARKET_WARP_CAST_TOKEN }}
+          SECOND_MARKET_WARPCAST_TOKEN: ${{ secrets.SECOND_MARKET_WARPCAST_TOKEN }}
+          FARQUEST_API_KEY: ${{ secrets.FARQUEST_API_KEY }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
