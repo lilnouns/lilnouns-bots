@@ -4,8 +4,8 @@ use async_trait::async_trait;
 use log::{debug, error, info};
 use regex::Regex;
 use reqwest::{
-  header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
   Client,
+  header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE, HeaderMap, HeaderValue},
   Response,
 };
 use serde_json::{json, to_string, Value};
@@ -14,7 +14,7 @@ use worker::{Env, Error, Result};
 use crate::{
   cache::Cache,
   meta_gov::{handler::Handler, Proposal, Vote},
-  utils::{ens::get_wallet_handle, link::Link},
+  utils::{fname::get_username_by_address, link::Link},
 };
 
 pub(crate) struct FarcasterHandler {
@@ -22,6 +22,7 @@ pub(crate) struct FarcasterHandler {
   warpcast_url: String,
   warpcast_bearer_token: String,
   warpcast_channel_key: String,
+  farquest_api_key: String,
   cache: Cache,
   client: Client,
   link: Link,
@@ -33,6 +34,7 @@ impl FarcasterHandler {
     warpcast_url: String,
     warpcast_bearer_token: String,
     warpcast_channel_key: String,
+    farquest_api_key: String,
     cache: Cache,
     client: Client,
     link: Link,
@@ -42,6 +44,7 @@ impl FarcasterHandler {
       warpcast_url,
       warpcast_bearer_token,
       warpcast_channel_key,
+      farquest_api_key,
       cache,
       client,
       link,
@@ -53,6 +56,7 @@ impl FarcasterHandler {
     let warpcast_url = env.var("WARPCAST_API_BASE_URL")?.to_string();
     let warpcast_bearer_token = env.secret("META_GOV_WARPCAST_TOKEN")?.to_string();
     let warpcast_channel_key = env.var("META_GOV_WARPCAST_CHANNEL")?.to_string();
+    let farquest_api_key = env.secret("FARQUEST_API_KEY")?.to_string();
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
@@ -63,6 +67,7 @@ impl FarcasterHandler {
       warpcast_url,
       warpcast_bearer_token,
       warpcast_channel_key,
+      farquest_api_key,
       cache,
       client,
       link,
@@ -215,7 +220,7 @@ impl Handler for FarcasterHandler {
       .get(&proposal_id)
       .ok_or("Cast hash not found")?;
 
-    let wallet = get_wallet_handle(&vote.voter, "xyz.farcaster").await;
+    let wallet = get_username_by_address(self.farquest_api_key.as_str(), &vote.voter).await;
 
     let mut description = format!(
       "{} has voted {} “{}” proposal.",

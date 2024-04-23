@@ -3,19 +3,20 @@ use std::collections::HashMap;
 use async_trait::async_trait;
 use log::{debug, error, info};
 use reqwest::{
-  header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
   Client,
+  header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE, HeaderMap, HeaderValue},
   Response,
 };
 use serde_json::{json, to_string, Value};
-use utils::link::Link;
 use worker::{Env, Error, Result};
+
+use utils::link::Link;
 
 use crate::{
   cache::Cache,
-  prop_lot::{handler::Handler, Comment, Idea, Vote},
+  prop_lot::{Comment, handler::Handler, Idea, Vote},
   utils,
-  utils::ens::get_wallet_handle,
+  utils::fname::get_username_by_address,
 };
 
 pub(crate) struct FarcasterHandler {
@@ -23,6 +24,7 @@ pub(crate) struct FarcasterHandler {
   warpcast_url: String,
   warpcast_bearer_token: String,
   warpcast_channel_key: String,
+  farquest_api_key: String,
   cache: Cache,
   client: Client,
   link: Link,
@@ -34,6 +36,7 @@ impl FarcasterHandler {
     warpcast_url: String,
     warpcast_bearer_token: String,
     warpcast_channel_key: String,
+    farquest_api_key: String,
     cache: Cache,
     client: Client,
     link: Link,
@@ -43,6 +46,7 @@ impl FarcasterHandler {
       warpcast_url,
       warpcast_bearer_token,
       warpcast_channel_key,
+      farquest_api_key,
       cache,
       client,
       link,
@@ -54,6 +58,7 @@ impl FarcasterHandler {
     let warpcast_url = env.var("WARPCAST_API_BASE_URL")?.to_string();
     let warpcast_bearer_token = env.secret("PROP_LOT_WARPCAST_TOKEN")?.to_string();
     let warpcast_channel_key = env.var("PROP_LOT_WARPCAST_CHANNEL")?.to_string();
+    let farquest_api_key = env.secret("FARQUEST_API_KEY")?.to_string();
 
     let cache = Cache::new_from_env(env);
     let client = Client::new();
@@ -64,6 +69,7 @@ impl FarcasterHandler {
       warpcast_url,
       warpcast_bearer_token,
       warpcast_channel_key,
+      farquest_api_key,
       cache,
       client,
       link,
@@ -112,7 +118,7 @@ impl Handler for FarcasterHandler {
       .await
       .unwrap_or_else(|_| format!("{}/idea/{}", self.base_url, idea.id));
 
-    let wallet = get_wallet_handle(&idea.creator_id, "xyz.farcaster").await;
+    let wallet = get_username_by_address(self.farquest_api_key.as_str(), &idea.creator_id).await;
 
     let description = format!(
       "{} created a new proposal on Prop Lot: “{}”",
@@ -196,7 +202,7 @@ impl Handler for FarcasterHandler {
     let idea_id = idea.id.to_string();
     let cast_hash = ideas_casts.get(&idea_id).ok_or("Cast hash not found")?;
 
-    let wallet = get_wallet_handle(&vote.voter_id, "xyz.farcaster").await;
+    let wallet = get_username_by_address(self.farquest_api_key.as_str(), &vote.voter_id).await;
 
     let description = format!(
       "{} has voted {} “{}” proposal.",
@@ -255,7 +261,7 @@ impl Handler for FarcasterHandler {
       .get(&idea.id.to_string())
       .ok_or("Cast hash not found")?;
 
-    let wallet = get_wallet_handle(&comment.author_id, "xyz.farcaster").await;
+    let wallet = get_username_by_address(self.farquest_api_key.as_str(), &comment.author_id).await;
 
     let mut description = format!("{} has commented on “{}” proposal.", wallet, idea.title);
     let chars_limit = 320 - 10 - description.len();

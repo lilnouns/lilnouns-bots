@@ -64,6 +64,7 @@ jobs:
             SECOND_MARKET_API_KEY
             SECOND_MARKET_DISCORD_WEBHOOK_URL
             SECOND_MARKET_WARPCAST_TOKEN
+            FARQUEST_API_KEY
         env:
           LIL_NOUNS_DISCORD_WEBHOOK_URL: ${{ secrets.LIL_NOUNS_DISCORD_WEBHOOK_URL }}
           LIL_NOUNS_WARPCAST_TOKEN: ${{ secrets.LIL_NOUNS_WARPCAST_TOKEN }}
@@ -76,6 +77,7 @@ jobs:
           SECOND_MARKET_API_KEY: ${{ secrets.SECOND_MARKET_API_KEY }}
           SECOND_MARKET_DISCORD_WEBHOOK_URL: ${{ secrets.SECOND_MARKET_DISCORD_WEBHOOK_URL }}
           SECOND_MARKET_WARPCAST_TOKEN: ${{ secrets.SECOND_MARKET_WARPCAST_TOKEN }}
+          FARQUEST_API_KEY: ${{ secrets.FARQUEST_API_KEY }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
