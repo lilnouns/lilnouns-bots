@@ -16,9 +16,6 @@ command = "cargo install -q -f worker-build && worker-build --release"
 [triggers]
 crons = ["*/5 * * * *", "0 0 * * *"]
 
-[placement]
-mode = "smart"
-
 # Default KV Namespace
 [[kv_namespaces]]
 binding = "CACHE"
