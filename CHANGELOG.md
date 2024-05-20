@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.45] - 2024-05-20
+
+### Miscellaneous Tasks
+
+- Update warpcast channel for various services
+
 ## [1.1.0-alpha.44] - 2024-05-08
 
 ### Bug Fixes
