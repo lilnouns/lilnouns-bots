@@ -2,8 +2,8 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use log::{debug, error, info};
 use reqwest::{
+  header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
   Client,
-  header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE, HeaderMap, HeaderValue},
   Response,
 };
 use serde_json::{json, Value};
@@ -103,7 +103,7 @@ impl Handler for FarcasterHandler {
       .unwrap_or_default();
     let new_price = collection.floor_ask.price.amount.decimal;
 
-    let mut url = format!("https://pro.opensea.io/collection/{}", collection.slug);
+    let mut url = format!("https://blur.io/eth/collection/{}", collection.slug);
     url = format!("{}?{}", url, now.timestamp());
 
     let description = format!(
