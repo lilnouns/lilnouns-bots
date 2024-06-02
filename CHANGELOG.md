@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.47] - 2024-06-02
+
+### Refactor
+
+- Update collection URL in farcaster handler
+
 ## [1.1.0-alpha.46] - 2024-05-23
 
 ### Revert
