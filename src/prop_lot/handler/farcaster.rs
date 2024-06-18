@@ -264,7 +264,7 @@ impl Handler for FarcasterHandler {
     let wallet = get_username_by_address(self.farquest_api_key.as_str(), &comment.author_id).await;
 
     let mut description = format!("{} has commented on “{}” proposal.", wallet, idea.title);
-    let chars_limit = 320 - 10 - description.len();
+    let chars_limit = 1024 - 10 - description.len();
     let mut comment_body = comment.clone().body;
     if comment_body.len() > chars_limit {
       comment_body.truncate(chars_limit);
