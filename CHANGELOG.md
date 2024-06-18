@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.49] - 2024-06-18
+
+### Features
+
+- Trim comment and vote reasons in farcaster handlers
+
 ## [1.1.0-alpha.48] - 2024-06-18
 
 ### Features

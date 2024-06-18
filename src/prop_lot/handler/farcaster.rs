@@ -265,7 +265,7 @@ impl Handler for FarcasterHandler {
 
     let mut description = format!("{} has commented on “{}” proposal.", wallet, idea.title);
     let chars_limit = 1024 - 10 - description.len();
-    let mut comment_body = comment.clone().body;
+    let mut comment_body = comment.clone().body.trim().to_string();
     if comment_body.len() > chars_limit {
       comment_body.truncate(chars_limit);
       comment_body.push_str("...");

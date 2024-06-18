@@ -235,7 +235,12 @@ impl Handler for FarcasterHandler {
     );
 
     let chars_limit = 1024 - 10 - description.len();
-    let mut vote_reason = vote.clone().reason.unwrap_or(String::new());
+    let mut vote_reason = vote
+      .clone()
+      .reason
+      .unwrap_or(String::new())
+      .trim()
+      .to_string();
     if !vote_reason.is_empty() {
       if vote_reason.len() > chars_limit {
         vote_reason.truncate(chars_limit);
