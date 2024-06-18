@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.48] - 2024-06-18
+
+### Features
+
+- Increase character limit for comments and vote reasons
+
+### Miscellaneous Tasks
+
+- Create new `FUNDING.json` (#197)
+
 ## [1.1.0-alpha.47] - 2024-06-02
 
 ### Refactor
