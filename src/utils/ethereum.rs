@@ -30,16 +30,19 @@ pub async fn get_transaction_data(tx_hash: &str) -> Result<Option<Transaction>> 
   Ok(tx)
 }
 
-pub async fn get_transaction_signer(tx_hash: &str) -> Result<Option<Address>> {
+pub async fn get_transaction_signer(tx_hash: &str) -> Result<Address> {
   // Get transaction data
   let tx = match get_transaction_data(tx_hash).await? {
     Some(transaction) => transaction,
-    None => return Ok(None),
+    None => return Err(anyhow!("No transaction data was fetched")),
   };
 
-  // Extract signer address
-  match tx.from {
-    Some(signer) => Ok(Some(signer)),
-    None => Err(anyhow!("Transaction does not have a signer address")),
+  // Check if `tx.from` is properly defined, if not, return an error.
+  let from_address = tx.from;
+  let invalid_address = Address::from_slice(&[0u8; 20]); // The Ethereum address made entirely of zeroes is often considered "invalid"
+  if from_address == invalid_address {
+    return Err(anyhow!("Transaction does not have a signer address"));
   }
+
+  Ok(from_address)
 }
