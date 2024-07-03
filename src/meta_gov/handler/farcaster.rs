@@ -4,8 +4,8 @@ use async_trait::async_trait;
 use log::{debug, error, info};
 use regex::Regex;
 use reqwest::{
+  header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
   Client,
-  header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE, HeaderMap, HeaderValue},
   Response,
 };
 use serde_json::{json, to_string, Value};
