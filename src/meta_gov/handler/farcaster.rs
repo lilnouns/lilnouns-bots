@@ -14,7 +14,7 @@ use worker::{Env, Error, Result};
 use crate::{
   cache::Cache,
   meta_gov::{handler::Handler, Proposal, Vote},
-  utils::{fname::get_username_by_address, link::Link},
+  utils::{ethereum::get_transaction_signer, fname::get_username_by_address, link::Link},
 };
 
 pub(crate) struct FarcasterHandler {
@@ -104,28 +104,46 @@ impl FarcasterHandler {
     Ok(response)
   }
 
-  async fn extract_proposal_info(&self, proposal: Proposal) -> Result<(String, String)> {
+  async fn extract_proposal_info(&self, proposal: Proposal) -> Result<(String, String, String)> {
+    // Extract proposal ID and title
     let captures = Regex::new(r"(\d+): (.+)")
       .unwrap()
-      .captures(&*proposal.title)
+      .captures(&proposal.title)
       .ok_or(Error::from("Capture Failed"))?;
+
     let proposal_id = captures
       .get(1)
-      .ok_or(Error::from("Failed to get proposal ID"))?;
+      .ok_or(Error::from("Failed to get proposal ID"))?
+      .as_str()
+      .to_string();
+
     let proposal_title = captures
       .get(2)
-      .ok_or(Error::from("Failed to get proposal Title"))?;
-    let proposal_id = proposal_id.as_str().to_string();
-    let proposal_title = proposal_title.as_str().to_string();
+      .ok_or(Error::from("Failed to get proposal Title"))?
+      .as_str()
+      .to_string();
 
-    Ok((proposal_id, proposal_title))
+    // Extract transaction hash
+    let hash_regex = Regex::new(r"createdTransactionHash\s*-\s*(0x[a-fA-F0-9]+)").unwrap();
+    let hash_capture = hash_regex
+      .captures(&proposal.body)
+      .ok_or(Error::from("Failed to capture hash"))?;
+
+    let proposal_hash = hash_capture
+      .get(1)
+      .ok_or(Error::from("Failed to get proposal hash"))?
+      .as_str()
+      .to_string();
+
+    Ok((proposal_id, proposal_title, proposal_hash))
   }
 }
 
 #[async_trait(? Send)]
 impl Handler for FarcasterHandler {
   async fn handle_new_proposal(&self, proposal: &Proposal) -> Result<()> {
-    let (proposal_id, proposal_title) = self.extract_proposal_info(proposal.clone()).await?;
+    let (proposal_id, proposal_title, proposal_hash) =
+      self.extract_proposal_info(proposal.clone()).await?;
 
     info!("Handling new proposal: {}", proposal_title);
 
@@ -135,9 +153,13 @@ impl Handler for FarcasterHandler {
       .await
       .unwrap_or_else(|_| format!("{}/{}", self.base_url, proposal_id));
 
+    let signer = get_transaction_signer(proposal_hash.as_str()).await;
+
+    let wallet = get_username_by_address(self.farquest_api_key.as_str(), &signer.to_string()).await;
+
     let description = format!(
-      "A new Meta Gov proposal has been created: “{}”",
-      proposal_title
+      "{} created a new proposal on Nouns: “{}”",
+      wallet, proposal_title
     );
 
     let request_data = json!({
@@ -208,7 +230,7 @@ impl Handler for FarcasterHandler {
       .clone()
       .ok_or("Proposal not found in the funding list.")?;
 
-    let (proposal_id, proposal_title) = self.extract_proposal_info(proposal.clone()).await?;
+    let (proposal_id, proposal_title, _) = self.extract_proposal_info(proposal.clone()).await?;
 
     let proposals_casts = self
       .cache
