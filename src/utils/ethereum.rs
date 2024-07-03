@@ -1,6 +1,6 @@
 use std::{convert::TryFrom, str::FromStr};
 
-use anyhow::anyhow;
+use anyhow::{anyhow, Result};
 use ethers::{
   prelude::{Http, Provider, Transaction},
   providers::Middleware,
@@ -9,20 +9,20 @@ use ethers::{
 
 const ETHEREUM_MAINNET_RPC_URL: &'static str = "https://eth.llamarpc.com";
 
-async fn create_provider() -> anyhow::Result<Provider<Http>> {
+async fn create_provider() -> Result<Provider<Http>> {
   Provider::<Http>::try_from(ETHEREUM_MAINNET_RPC_URL)
     .map_err(|error| anyhow!("Failed to create provider from endpoint: {}", error))
 }
 
-async fn get_transaction_data(tx_hash: &str) -> anyhow::Result<Option<Transaction>> {
+pub async fn get_transaction_data(tx_hash: &str) -> Result<Option<Transaction>> {
   // Initialize provider
   let provider = create_provider().await?;
 
   // Parse transaction id into H256
   let hash = match H256::from_str(tx_hash) {
-    Ok(parsed_hash) => Ok(parsed_hash.into()),
-    Err(_) => Err(anyhow!("Transaction hash is not a valid H256")),
-  }?;
+    Ok(parsed_hash) => parsed_hash,
+    Err(_) => return Err(anyhow!("Transaction hash is not a valid H256")),
+  };
 
   // Fetch transaction data
   let tx_result = provider.get_transaction(hash).await;
