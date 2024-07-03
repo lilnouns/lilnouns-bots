@@ -155,7 +155,8 @@ impl Handler for FarcasterHandler {
 
     let signer = get_transaction_signer(proposal_hash.as_str()).await;
 
-    let wallet = get_username_by_address(self.farquest_api_key.as_str(), &signer.to_string()).await;
+    let wallet =
+      get_username_by_address(self.farquest_api_key.as_str(), &signer.unwrap().to_string()).await;
 
     let description = format!(
       "{} created a new proposal on Nouns: “{}”",
