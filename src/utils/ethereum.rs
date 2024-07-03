@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use ethers::{
   prelude::{Http, Provider, Transaction},
   providers::Middleware,
-  types::H256,
+  types::{Address, H256},
 };
 
 const ETHEREUM_MAINNET_RPC_URL: &'static str = "https://eth.llamarpc.com";
@@ -28,4 +28,18 @@ pub async fn get_transaction_data(tx_hash: &str) -> Result<Option<Transaction>> 
   let tx_result = provider.get_transaction(hash).await;
   let tx = tx_result?; // Handling the Result error here
   Ok(tx)
+}
+
+pub async fn get_transaction_signer(tx_hash: &str) -> Result<Option<Address>> {
+  // Get transaction data
+  let tx = match get_transaction_data(tx_hash).await? {
+    Some(transaction) => transaction,
+    None => return Ok(None),
+  };
+
+  // Extract signer address
+  match tx.from {
+    Some(signer) => Ok(Some(signer)),
+    None => Err(anyhow!("Transaction does not have a signer address")),
+  }
 }
