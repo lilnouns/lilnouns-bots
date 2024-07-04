@@ -158,7 +158,10 @@ impl Handler for FarcasterHandler {
       .map(|address| address.to_string())
       .unwrap_or_else(|_| "Someone".to_string());
 
-    let wallet = get_username_by_address(self.farquest_api_key.as_str(), &signer).await;
+    let wallet = match signer.as_str() {
+      "Someone" => "Someone".to_string(),
+      _ => get_username_by_address(self.farquest_api_key.as_str(), &signer).await,
+    };
 
     let description = format!(
       "{} created a new proposal on Nouns: “{}”",
