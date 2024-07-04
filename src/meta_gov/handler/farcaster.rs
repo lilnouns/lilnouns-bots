@@ -4,8 +4,8 @@ use async_trait::async_trait;
 use log::{debug, error, info};
 use regex::Regex;
 use reqwest::{
-  header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
   Client,
+  header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE, HeaderMap, HeaderValue},
   Response,
 };
 use serde_json::{json, to_string, Value};
@@ -153,10 +153,12 @@ impl Handler for FarcasterHandler {
       .await
       .unwrap_or_else(|_| format!("{}/{}", self.base_url, proposal_id));
 
-    let signer = get_transaction_signer(proposal_hash.as_str()).await;
+    let signer = get_transaction_signer(proposal_hash.as_str())
+      .await
+      .map(|address| address.to_string())
+      .unwrap_or_else(|_| "Someone".to_string());
 
-    let wallet =
-      get_username_by_address(self.farquest_api_key.as_str(), &signer.unwrap().to_string()).await;
+    let wallet = get_username_by_address(self.farquest_api_key.as_str(), &signer).await;
 
     let description = format!(
       "{} created a new proposal on Nouns: “{}”",
