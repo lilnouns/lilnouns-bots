@@ -1,6 +1,7 @@
 use cfg_if::cfg_if;
 
 pub(crate) mod ens;
+pub(crate) mod ethereum;
 pub(crate) mod fname;
 pub(crate) mod link;
 

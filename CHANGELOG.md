@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.50] - 2024-07-03
+
+### Features
+
+- Add `ethereum` module for transaction data retrieval
+- Add function to retrieve transaction signer
+- Enhance proposal data extraction in met gov
+
+### Refactor
+
+- Modify error handling in transaction data function
+- Ensure `get_transaction_signer` returns valid address
+
+### Miscellaneous Tasks
+
+- Add new queries and types for Nouns auction & voting system
+- Add proposal and vote query
+- Add `ProposalQuery` to graphql queries
+
 ## [1.1.0-alpha.49] - 2024-06-18
 
 ### Features
