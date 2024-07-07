@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use async_trait::async_trait;
+use ethers::utils::hex::ToHexExt;
 use log::{debug, error, info};
 use regex::Regex;
 use reqwest::{
@@ -155,7 +156,7 @@ impl Handler for FarcasterHandler {
 
     let signer = get_transaction_signer(proposal_hash.as_str())
       .await
-      .map(|address| address.to_string())
+      .map(|address| address.encode_hex_with_prefix())
       .unwrap_or_else(|_| "Someone".to_string());
 
     let wallet = match signer.as_str() {
