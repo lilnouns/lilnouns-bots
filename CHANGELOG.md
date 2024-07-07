@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.0-alpha.50] - 2024-07-03
+## [1.1.0-alpha.51] - 2024-07-07
+
+### Refactor
+
+- Change address format to hexadecimal in farcaster
+
+## [1.1.0-alpha.50] - 2024-07-04
 
 ### Features
 
@@ -14,6 +20,9 @@ All notable changes to this project will be documented in this file.
 
 - Modify error handling in transaction data function
 - Ensure `get_transaction_signer` returns valid address
+- Rearrange import order and unwrap signer in farcaster
+- Handle errors in getting transaction signer
+- Update order of imports and modify wallet logic in farcaster
 
 ### Miscellaneous Tasks
 
