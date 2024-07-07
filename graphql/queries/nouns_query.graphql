@@ -1,0 +1,120 @@
+query ProposalAndVoteQuery {
+  proposals(
+    orderBy: createdTimestamp
+    orderDirection: desc
+  ) {
+    id
+    proposer {
+      id
+      delegatedVotesRaw
+      delegatedVotes
+      tokenHoldersRepresentedAmount
+    }
+    createdTimestamp
+    createdBlock
+    createdTransactionHash
+    startBlock
+    endBlock
+    proposalThreshold
+    quorumVotes
+    forVotes
+    againstVotes
+    abstainVotes
+    title
+    description
+    status
+    executionETA
+    totalSupply
+    minQuorumVotesBPS
+    maxQuorumVotesBPS
+    quorumCoefficient
+  }
+  votes(orderBy: blockNumber, orderDirection: desc) {
+    id
+    support
+    supportDetailed
+    votesRaw
+    votes
+    reason
+    voter {
+      id
+      delegatedVotesRaw
+      delegatedVotes
+      tokenHoldersRepresentedAmount
+    }
+    proposal {
+      id
+    }
+    blockNumber
+  }
+}
+
+query ProposalQuery($id: ID!) {
+  proposal(id: $id) {
+    id
+    proposer {
+      id
+      delegatedVotesRaw
+      delegatedVotes
+      tokenHoldersRepresentedAmount
+    }
+    signers {
+      id
+      delegatedVotesRaw
+      delegatedVotes
+      tokenHoldersRepresentedAmount
+    }
+    targets
+    values
+    signatures
+    calldatas
+    createdTimestamp
+    createdBlock
+    lastUpdatedTimestamp
+    lastUpdatedBlock
+    createdTransactionHash
+    startBlock
+    endBlock
+    proposalThreshold
+    quorumVotes
+    forVotes
+    againstVotes
+    abstainVotes
+    title
+    description
+    status
+    executionETA
+    votes {
+      id
+      support
+      supportDetailed
+      votesRaw
+      votes
+      reason
+      voter {
+        id
+      }
+      blockNumber
+      blockTimestamp
+      clientId
+    }
+    totalSupply
+    adjustedTotalSupply
+    minQuorumVotesBPS
+    maxQuorumVotesBPS
+    quorumCoefficient
+    objectionPeriodEndBlock
+    updatePeriodEndBlock
+    onTimelockV1
+    voteSnapshotBlock
+    canceledBlock
+    canceledTimestamp
+    executedBlock
+    executedTimestamp
+    vetoedBlock
+    vetoedTimestamp
+    queuedBlock
+    queuedTimestamp
+    clientId
+  }
+}
