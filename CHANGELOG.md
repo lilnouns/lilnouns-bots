@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.52] - 2024-07-26
+
+### Features
+
+- Add `castDistribution` field to request data
+
+### Miscellaneous Tasks
+
+- Update `LIL_NOUNS_BASE_URL` to new endpoint
+- Disable `META_GOV_FARCASTER_ENABLED`
+- Disable `PROP_HOUSE_ENABLED` flag
+- Disable `PROP_LOT_ENABLED`
+
 ## [1.1.0-alpha.51] - 2024-07-07
 
 ### Refactor
