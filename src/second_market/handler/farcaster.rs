@@ -2,8 +2,8 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use log::{debug, error, info};
 use reqwest::{
-  header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
   Client,
+  header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE, HeaderMap, HeaderValue},
   Response,
 };
 use serde_json::{json, Value};
@@ -115,7 +115,8 @@ impl Handler for FarcasterHandler {
     let request_data = json!({
       "text": description,
       "embeds": [url],
-      "channelKey": self.warpcast_channel_key
+      "channelKey": self.warpcast_channel_key,
+      "castDistribution": "channel-only"
     });
 
     self.make_http_request(request_data).await.map_err(|e| {
