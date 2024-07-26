@@ -113,7 +113,7 @@ META_GOV_SNAPSHOT_SPACE_ID = "leagueoflils.eth"
 META_GOV_WARPCAST_CHANNEL = "lilnouns"
 
 # Prop House Settings
-PROP_HOUSE_ENABLED = "true"
+PROP_HOUSE_ENABLED = "false"
 PROP_HOUSE_DISCORD_ENABLED = "true"
 PROP_HOUSE_FARCASTER_ENABLED = "true"
 PROP_HOUSE_BASE_URL = "https://prop.house/lil-nouns"
