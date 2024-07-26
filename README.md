@@ -11,7 +11,7 @@
 ## Overview
 
 This repository contains the source code for various bots, primarily focused on the LilNouns DAO. The codebase is
-written in Rust and utilizes several libraries for web scraping, data fetching, and Discord and Farcaster bot
+written in Rust and uses several libraries for web scraping, data fetching, and Discord and Farcaster bot
 functionalities.
 
 ## Contributing
@@ -20,7 +20,7 @@ If you wish to contribute to this project, please follow the [contribution guide
 
 ## Development
 
-This is a quick start instructions for the project development environment setup.
+This is a quick-start instruction for the project development environment setup.
 
 ### Requirements
 
