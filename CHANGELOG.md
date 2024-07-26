@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.53] - 2024-07-26
+
+### Documentation
+
+- Update `README.md` for clarity
+
 ## [1.1.0-alpha.52] - 2024-07-26
 
 ### Features
