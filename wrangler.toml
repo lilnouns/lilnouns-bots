@@ -106,7 +106,7 @@ LIL_NOUNS_WARPCAST_CHANNEL = "lilnouns"
 # Meta Gov Settings
 META_GOV_ENABLED = "true"
 META_GOV_DISCORD_ENABLED = "true"
-META_GOV_FARCASTER_ENABLED = "false"
+META_GOV_FARCASTER_ENABLED = "true"
 META_GOV_BASE_URL = "https://lilnouns.wtf/vote/nounsdao"
 META_GOV_SNAPSHOT_GRAPHQL_URL = "https://hub.snapshot.org/graphql"
 META_GOV_SNAPSHOT_SPACE_ID = "leagueoflils.eth"
