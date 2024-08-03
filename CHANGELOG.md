@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0-alpha.55] - 2024-08-03
+
+### Miscellaneous Tasks
+
+- Update deps `LIL_NOUNS_GRAPHQL_URL`
+
 ## [1.1.0-alpha.54] - 2024-07-30
 
 ### Miscellaneous Tasks
