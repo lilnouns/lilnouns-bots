@@ -41,7 +41,7 @@ LIL_NOUNS_GRAPHQL_URL = "https://api.goldsky.com/api/public/project_cldjvjgtylso
 LIL_NOUNS_WARPCAST_CHANNEL = ""
 
 # Meta Gov Settings
-META_GOV_ENABLED = "false"
+META_GOV_ENABLED = "true"
 META_GOV_DISCORD_ENABLED = "true"
 META_GOV_FARCASTER_ENABLED = "false"
 META_GOV_BASE_URL = "https://lilnouns.wtf/vote/nounsdao"
@@ -50,7 +50,7 @@ META_GOV_SNAPSHOT_SPACE_ID = "leagueoflils.eth"
 META_GOV_WARPCAST_CHANNEL = ""
 
 # Prop House Settings
-PROP_HOUSE_ENABLED = "true"
+PROP_HOUSE_ENABLED = "false"
 PROP_HOUSE_DISCORD_ENABLED = "true"
 PROP_HOUSE_FARCASTER_ENABLED = "false"
 PROP_HOUSE_BASE_URL = "https://prop.house/lil-nouns"
@@ -59,7 +59,7 @@ PROP_HOUSE_GRAPHQL_URL = "https://prod.backend.prop.house/graphql"
 PROP_HOUSE_WARPCAST_CHANNEL = ""
 
 # Prop Lot Settings
-PROP_LOT_ENABLED = "true"
+PROP_LOT_ENABLED = "false"
 PROP_LOT_DISCORD_ENABLED = "true"
 PROP_LOT_FARCASTER_ENABLED = "false"
 PROP_LOT_BASE_URL = "https://lilnouns.proplot.wtf"
