@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0-alpha.2] - 2024-10-10
+
+### Features
+
+- Add required arguments and new fields for snapshot
+
 ## [1.2.0-alpha.1] - 2024-09-27
 
 ### Bug Fixes
