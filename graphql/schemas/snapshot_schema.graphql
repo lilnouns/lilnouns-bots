@@ -1,95 +1,115 @@
 scalar Any
 
 type Query {
-  space(id: String): Space
+  space(id: String!): Space
   spaces(
-    first: Int
-    skip: Int
+    first: Int! = 20
+    skip: Int! = 0
     where: SpaceWhere
     orderBy: String
     orderDirection: OrderDirection
   ): [Space]
-  ranking(first: Int, skip: Int, where: RankingWhere): RankingObject
-  proposal(id: String): Proposal
+  ranking(first: Int! = 20, skip: Int! = 0, where: RankingWhere): RankingObject
+  proposal(id: String!): Proposal
   proposals(
-    first: Int
-    skip: Int
+    first: Int! = 20
+    skip: Int! = 0
     where: ProposalWhere
     orderBy: String
     orderDirection: OrderDirection
   ): [Proposal]
-  vote(id: String): Vote
+  vote(id: String!): Vote
   votes(
-    first: Int
-    skip: Int
+    first: Int! = 20
+    skip: Int! = 0
     where: VoteWhere
     orderBy: String
     orderDirection: OrderDirection
   ): [Vote]
   aliases(
-    first: Int
-    skip: Int
+    first: Int! = 20
+    skip: Int! = 0
     where: AliasWhere
     orderBy: String
     orderDirection: OrderDirection
   ): [Alias]
+  roles(where: RolesWhere!): [Role]
   follows(
-    first: Int
-    skip: Int
+    first: Int! = 20
+    skip: Int! = 0
     where: FollowWhere
     orderBy: String
     orderDirection: OrderDirection
   ): [Follow]
   subscriptions(
-    first: Int
-    skip: Int
+    first: Int! = 20
+    skip: Int! = 0
     where: SubscriptionWhere
     orderBy: String
     orderDirection: OrderDirection
   ): [Subscription]
   users(
-    first: Int
-    skip: Int
+    first: Int! = 20
+    skip: Int! = 0
     where: UsersWhere
     orderBy: String
     orderDirection: OrderDirection
   ): [User]
   statements(
-    first: Int
-    skip: Int
+    first: Int! = 20
+    skip: Int! = 0
     where: StatementsWhere
     orderBy: String
     orderDirection: OrderDirection
   ): [Statement]
-  user(id: String): User
-  statement(id: String): Statement
+  user(id: String!): User
+  statement(id: String!): Statement
   skins: [Item]
   networks: [Item]
   validations: [Item]
   plugins: [Item]
   strategies: [StrategyItem]
-  strategy(id: String): StrategyItem
+  strategy(id: String!): StrategyItem
   vp(voter: String!, space: String!, proposal: String): Vp
   messages(
-    first: Int
-    skip: Int
+    first: Int! = 20
+    skip: Int! = 0
     where: MessageWhere
     orderBy: String
     orderDirection: OrderDirection
   ): [Message]
+  leaderboards(
+    first: Int! = 20
+    skip: Int! = 0
+    where: LeaderboardsWhere
+    orderBy: String
+    orderDirection: OrderDirection
+  ): [Leaderboard]
+  options: [Option]
 }
 
 input SpaceWhere {
   id: String
   id_in: [String]
+  created: Int
+  created_in: [Int]
+  created_gt: Int
+  created_gte: Int
+  created_lt: Int
+  created_lte: Int
+  strategy: String
+  plugin: String
+  controller: String
+  verified: Boolean
+  domain: String
 }
 
 input RankingWhere {
-  id: String
-  id_in: [String]
   search: String
   category: String
   network: String
+  strategy: String
+  plugin: String
 }
 
 input MessageWhere {
@@ -101,6 +121,8 @@ input MessageWhere {
   mci_gte: Int
   mci_lt: Int
   mci_lte: Int
+  address: String
+  address_in: [String]
   timestamp: Int
   timestamp_in: [Int]
   timestamp_gt: Int
@@ -230,6 +252,10 @@ input AliasWhere {
   created_lte: Int
 }
 
+input RolesWhere {
+  address: String!
+}
+
 input FollowWhere {
   id: String
   id_in: [String]
@@ -239,6 +265,8 @@ input FollowWhere {
   follower_in: [String]
   space: String
   space_in: [String]
+  network: String
+  network_in: [String]
   created: Int
   created_in: [Int]
   created_gt: Int
@@ -284,6 +312,7 @@ input StatementsWhere {
   ipfs_in: [String]
   space: String
   space_in: [String]
+  network: String
   delegate: String
   delegate_in: [String]
   created: Int
@@ -292,6 +321,35 @@ input StatementsWhere {
   created_gte: Int
   created_lt: Int
   created_lte: Int
+  source: String
+  source_in: [String]
+}
+
+input LeaderboardsWhere {
+  space: String
+  space_in: [String]
+  space_not: String
+  space_not_in: [String]
+  user: String
+  user_in: [String]
+  user_not: String
+  user_not_in: [String]
+  proposal_count: Int
+  proposal_count_in: [Int]
+  proposal_count_not: Int
+  proposal_count_not_in: [Int]
+  proposal_count_gt: [Int]
+  proposal_count_gte: [Int]
+  proposal_count_lt: [Int]
+  proposal_count_lte: [Int]
+  vote_count: Int
+  vote_count_in: [Int]
+  vote_count_not: Int
+  vote_count_not_in: [Int]
+  vote_count_gt: [Int]
+  vote_count_gte: [Int]
+  vote_count_lt: [Int]
+  vote_count_lte: [Int]
 }
 
 enum OrderDirection {
@@ -305,6 +363,7 @@ type Space {
   private: Boolean
   about: String
   avatar: String
+  cover: String
   terms: String
   location: String
   website: String
@@ -328,9 +387,12 @@ type Space {
   voteValidation: Validation
   delegationPortal: DelegationPortal
   treasuries: [Treasury]
+  labels: [Label]
   activeProposals: Int
   proposalsCount: Int
+  proposalsCount1d: Int
   proposalsCount7d: Int
+  proposalsCount30d: Int
   followersCount: Int
   followersCount7d: Int
   votesCount: Int
@@ -341,7 +403,11 @@ type Space {
   template: String
   verified: Boolean
   flagged: Boolean
+  hibernated: Boolean
+  turbo: Boolean
   rank: Float
+  boost: BoostSettings
+  created: Int!
 }
 
 type RankingObject {
@@ -364,6 +430,7 @@ type SpaceVoting {
   period: Int
   type: String
   quorum: Float
+  quorumType: String!
   blind: Boolean
   hideAbstain: Boolean
   privacy: String
@@ -387,11 +454,13 @@ type Proposal {
   body: String
   discussion: String!
   choices: [String]!
+  labels: [String]!
   start: Int!
   end: Int!
   quorum: Float!
+  quorumType: String!
   privacy: String
-  snapshot: String
+  snapshot: Int
   state: String
   link: String
   app: String
@@ -418,6 +487,7 @@ type Validation {
 type DelegationPortal {
   delegationType: String!
   delegationContract: String!
+  delegationNetwork: String!
   delegationApi: String!
 }
 
@@ -445,11 +515,17 @@ type Alias {
   created: Int!
 }
 
+type Role {
+  space: String
+  permissions: [String]
+}
+
 type Follow {
   id: String!
   ipfs: String
   follower: String!
   space: Space!
+  network: String!
   created: Int!
 }
 
@@ -467,16 +543,28 @@ type User {
   name: String
   about: String
   avatar: String
-  created: Int!
+  cover: String
+  github: String
+  twitter: String
+  lens: String
+  farcaster: String
+  created: Int
+  votesCount: Int
+  proposalsCount: Int
+  lastVote: Int
 }
 
 type Statement {
   id: String!
   ipfs: String!
   space: String!
+  network: String
   about: String
   delegate: String
   statement: String
+  discourse: String
+  status: String
+  source: String
   created: Int!
   updated: Int!
 }
@@ -502,8 +590,33 @@ type Treasury {
   network: String
 }
 
+type Label {
+  id: String
+  name: String
+  description: String
+  color: String
+}
+
+type BoostSettings {
+  enabled: Boolean
+  bribeEnabled: Boolean
+}
+
 type Vp {
   vp: Float
   vp_by_strategy: [Float]
   vp_state: String
+}
+
+type Leaderboard {
+  space: String
+  user: String
+  proposalsCount: Int
+  votesCount: Int
+  lastVote: Int
+}
+
+type Option {
+  name: String
+  value: String
 }
