@@ -34,11 +34,11 @@ jobs:
 
     steps: # The sequence of tasks that make up a job.
       - name: Checking out repository code
-        uses: actions/checkout@v4.2.0 # Action for checking out a repo.
+        uses: actions/checkout@v4.2.1 # Action for checking out a repo.
 
       # Cache dependencies to speed up builds
       - name: Cache cargo dependencies
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4.1.1
         with:
           path: |
             ~/.cargo/bin/
@@ -85,13 +85,13 @@ jobs:
     steps:
       # Checkout the repository code
       - name: Checkout code
-        uses: actions/checkout@v4.2.0
+        uses: actions/checkout@v4.2.1
         with:
           fetch-depth: 0 # Fetches all history for all branches and tags
 
       # Generate a changelog for the new release using Git
       - name: Generate a changelog
-        uses: orhun/git-cliff-action@v4.2.0
+        uses: orhun/git-cliff-action@v4.3.0
         id: git-cliff
         with:
           config: cliff.toml # The configuration file for git-cliff
