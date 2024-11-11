@@ -5,7 +5,7 @@
 		"dev": "wrangler dev --env dev --test-scheduled"
 	},
 	"devDependencies": {
-		"wrangler": "3.85.0"
+		"wrangler": "3.86.0"
 	},
 	"engines": {
 		"node": ">=16.13.0",
