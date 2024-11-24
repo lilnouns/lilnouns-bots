@@ -1,5 +1,5 @@
-use log::{error, info, Level};
-use worker::{Env, event, Result, ScheduleContext, ScheduledEvent};
+use log::{error, info};
+use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 
 use crate::{
   lil_nouns::LilNouns,
@@ -20,58 +20,53 @@ mod utils;
 async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
   match event.cron().as_str() {
     "*/5 * * * *" => {
-      if env.var("LIL_NOUNS_ENABLED").unwrap().to_string() == "true" {
+      if env.var("LIL_NOUNS_ENABLED")?.to_string() == "true" {
         match LilNouns::new_from_env(env) {
           Ok(result) => match result.start().await {
             Ok(_) => info!("LilNouns started successfully"),
             Err(error) => error!("Failed to start LilNouns: {:?}", error),
           },
-
           Err(error) => error!("Failed to create LilNouns: {:?}", error),
         }
       };
 
-      if env.var("META_GOV_ENABLED").unwrap().to_string() == "true" {
+      if env.var("META_GOV_ENABLED")?.to_string() == "true" {
         match MetaGov::new_from_env(env) {
           Ok(result) => match result.start().await {
             Ok(_) => info!("MetaGov started successfully"),
             Err(error) => error!("Failed to start MetaGov: {:?}", error),
           },
-
           Err(error) => error!("Failed to create MetaGov: {:?}", error),
         }
       };
 
-      if env.var("PROP_HOUSE_ENABLED").unwrap().to_string() == "true" {
+      if env.var("PROP_HOUSE_ENABLED")?.to_string() == "true" {
         match PropHouse::new_from_env(env) {
           Ok(result) => match result.start().await {
             Ok(_) => info!("PropHouse started successfully"),
             Err(error) => error!("Failed to start PropHouse: {:?}", error),
           },
-
           Err(error) => error!("Failed to create PropHouse: {:?}", error),
         }
       }
 
-      if env.var("PROP_LOT_ENABLED").unwrap().to_string() == "true" {
+      if env.var("PROP_LOT_ENABLED")?.to_string() == "true" {
         match PropLot::new_from_env(env) {
           Ok(result) => match result.start().await {
             Ok(_) => info!("PropLot started successfully"),
             Err(error) => error!("Failed to start PropLot: {:?}", error),
           },
-
           Err(error) => error!("Failed to create PropLot: {:?}", error),
         }
       }
     }
     "0 0 * * *" => {
-      if env.var("SECOND_MARKET_ENABLED").unwrap().to_string() == "true" {
+      if env.var("SECOND_MARKET_ENABLED")?.to_string() == "true" {
         match SecondMarket::new_from_env(env) {
           Ok(result) => match result.start().await {
             Ok(_) => info!("SecondMarket started successfully"),
             Err(error) => error!("Failed to start SecondMarket: {:?}", error),
           },
-
           Err(error) => error!("Failed to create SecondMarket: {:?}", error),
         }
       }
@@ -84,7 +79,7 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
 
 #[event(start)]
 pub fn start() {
-  worker_logger::init_with_level(&Level::Trace);
+  env_logger::init();
   utils::set_panic_hook();
 }
 

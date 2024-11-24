@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use async_trait::async_trait;
 use log::{debug, error, info};
 use reqwest::{
+  header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
   Client,
-  header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE, HeaderMap, HeaderValue},
   Response,
 };
 use serde_json::{json, to_string, Value};
@@ -12,7 +12,7 @@ use worker::{Env, Error, Result};
 
 use crate::{
   cache::Cache,
-  prop_house::{Auction, handler::Handler, Proposal, Vote},
+  prop_house::{handler::Handler, Auction, Proposal, Vote},
   utils::fname::get_username_by_address,
 };
 
@@ -194,7 +194,7 @@ impl Handler for FarcasterHandler {
     proposals_casts.insert(proposal.id, cast_hash.to_string());
     debug!("Proposals casts after insertion: {:?}", proposals_casts);
 
-    let proposals_casts_as_string = to_string(&proposals_casts).unwrap();
+    let proposals_casts_as_string = to_string(&proposals_casts)?;
     debug!("Ideas casts as string: {}", proposals_casts_as_string);
 
     self

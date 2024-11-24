@@ -3,18 +3,17 @@ use std::collections::HashMap;
 use async_trait::async_trait;
 use log::{debug, error, info};
 use reqwest::{
+  header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
   Client,
-  header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE, HeaderMap, HeaderValue},
   Response,
 };
 use serde_json::{json, to_string, Value};
-use worker::{Env, Error, Result};
-
 use utils::link::Link;
+use worker::{Env, Error, Result};
 
 use crate::{
   cache::Cache,
-  prop_lot::{Comment, handler::Handler, Idea, Vote},
+  prop_lot::{handler::Handler, Comment, Idea, Vote},
   utils,
   utils::fname::get_username_by_address,
 };
@@ -166,7 +165,7 @@ impl Handler for FarcasterHandler {
     ideas_casts.insert(idea.id.to_string(), cast_hash.to_string());
     debug!("Ideas casts after insertion: {:?}", ideas_casts);
 
-    let ideas_casts_as_string = to_string(&ideas_casts).unwrap();
+    let ideas_casts_as_string = to_string(&ideas_casts)?;
     debug!("Ideas casts as string: {}", ideas_casts_as_string);
 
     self
