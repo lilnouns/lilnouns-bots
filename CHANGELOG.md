@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0-alpha.1] - 2024-11-24
+
+### Refactor
+
+- Replace `unwrap` with `?` operator
+
+### Miscellaneous Tasks
+
+- Update logging setup
+
 ## [1.3.0-alpha.0] - 2024-10-10
 
 ### Bug Fixes
