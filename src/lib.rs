@@ -1,4 +1,4 @@
-use log::{error, info, Level};
+use log::{error, info};
 use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 
 use crate::{
@@ -26,7 +26,6 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
             Ok(_) => info!("LilNouns started successfully"),
             Err(error) => error!("Failed to start LilNouns: {:?}", error),
           },
-
           Err(error) => error!("Failed to create LilNouns: {:?}", error),
         }
       };
@@ -37,7 +36,6 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
             Ok(_) => info!("MetaGov started successfully"),
             Err(error) => error!("Failed to start MetaGov: {:?}", error),
           },
-
           Err(error) => error!("Failed to create MetaGov: {:?}", error),
         }
       };
@@ -48,7 +46,6 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
             Ok(_) => info!("PropHouse started successfully"),
             Err(error) => error!("Failed to start PropHouse: {:?}", error),
           },
-
           Err(error) => error!("Failed to create PropHouse: {:?}", error),
         }
       }
@@ -59,7 +56,6 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
             Ok(_) => info!("PropLot started successfully"),
             Err(error) => error!("Failed to start PropLot: {:?}", error),
           },
-
           Err(error) => error!("Failed to create PropLot: {:?}", error),
         }
       }
@@ -71,7 +67,6 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
             Ok(_) => info!("SecondMarket started successfully"),
             Err(error) => error!("Failed to start SecondMarket: {:?}", error),
           },
-
           Err(error) => error!("Failed to create SecondMarket: {:?}", error),
         }
       }
@@ -84,7 +79,7 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
 
 #[event(start)]
 pub fn start() {
-  worker_logger::init_with_level(&Level::Trace);
+  env_logger::init();
   utils::set_panic_hook();
 }
 
