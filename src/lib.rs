@@ -1,5 +1,5 @@
 use log::{error, info, Level};
-use worker::{Env, event, Result, ScheduleContext, ScheduledEvent};
+use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 
 use crate::{
   lil_nouns::LilNouns,
@@ -20,7 +20,7 @@ mod utils;
 async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
   match event.cron().as_str() {
     "*/5 * * * *" => {
-      if env.var("LIL_NOUNS_ENABLED").unwrap().to_string() == "true" {
+      if env.var("LIL_NOUNS_ENABLED")?.to_string() == "true" {
         match LilNouns::new_from_env(env) {
           Ok(result) => match result.start().await {
             Ok(_) => info!("LilNouns started successfully"),
@@ -31,7 +31,7 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
         }
       };
 
-      if env.var("META_GOV_ENABLED").unwrap().to_string() == "true" {
+      if env.var("META_GOV_ENABLED")?.to_string() == "true" {
         match MetaGov::new_from_env(env) {
           Ok(result) => match result.start().await {
             Ok(_) => info!("MetaGov started successfully"),
@@ -42,7 +42,7 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
         }
       };
 
-      if env.var("PROP_HOUSE_ENABLED").unwrap().to_string() == "true" {
+      if env.var("PROP_HOUSE_ENABLED")?.to_string() == "true" {
         match PropHouse::new_from_env(env) {
           Ok(result) => match result.start().await {
             Ok(_) => info!("PropHouse started successfully"),
@@ -53,7 +53,7 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
         }
       }
 
-      if env.var("PROP_LOT_ENABLED").unwrap().to_string() == "true" {
+      if env.var("PROP_LOT_ENABLED")?.to_string() == "true" {
         match PropLot::new_from_env(env) {
           Ok(result) => match result.start().await {
             Ok(_) => info!("PropLot started successfully"),
@@ -65,7 +65,7 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
       }
     }
     "0 0 * * *" => {
-      if env.var("SECOND_MARKET_ENABLED").unwrap().to_string() == "true" {
+      if env.var("SECOND_MARKET_ENABLED")?.to_string() == "true" {
         match SecondMarket::new_from_env(env) {
           Ok(result) => match result.start().await {
             Ok(_) => info!("SecondMarket started successfully"),

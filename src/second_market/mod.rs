@@ -42,22 +42,12 @@ impl SecondMarket {
     let fetcher = RestFetcher::new_from_env(env)?;
     let mut handlers = vec![];
 
-    if env
-      .var("SECOND_MARKET_DISCORD_ENABLED")
-      .unwrap()
-      .to_string()
-      == "true"
-    {
+    if env.var("SECOND_MARKET_DISCORD_ENABLED")?.to_string() == "true" {
       let discord_handler: Box<dyn Handler> = Box::new(DiscordHandler::new_from_env(env)?);
       handlers.push(discord_handler);
     }
 
-    if env
-      .var("SECOND_MARKET_FARCASTER_ENABLED")
-      .unwrap()
-      .to_string()
-      == "true"
-    {
+    if env.var("SECOND_MARKET_FARCASTER_ENABLED")?.to_string() == "true" {
       let farcaster_handler: Box<dyn Handler> = Box::new(FarcasterHandler::new_from_env(env)?);
       handlers.push(farcaster_handler);
     }

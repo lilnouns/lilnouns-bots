@@ -5,8 +5,8 @@ use ethers::utils::hex::ToHexExt;
 use log::{debug, error, info};
 use regex::Regex;
 use reqwest::{
+  header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
   Client,
-  header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE, HeaderMap, HeaderValue},
   Response,
 };
 use serde_json::{json, to_string, Value};
@@ -210,7 +210,7 @@ impl Handler for FarcasterHandler {
     proposals_casts.insert(proposal_id, cast_hash.to_string());
     debug!("Proposals casts after insertion: {:?}", proposals_casts);
 
-    let proposals_casts_as_string = to_string(&proposals_casts).unwrap();
+    let proposals_casts_as_string = to_string(&proposals_casts)?;
     debug!("Ideas casts as string: {}", proposals_casts_as_string);
 
     self
