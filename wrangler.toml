@@ -16,6 +16,11 @@ command = "cargo install -q -f worker-build && worker-build --release"
 [triggers]
 crons = ["*/5 * * * *", "0 0 * * *"]
 
+# Workers Logs
+[observability]
+enabled = true
+head_sampling_rate = 1 # optional. default = 1.
+
 # Default KV Namespace
 [[kv_namespaces]]
 binding = "CACHE"

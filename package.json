@@ -1,14 +1,18 @@
 {
-	"private": true,
-	"scripts": {
-		"deploy": "wrangler deploy --env dev",
-		"dev": "wrangler dev --env dev --test-scheduled"
-	},
-	"devDependencies": {
-		"wrangler": "3.103.2"
-	},
-	"engines": {
-		"node": ">=16.13.0",
-		"pnpm": ">=9.0.0"
-	}
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy --env dev",
+    "dev": "wrangler dev --env dev --test-scheduled"
+  },
+  "devDependencies": {
+    "wrangler": "3.103.2"
+  },
+  "resolutions": {
+    "cookie": ">=0.7.0"
+  },
+  "engines": {
+    "node": ">=16.13.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@10.0.0"
 }
