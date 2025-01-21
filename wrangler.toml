@@ -102,7 +102,7 @@ WARPCAST_API_BASE_URL = "https://api.warpcast.com/v2"
 
 # Lil Nouns Settings
 LIL_NOUNS_ENABLED = "true"
-LIL_NOUNS_DISCORD_ENABLED = "true"
+LIL_NOUNS_DISCORD_ENABLED = "false"
 LIL_NOUNS_FARCASTER_ENABLED = "true"
 LIL_NOUNS_BASE_URL = "https://lilnouns.camp/proposals"
 LIL_NOUNS_GRAPHQL_URL = "https://api.goldsky.com/api/public/project_cldjvjgtylso13swq3dre13sf/subgraphs/lil-nouns-subgraph/1.0.6/gn"
