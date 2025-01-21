@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use chrono::Local;
 use header::CONTENT_TYPE;
-use log::{error, info};
+use log::{debug, error, info};
 use reqwest::{header, Client};
 use serde_json::{json, Value};
 use worker::{Env, Error, Result};
@@ -98,24 +98,40 @@ impl Handler for DiscordHandler {
   async fn handle_new_vote(&self, vote: &Vote) -> Result<()> {
     info!("Handling new vote from address: {}", vote.voter);
 
+    // Log the incoming vote details
+    debug!("Received vote: {:?}", vote);
+
     let proposals = self
       .cache
       .get::<Vec<Proposal>>("lil_nouns:proposals")
-      .await?
-      .unwrap_or_default();
+      .await?;
+    debug!("Fetched proposals from cache: {:?}", proposals);
+
+    let proposals = proposals.unwrap_or_default();
+    debug!("Using proposals after unwrapping: {:?}", proposals);
 
     let proposal = proposals
       .iter()
       .find(|&a| a.id == vote.proposal_id)
       .unwrap()
       .clone();
+    debug!(
+      "Found proposal with id {}: {:?}",
+      vote.proposal_id, proposal
+    );
 
     let url = format!("{}/{}", self.base_url, proposal.id);
+    debug!("Constructed proposal URL: {}", url);
+
     let date = Local::now().format("%m/%d/%Y %I:%M %p").to_string();
+    debug!("Formatted current date and time: {}", date);
+
     let wallet = get_domain_name(&vote.voter)
       .await
-      .unwrap_or(get_short_address(&vote.voter));
+      .unwrap_or_else(|_| get_short_address(&vote.voter));
+    debug!("Resolved wallet name: {}", wallet);
 
+    // Constructing the vote description
     let mut description = format!(
       "{} has voted {} “{}” proposal.",
       wallet,
@@ -127,18 +143,27 @@ impl Handler for DiscordHandler {
       },
       proposal.title
     );
+    debug!("Initial description: {}", description);
 
     if !vote.reason.is_none() {
       let chars_limit = 320 - 10 - description.len();
+      debug!("Characters limit for vote reason: {}", chars_limit);
+
       let mut vote_reason = vote.clone().reason.unwrap_or_default();
+      debug!("Original vote reason: {}", vote_reason);
+
       if vote_reason.len() > chars_limit {
         vote_reason.truncate(chars_limit);
         vote_reason.push_str("...");
+        debug!("Truncated vote reason: {}", vote_reason);
       }
+
       description = format!("{}\n\n“{}”", description, vote_reason);
+      debug!("Final description with reason: {}", description);
     }
 
     let explorer = get_explorer_address(&vote.voter);
+    debug!("Fetched explorer address for voter: {}", explorer);
 
     let embed = json!({
         "title": "New Lil Nouns Proposal Vote",
@@ -151,8 +176,13 @@ impl Handler for DiscordHandler {
             "url": explorer,
         }
     });
+    debug!("Constructed Discord embed object: {}", embed);
 
-    self.execute_webhook(embed).await?;
+    // Attempt to execute the webhook
+    match self.execute_webhook(embed).await {
+      Ok(_) => info!("Successfully sent vote notification to Discord."),
+      Err(err) => error!("Failed to send vote notification to Discord: {:?}", err),
+    }
 
     Ok(())
   }

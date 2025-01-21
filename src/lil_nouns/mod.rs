@@ -11,14 +11,14 @@ use crate::{
 mod fetcher;
 mod handler;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Proposal {
   pub id: usize,
   pub title: String,
   pub proposer: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Vote {
   pub id: String,
   pub voter: String,
