@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0-alpha.8] - 2025-01-21
+
+### Miscellaneous Tasks
+
+- Enable observability in `wrangler.toml`
+
 ## [1.3.0-alpha.7] - 2025-01-20
 
 ### Bug Fixes
