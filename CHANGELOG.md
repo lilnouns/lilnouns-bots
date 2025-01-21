@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0-alpha.10] - 2025-01-21
+
+### Miscellaneous Tasks
+
+- Remove explicit `pnpm` version input
+
 ## [1.3.0-alpha.9] - 2025-01-21
 
 ### Miscellaneous Tasks
