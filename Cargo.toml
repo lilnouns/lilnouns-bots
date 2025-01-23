@@ -38,7 +38,7 @@ serde = { version = "1.0.217", features = ["derive"] }
 serde_json = "1.0.137"
 time = "0.3.37"
 worker = "0.5.0"
-wasm-logger = "0.2.0"
+worker_logger = { git = "https://github.com/nekofar/worker_logger.git", tag = "v1.0.0-alpha.0" }
 
 [profile.release]
 lto = true
