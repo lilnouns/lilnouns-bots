@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0-alpha.12] - 2025-01-23
+
+### Miscellaneous Tasks
+
+- Update logger initialization to new library
+
 ## [1.3.0-alpha.11] - 2025-01-23
 
 ### Refactor
