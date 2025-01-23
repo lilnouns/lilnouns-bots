@@ -1636,7 +1636,7 @@ checksum = "4ec2a862134d2a7d32d7983ddcdd1c4923530833c9f2ea1a44fc5fa473989058"
 
 [[package]]
 name = "lilnouns-bots"
-version = "1.3.0-alpha.11"
+version = "1.3.0-alpha.12"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1653,8 +1653,8 @@ dependencies = [
  "serde",
  "serde_json",
  "time",
- "wasm-logger",
  "worker",
+ "worker_logger",
 ]
 
 [[package]]
@@ -3165,17 +3165,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "65fc09f10666a9f147042251e0dda9c18f166ff7de300607007e96bdebc1068d"
 
 [[package]]
-name = "wasm-logger"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "074649a66bb306c8f2068c9016395fa65d8e08d2affcbf95acf3c24c3ab19718"
-dependencies = [
- "log",
- "wasm-bindgen",
- "web-sys",
-]
-
-[[package]]
 name = "wasm-streams"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3477,6 +3466,15 @@ dependencies = [
  "js-sys",
  "wasm-bindgen",
  "web-sys",
+]
+
+[[package]]
+name = "worker_logger"
+version = "1.0.0-alpha.0"
+source = "git+https://github.com/nekofar/worker_logger.git?tag=v1.0.0-alpha.0#73667ae4a303182f0332b0663e19b056eb781eaf"
+dependencies = [
+ "log",
+ "worker",
 ]
 
 [[package]]
