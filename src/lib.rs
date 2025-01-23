@@ -79,7 +79,7 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
 
 #[event(start)]
 pub fn start() {
-  env_logger::init();
+  wasm_logger::init(wasm_logger::Config::default());
   utils::set_panic_hook();
 }
 
