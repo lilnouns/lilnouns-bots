@@ -1,4 +1,4 @@
-use log::{error, info};
+use log::{error, info, Level};
 use worker::{event, Env, Result, ScheduleContext, ScheduledEvent};
 
 use crate::{
@@ -79,7 +79,7 @@ async fn start(event: &ScheduledEvent, env: &Env) -> Result<()> {
 
 #[event(start)]
 pub fn start() {
-  wasm_logger::init(wasm_logger::Config::default());
+  worker_logger::init_with_level(&Level::Debug);
   utils::set_panic_hook();
 }
 
