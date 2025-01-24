@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0-alpha.14] - 2025-01-24
+
+### Refactor
+
+- Update `tracing_subscriber` configuration
+
+### Styling
+
+- Reorder imports for better readability
+- Reorder imports for better readability
+
 ## [1.3.0-alpha.13] - 2025-01-24
 
 ### Refactor
