@@ -1,6 +1,6 @@
 [package]
 name = "lilnouns-bots"
-version = "1.3.0-alpha.12"
+version = "1.3.0-alpha.13"
 authors = ["Milad Nekofar <milad@nekofar.com>"]
 edition = "2021"
 description = "Our bots are designed to keep the Lil Nouns DAO community informed and engaged."
@@ -36,9 +36,11 @@ regex = "1.11.1"
 reqwest = "0.11.27"
 serde = { version = "1.0.217", features = ["derive"] }
 serde_json = "1.0.137"
-time = "0.3.37"
 worker = "0.5.0"
-worker_logger = { git = "https://github.com/nekofar/worker_logger.git", tag = "v1.0.0-alpha.0" }
+tracing = "0.1"
+tracing-web = "0.1"
+tracing-subscriber = { version = "0.3", features = ['time', 'json'] }
+time = { version = "0.3", features = ['wasm-bindgen'] }
 
 [profile.release]
 lto = true
