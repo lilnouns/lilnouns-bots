@@ -1,5 +1,5 @@
 use chrono::{Duration, Utc};
-use graphql_client::{GraphQLQuery, reqwest::post_graphql};
+use graphql_client::{reqwest::post_graphql, GraphQLQuery};
 use log::{debug, error};
 use reqwest::Client;
 use serde_json::Value;
