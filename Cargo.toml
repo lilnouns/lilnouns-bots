@@ -38,6 +38,7 @@ serde = { version = "1.0.217", features = ["derive"] }
 serde_json = "1.0.137"
 worker = "0.5.0"
 worker_logger = { git = "https://github.com/nekofar/worker_logger.git", tag = "v1.0.0-alpha.3" }
+tracing = "0.1"
 time = { version = "0.3", features = ['wasm-bindgen'] }
 
 [profile.release]
