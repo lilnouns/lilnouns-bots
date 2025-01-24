@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0-alpha.13] - 2025-01-24
+
+### Refactor
+
+- Replace `worker_logger` with `tracing_subscriber`
+
 ## [1.3.0-alpha.12] - 2025-01-23
 
 ### Miscellaneous Tasks
