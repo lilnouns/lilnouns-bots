@@ -3470,8 +3470,8 @@ dependencies = [
 
 [[package]]
 name = "worker_logger"
-version = "1.0.0-alpha.0"
-source = "git+https://github.com/nekofar/worker_logger.git?tag=v1.0.0-alpha.0#73667ae4a303182f0332b0663e19b056eb781eaf"
+version = "1.0.0-alpha.3"
+source = "git+https://github.com/nekofar/worker_logger.git?tag=v1.0.0-alpha.3#490272d0a3ad73bb66ddbe51a4b09b28c3ac1f93"
 dependencies = [
  "log",
  "worker",
