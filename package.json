@@ -5,7 +5,7 @@
     "dev": "wrangler dev --env dev --test-scheduled"
   },
   "devDependencies": {
-    "wrangler": "3.109.1"
+    "wrangler": "3.109.2"
   },
   "resolutions": {
     "cookie": ">=0.7.0"
