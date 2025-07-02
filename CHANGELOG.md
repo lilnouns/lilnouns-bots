@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0-alpha.23] - 2025-07-02
+
+### Bug Fixes
+
+- Improve `vote.reason` truncation logic
+
 ## [1.3.0-alpha.22] - 2025-06-28
 
 ### Bug Fixes
