@@ -214,14 +214,28 @@ impl Handler for FarcasterHandler {
       proposal.title
     );
 
-    if !vote.reason.is_none() {
-      let chars_limit = 1024 - 10 - description.len();
-      let mut vote_reason = vote.clone().reason.unwrap_or_default().trim().to_string();
-      if vote_reason.len() > chars_limit {
-        vote_reason.truncate(chars_limit);
-        vote_reason.push_str("...");
-      }
-      description = format!("{}\n\n“{}”", description, vote_reason);
+    if let Some(reason) = &vote.reason {
+      let chars_limit = 1024 - 10 - description.chars().count();
+      let vote_reason = reason.trim();
+
+      let truncated_reason = if vote_reason.chars().count() > chars_limit {
+        let mut truncated = String::new();
+        let mut char_count = 0;
+
+        for ch in vote_reason.chars() {
+          if char_count + ch.len_utf8() + 3 > chars_limit {
+            // +3 for "..."
+            break;
+          }
+          truncated.push(ch);
+          char_count += ch.len_utf8();
+        }
+        format!("{}...", truncated)
+      } else {
+        vote_reason.to_string()
+      };
+
+      description = format!("{}\n\n“{}”", description, truncated_reason);
     }
 
     let request_data = json!({
