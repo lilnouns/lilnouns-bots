@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0-alpha.24] - 2025-09-17
+
+### Features
+
+- Added .junie workflow
+- Added .devcontainer.json
+
 ## [1.3.0-alpha.23] - 2025-07-02
 
 ### Bug Fixes
