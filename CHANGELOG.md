@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0-alpha.25] - 2025-09-29
+
+### Miscellaneous Tasks
+
+- Disable cron triggers in wrangler config
+
 ## [1.3.0-alpha.24] - 2025-09-17
 
 ### Features
