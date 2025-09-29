@@ -13,8 +13,8 @@ usage_model = "unbound"
 command = "cargo install -q -f worker-build && worker-build --release"
 
 # Trigger Settings
-[triggers]
-crons = ["*/5 * * * *", "0 0 * * *"]
+# [triggers]
+# crons = ["*/5 * * * *", "0 0 * * *"]
 
 # Workers Logs
 [observability]
