@@ -1604,7 +1604,7 @@ dependencies = [
  "tracing-subscriber",
  "tracing-web",
  "worker",
- "worker-macros 0.6.7",
+ "worker-macros",
 ]
 
 [[package]]
@@ -3592,24 +3592,8 @@ dependencies = [
  "wasm-bindgen-futures",
  "wasm-streams",
  "web-sys",
- "worker-macros 0.7.0",
- "worker-sys 0.7.0",
-]
-
-[[package]]
-name = "worker-macros"
-version = "0.6.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb37d4f9d99921836a1e4dc21e6041df9b0c2c5fe3c230edddd172a8ef9e251e"
-dependencies = [
- "async-trait",
- "proc-macro2",
- "quote",
- "syn 2.0.108",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "wasm-bindgen-macro-support",
- "worker-sys 0.6.7",
+ "worker-macros",
+ "worker-sys",
 ]
 
 [[package]]
@@ -3625,19 +3609,7 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-bindgen-macro-support",
- "worker-sys 0.7.0",
-]
-
-[[package]]
-name = "worker-sys"
-version = "0.6.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07b4e2ca5d405247a986d533bba78c396c941835747977631168b8b05304f1b6"
-dependencies = [
- "cfg-if",
- "js-sys",
- "wasm-bindgen",
- "web-sys",
+ "worker-sys",
 ]
 
 [[package]]
