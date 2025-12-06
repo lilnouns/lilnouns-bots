@@ -34,7 +34,7 @@ jobs:
 
     steps: # The sequence of tasks that make up a job.
       - name: Checking out repository code
-        uses: actions/checkout@v5.0.0 # Action for checking out a repo.
+        uses: actions/checkout@v6.0.1 # Action for checking out a repo.
 
       # Cache dependencies to speed up builds
       - name: Cache cargo dependencies
@@ -85,7 +85,7 @@ jobs:
     steps:
       # Checkout the repository code
       - name: Checkout code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
         with:
           fetch-depth: 0 # Fetches all history for all branches and tags
 
@@ -120,7 +120,7 @@ jobs:
 
       # Create a new GitHub release using the gathered information
       - name: Create the release
-        uses: nekofar/create-github-release@v1.0.14
+        uses: nekofar/create-github-release@v1.0.15
         with:
           tag: v${{ steps.release.outputs.version }} # The name of the tag to be released
           title: v${{ steps.release.outputs.version }} # The title for the release
