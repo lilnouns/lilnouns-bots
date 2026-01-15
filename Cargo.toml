@@ -25,7 +25,7 @@ default = ["console_error_panic_hook"]
 anyhow = "1.0.100"
 async-trait = "0.1.89"
 cfg-if = "1.0.4"
-chrono = "0.4.42"
+chrono = "0.4.43"
 console_error_panic_hook = { version = "0.1.7", optional = true }
 ethers = { version = "2.0.14", default-features = false }
 getrandom = { version = "0.2.16", features = ["js"] }
